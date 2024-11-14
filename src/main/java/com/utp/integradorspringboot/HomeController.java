@@ -22,7 +22,10 @@ public class HomeController {
     @RequestMapping("/")
     public String page() {
         EmailService.SolicitarEnvio(
-                new Email("u18307571@utp.edu.pe","Mensaje de prueba","Mensaje de prueba"),
+                new Email("jcervanteslivon@gmail.com","Mensaje de prueba","Mensaje de prueba"),
+                emailSender);
+        EmailService.SolicitarEnvio(
+                new Email("u22217197@utp.edu.pe","Mensaje de prueba","Mensaje de prueba"),
                 emailSender);
         return "home";
     }
