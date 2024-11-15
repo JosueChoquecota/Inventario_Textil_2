@@ -16,11 +16,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author jcerv
  */
 @Controller
-public class HomeController {
+public class CorreosController {
     @Autowired
     private JavaMailSender emailSender;
-    @RequestMapping("/")
+    @RequestMapping("/correos")
     public String page() {
-        return "home";
+        EmailService.SolicitarEnvio(
+                new Email("jcervanteslivon@gmail.com","Mensaje de prueba integrador","Mensaje de prueba"),
+                emailSender);
+        EmailService.SolicitarEnvio(
+                new Email("u22217197@utp.edu.pe","Mensaje de prueba integrador","Mensaje de prueba"),
+                emailSender);
+        return "correos";
     }
 }
