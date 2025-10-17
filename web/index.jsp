@@ -1,0 +1,32 @@
+<%-- 
+    Document   : index
+    Created on : 20 ago. 2025, 18:48:38
+    Author     : c19255
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!-- Comportamiento responsivo -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>JSP Page</title>
+        <%@include  file="WEB-INF/jspf/styles.jspf" %>
+    </head>
+    <body>
+        <!-- Header -->
+        <%@include  file="WEB-INF/jspf/header.jspf" %>
+        <%@include  file="WEB-INF/jspf/navbar.jspf" %>
+        <%@include  file="WEB-INF/jspf/carrousel.jspf" %>
+        <section>
+            <div class="container-fluid">
+                <div class="row">
+                    
+                </div>
+            </div>
+        </section>
+        <%@include  file="WEB-INF/jspf/footer.jspf" %>
+        <%@include  file="WEB-INF/jspf/scripts.jspf" %>
+    </body>
+</html>

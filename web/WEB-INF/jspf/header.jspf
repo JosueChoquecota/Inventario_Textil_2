@@ -1,0 +1,8 @@
+<header>
+    <h1>Sistema Innovador</h1>
+    <div class="opciones">
+        <a href="index.jsp" class="btn btn-primary" role="button" aria-disabled="true"><i class="bi bi-houses-fill"></i>&nbsp;Inicio</a>
+        <a href="login.jsp" class="btn btn-primary" role="button" aria-disabled="true"><i class="bi bi-box-arrow-in-right"></i>&nbsp;Login</a>
+        <a href="register.jsp" class="btn btn-primary" role="button" aria-disabled="true"><i class="bi bi-pencil-square"></i>&nbsp;Registro</a>
+    </div>
+</header>
