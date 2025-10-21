@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Registro de Trabajadores</title>
+
+        <!-- Custom fonts for this template-->
+        <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet">
+
+        <!-- Custom styles for this template-->
+        <link href="css/sb-admin-2.min.css" rel="stylesheet">
+        <link href="/css/custom.css" rel="stylesheet">
+        <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+    </head>
+
+    <body id="page-top">
+
+        <!-- Page Wrapper -->
+        <div id="wrapper">
+
+            <!-- Sidebar -->
+            <div th:replace="fragments/sidebar :: sidebar"></div>
+            <!-- End of Sidebar -->
+
+            <!-- Content Wrapper -->
+            <div id="content-wrapper" class="d-flex flex-column">
+
+                <!-- Main Content -->
+                <div id="content">
+
+                    <!-- Topbar -->
+                    <div th:replace="fragments/topbar :: topbar"></div>
+                    <!-- End of Topbar -->
+
+                    <!-- Begin Page Content -->
+                    <div class="container-fluid">
+
+                        <!-- Page Heading -->
+                        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                            <h4 class="m-0 font-weight-bold text-primary">Insertar Trabajador</h4>
+                        </div>
+
+                        <!-- Formulario de Registro -->
+                        <div class="card shadow mb-4">
+                            <div class="card-body">
+                                <form id="form-usuario" th:action="@{/register/ajax}" th:object="${usuarioRequestDTO}" method="post" class="user">
+                                    <div id="error" th:if="${error}" class="alert alert-danger">
+                                        <p th:text="${error}"></p>
+                                    </div>
+                                    <div id="alerta-dni" class="alert alert-danger" style="display:none;"></div>
+                                    <input type="hidden" id="idUsuario" name="idUsuario" th:field="*{idUsuario}">
+                                    <!-- Nombre y DNI -->
+                                    <div class="form-group row">
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+
+                                            <input id="nombre" th:field="*{nombre}" class="personalizados" placeholder="Nombre" required>
+                                        </div>
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <input id="dni" 
+                                                   th:field="*{dni}" 
+                                                   class="personalizados" 
+                                                   placeholder="DNI" 
+                                                   type="text" 
+                                                   required 
+                                                   pattern="\d{8}" 
+                                                   title="Debes ingresar un número de 8 dígitos">
+                                        </div>
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <input id="correo" th:field="*{correo}" type="email" class="personalizados" placeholder="Correo" required>
+                                        </div>
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <input id="contrasena" th:field="*{contrasena}" type="password" class="personalizados" placeholder="Contraseña" required>
+                                        </div>
+                                    </div>
+                                    <!-- Área - Cargo - Rol - Rango -->
+                                    <div class="form-group row">
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <select id="areaId" th:field="*{areaId}" class="personalizados">
+                                                <option value="" disabled th:selected="${usuarioRequestDTO.areaId == null}">
+                                                    Seleccione Área
+                                                </option>
+                                                <option th:each="a : ${areas}" th:value="${a.idArea}" th:text="${a.nombre}">
+                                                </option>
+                                            </select>
+
+                                        </div>   
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <select id="cargoId" th:field="*{cargoId}" class="personalizados" required>
+                                                <option value="" disabled th:text="'Seleccione Cargo'" th:if="${usuarioRequestDTO.cargoId == null}" selected></option>
+                                                <option th:each="c : ${cargos}" th:value="${c.idCargo}" th:text="${c.nombre}" 
+                                                        th:selected="${usuarioRequestDTO.cargoId} == ${c.idCargo}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <select id="rolId" th:field="*{rolId}" class="personalizados" required>
+                                                <option value="" disabled th:text="'Seleccione Rol'" th:if="${usuarioRequestDTO.rolId == null}" selected></option>
+                                                <option th:each="r : ${roles}" th:value="${r.idRol}" th:text="${r.nombre}" 
+                                                        th:selected="${usuarioRequestDTO.rolId} == ${r.idRol}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <select id="rangoId" th:field="*{rangoId}" class="personalizados" required>
+                                                <option value="" disabled th:text="'Seleccione Rango'" th:if="${usuarioRequestDTO.rangoId == null}" selected></option>
+                                                <option th:each="r : ${rangos}" th:value="${r.idRango}" th:text="${r.nombre}" 
+                                                        th:selected="${usuarioRequestDTO.rangoId} == ${r.idRango}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!-- Sede - Fecha Inicio - Tipo de Contratacion - Estado-->
+                                    <div class="form-group row">
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <select id="sedeId" th:field="*{sedeId}" class="personalizados" required>
+                                                <option value="" disabled th:text="'Seleccione Sede'" th:if="${usuarioRequestDTO.sedeId == null}" selected></option>
+                                                <option th:each="r : ${sedes}" th:value="${r.idSede}" th:text="${r.nombre}" 
+                                                        th:selected="${usuarioRequestDTO.sedeId} == ${r.idSede}"></option>
+                                            </select>
+
+                                        </div>   
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <input id="fechaInicio" th:field="*{fechaInicio}" type="date" class="personalizados" placeholder="Fecha de Inicio" required>
+                                        </div>
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <select id="tipoContratacionId" th:field="*{tipoContratacionId}" class="personalizados" required>
+                                                <option value="" disabled th:text="'Seleccione Tipo de Contratacion'" th:if="${usuarioRequestDTO.tipoContratacionId == null}" selected></option>
+                                                <option th:each="r : ${tipoContrataciones}" th:value="${r.idTipoContratacion}" th:text="${r.nombre}" 
+                                                        th:selected="${usuarioRequestDTO.tipoContratacionId} == ${r.idTipoContratacion}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-3 mb-3 mb-sm-0">
+                                            <select id="estadoId" th:field="*{estadoId}" class="personalizados" required>
+                                                <option value="" disabled th:text="'Seleccione Estado'" th:if="${usuarioRequestDTO.estadoId == null}" selected></option>
+                                                <option th:each="r : ${estados}" th:value="${r.idEstado}" th:text="${r.nombre}" 
+                                                        th:selected="${usuarioRequestDTO.estadoId} == ${r.idEstado}"></option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+
+
+
+
+
+                                    <!-- Botón Guardar -->
+                                    <button type="submit" class="btn btn-primary btn-user btn-block">
+                                        Guardar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Barra de búsqueda -->
+                        <div class="card shadow mb-4">
+                            <div class="card-body">
+                                <form id="form-busqueda" class="form-inline">
+                                    <div class="form-group mb-2">
+                                        <input type="text" class="form-control" id="busquedaTrabajador" placeholder="Buscar trabajador...">
+                                    </div>
+                                    <button type="button" class="btn btn-primary mb-2 ml-2" id="btn-buscar">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de Trabajadores -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h4 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-user-tie mr-2"></i>Lista de Trabajadores</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre</th>
+                                                <th>DNI</th>
+                                                <th>Correo</th>
+                                                <th>Área</th>
+                                                <th>Cargo</th>
+                                                <th>Estado</th>
+                                                <th>Rol</th>
+                                                <th>Rango</th>
+                                                <th>Sede</th>
+                                                <th>Fecha Inicio</th>
+                                                <th>Tipo Contratación</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                          
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- /.container-fluid -->
+
+                </div>
+                <!-- End of Main Content -->
+
+                <!-- Footer -->
+                <div th:replace="fragments/footer :: footer"></div>
+                <!-- End of Footer -->
+
+            </div>
+            <!-- End of Content Wrapper -->
+
+        </div>
+        <!-- End of Page Wrapper -->
+
+        <!-- Bootstrap core JavaScript-->
+        <script src="vendor/jquery/jquery.min.js"></script>
+        <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Core plugin JavaScript-->
+        <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+        <!-- Custom scripts for all pages-->
+        <script src="js/sb-admin-2.min.js"></script>
+
+        <script src="js/register.js"></script>
+        <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+        <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+        <script src="js/demo/datatables-demo.js"></script>
+
+    </body>
+</html>

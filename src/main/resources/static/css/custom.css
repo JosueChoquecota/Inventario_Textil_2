@@ -1,0 +1,36 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 1 oct. 2025, 12:58:22
+    Author     : Diseño
+*/
+
+/* custom.css */
+.personalizados {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + 0.75rem + 2px); /* similar a form-control */
+    padding: .375rem .75rem;
+    font-size: .8rem;
+    border-radius: 10rem;
+    background-color: #fff;
+    border: 1px solid #d1d3e2;
+    color: #6e707e;
+}
+
+/* Cursor de puntero al pasar sobre las filas de la tabla */
+#dataTable tbody tr {
+    cursor: pointer;
+}
+
+/* Color de fondo al pasar el mouse */
+#dataTable tbody tr:hover {
+    background-color: #f2f2f2;
+}
+
+/* Color de fila seleccionada */
+#dataTable tbody tr.selected {
+    background-color: #cce5ff !important; /* azul claro */
+}
