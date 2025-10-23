@@ -4,79 +4,57 @@
  */
 package com.utp.integradorspringboot.api;
 
+import com.utp.integradorspringboot.dtos.TrabajadorRequestDTO;
+import com.utp.integradorspringboot.dtos.TrabajadorResponseDTO;
+import com.utp.integradorspringboot.mappers.TrabajadorMapper;
 import com.utp.integradorspringboot.models.Trabajador;
 import com.utp.integradorspringboot.services.TrabajadorService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 
-@RestController
-@RequestMapping("/api/trabajadores")
+@RestController // Indica que es un controlador REST
+@RequestMapping("/api/v1/trabajadores") // URL Base para la API de Trabajadores
+@RequiredArgsConstructor // Inyección por constructor (reemplaza @Autowired)
 public class TrabajadorApiController {
 
     private final TrabajadorService trabajadorService;
+    // Inyecta el mapper (si lo anotaste con @Mapper(componentModel = "spring"))
+    // private final TrabajadorMapper trabajadorMapper; 
+    // O usa la instancia estática si no lo hiciste un bean de Spring
+    private final TrabajadorMapper trabajadorMapper = TrabajadorMapper.INSTANCE;
 
-    @Autowired
-    public TrabajadorApiController(TrabajadorService trabajadorService) {
-        this.trabajadorService = trabajadorService;
-    }
-
-    // Registrar trabajador
-    @PostMapping("/registrar")
+    // --- Endpoint para REGISTRAR (Crear) un trabajador ---
+    @PostMapping("/registrar") // Cambiado a /registrar para diferenciarlo de un posible PUT
     public ResponseEntity<?> registrarTrabajador(
-            @RequestParam String nombres,
-            @RequestParam String apellidos,
-            @RequestParam String correo,
-            @RequestParam String contrasena,
-            @RequestParam String telefono,
-            @RequestParam Integer nDocumento,
-            @RequestParam Integer tipoDocumentoId,
-            @RequestParam Integer rolId
+            @Valid @RequestBody TrabajadorRequestDTO requestDto // 1. Recibe y Valida el DTO
     ) {
         try {
-            // Crear la entidad Trabajador con los datos del request
-            Trabajador trabajador = new Trabajador();
-            trabajador.setNombres(nombres);
-            trabajador.setApellidos(apellidos);
-            trabajador.setCorreo(correo);
-            trabajador.setContrasena(contrasena);
-            trabajador.setTelefono(telefono);
-            trabajador.setnDocumento(nDocumento);
+            // 2. Mapea DTO -> Entidad Parcial
+            Trabajador trabajadorParcial = trabajadorMapper.requestDtoToEntity(requestDto);
 
-            // Llamar al service
-            Trabajador nuevoTrabajador = trabajadorService.registrarTrabajador(trabajador, tipoDocumentoId, rolId);
+            // 3. Llama al Servicio (pasa entidad parcial y IDs)
+            Trabajador trabajadorGuardado = trabajadorService.registrarTrabajador(
+                    trabajadorParcial,
+                    requestDto.getIdTipoDoc(),
+                    requestDto.getIdRol()
+            );
 
-            return ResponseEntity.ok(nuevoTrabajador);
+            // 4. Mapea Entidad -> ResponseDTO
+            TrabajadorResponseDTO responseDto = trabajadorMapper.entityToResponseDto(trabajadorGuardado);
 
-        } catch (IllegalArgumentException e) {
-            // Errores de validación
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            // Otros errores (correo duplicado, rol/tipoDocumento no encontrado, etc.)
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            // 5. Devuelve Éxito (201 Created)
+            return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+
+        } catch (IllegalArgumentException e) { 
+            // Captura errores específicos del servicio (ej. Rol no encontrado, correo duplicado)
+            return ResponseEntity.badRequest().body(e.getMessage()); // Devuelve 400 Bad Request
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
+            // Captura errores inesperados
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno al registrar trabajador.");
         }
     }
-    @PostMapping("/login")
-public ResponseEntity<?> login(
-        @RequestParam String correo,
-        @RequestParam String contrasena
-) {
-    try {
-        Trabajador trabajador = trabajadorService.login(correo, contrasena);
-
-        // Retornar solo datos seguros (sin contraseña)
-        trabajador.setContrasena(null);
-
-        return ResponseEntity.ok(trabajador);
-
-    } catch (RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor");
-    }
-}
 }
