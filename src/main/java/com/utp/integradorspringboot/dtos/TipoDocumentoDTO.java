@@ -12,7 +12,6 @@ public class TipoDocumentoDTO {
     private Integer idTipoDoc;
     private String tipo;
 
-    // Constructor vacío
     public TipoDocumentoDTO() {
     }
 
@@ -22,7 +21,6 @@ public class TipoDocumentoDTO {
         this.tipo = tipo;
     }
 
-    // Getters y Setters
     public Integer getIdTipoDoc() {
         return idTipoDoc;
     }
