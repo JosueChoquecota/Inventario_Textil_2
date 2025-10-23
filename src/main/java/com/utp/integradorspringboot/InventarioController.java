@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 public class InventarioController {
-    @Autowired
     @RequestMapping("/inventario")
     public String page() {
         return "inventario";

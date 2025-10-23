@@ -16,12 +16,8 @@ public interface RolMapper {
 
     RolMapper INSTANCE = Mappers.getMapper(RolMapper.class);
 
-    // Convierte Entidad (models.Rol) -> DTO (dtos.RolDTO)
     RolDTO entityToDto(Rol rol);
-
-    // Convierte DTO (dtos.RolDTO) -> Entidad (models.Rol)
     Rol dtoToEntity(RolDTO rolDTO);
     
-    // Para listas
     List<RolDTO> entityListToDtoList(List<Rol> roles);
 }

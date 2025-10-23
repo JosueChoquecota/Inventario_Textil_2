@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 public class ComprasController {
-    @Autowired
     @RequestMapping("/compras")
     public String page() {
         return "compras";

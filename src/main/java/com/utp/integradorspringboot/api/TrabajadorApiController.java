@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 
 @RestController // Indica que es un controlador REST
 @RequestMapping("/api/v1/trabajadores") // URL Base para la API de Trabajadores
-@RequiredArgsConstructor // Inyección por constructor (reemplaza @Autowired)
 public class TrabajadorApiController {
 
     private final TrabajadorService trabajadorService;
@@ -26,7 +25,11 @@ public class TrabajadorApiController {
     // private final TrabajadorMapper trabajadorMapper; 
     // O usa la instancia estática si no lo hiciste un bean de Spring
     private final TrabajadorMapper trabajadorMapper = TrabajadorMapper.INSTANCE;
-
+    @Autowired // Opcional si solo hay un constructor
+        public TrabajadorApiController(TrabajadorService trabajadorService) {
+            this.trabajadorService = trabajadorService;
+            // No necesitas inyectar el Mapper si usas INSTANCE
+        }
     // --- Endpoint para REGISTRAR (Crear) un trabajador ---
     @PostMapping("/registrar") // Cambiado a /registrar para diferenciarlo de un posible PUT
     public ResponseEntity<?> registrarTrabajador(

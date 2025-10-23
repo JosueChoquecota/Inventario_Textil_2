@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 public class ProveedoresController {
-     @Autowired
     @RequestMapping("/proveedores")
     public String page() {
         return "proveedores";

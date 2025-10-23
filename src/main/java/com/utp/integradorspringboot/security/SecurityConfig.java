@@ -4,7 +4,8 @@
  */
 package com.utp.integradorspringboot.security;
 
-import com.utp.integradorspringboot.services.TrabajadorUserDetailsService;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,51 +17,63 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import com.utp.integradorspringboot.services.TrabajadorUserDetailsService;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity // Add this annotation for Spring Security configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
-    private TrabajadorUserDetailsService userDetailesService;
+    // Injected via constructor
     
+    private final TrabajadorUserDetailsService userDetailesService;
+
+    public SecurityConfig(TrabajadorUserDetailsService userDetailesService) {
+        this.userDetailesService = userDetailesService;
+    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
+    // REMOVED the outdated authManager Bean
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/css/**", "/js/**","/vendor/**").permitAll()
+                .requestMatchers(
+                    HttpMethod.POST, "/api/v1/trabajadores/registrar" 
+                ).permitAll()
+                .requestMatchers( // Other public paths
+                    "/login",
+                    "/register", // If you have a separate registration page/controller
+                    "/css/**",
+                    "/js/**",
+                    "/vendor/**", // **Allow access to vendor files (icons!)**
+                    "/img/**"  // Allow access to images if needed
+                ).permitAll()
+                // Role/Authority restricted paths
                 .requestMatchers("/inventario/**")
-                .hasAnyRole("Administrador", "Trabajador")
+                    .hasAnyAuthority("ROLE_Administrador", "ROLE_Trabajador")
+                // All other requests must be authenticated
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/dashboard", true)
-                .failureUrl("/login?error")
-                .permitAll()
+                .defaultSuccessUrl("/dashboard", true) 
+                .failureUrl("/login?error=true")
+                .permitAll() 
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
-                .permitAll()
+                .logoutSuccessUrl("/login?logout=true") 
+                .invalidateHttpSession(true) 
+                .deleteCookies("JSESSIONID") 
+                .permitAll() 
             );
 
         return http.build();
     }
-
-    @Bean
-      public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                   .userDetailsService(userDetailesService)
-                   .passwordEncoder(passwordEncoder())
-                   .and()
-                   .build();
-    }
-    
 }

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class DashboardController {
-    @Autowired
     @RequestMapping("/dashboard")
     public String page() {
         return "dashboard";
