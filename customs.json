@@ -1,0 +1,14 @@
+{
+    "elements": {
+        "div": {}
+    },
+    "attributes": {
+        "th:action": {},
+        "th:src": {
+            "context": "script"
+        },
+        "th:fragment": {
+            "context": "ul"
+        }
+    }
+}

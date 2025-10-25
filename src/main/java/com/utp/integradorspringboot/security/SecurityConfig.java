@@ -20,11 +20,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import com.utp.integradorspringboot.services.TrabajadorUserDetailsService;
 
 @Configuration
-@EnableWebSecurity // Add this annotation for Spring Security configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // Injected via constructor
     
     private final TrabajadorUserDetailsService userDetailesService;
 
@@ -36,29 +35,30 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // REMOVED the outdated authManager Bean
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    HttpMethod.POST, "/api/v1/trabajadores/registrar" 
-                ).permitAll()
-                .requestMatchers( // Other public paths
-                    "/login",
-                    "/register", // If you have a separate registration page/controller
-                    "/css/**",
-                    "/js/**",
-                    "/vendor/**", // **Allow access to vendor files (icons!)**
-                    "/img/**"  // Allow access to images if needed
-                ).permitAll()
-                // Role/Authority restricted paths
-                .requestMatchers("/inventario/**")
-                    .hasAnyAuthority("ROLE_Administrador", "ROLE_Trabajador")
-                // All other requests must be authenticated
-                .anyRequest().authenticated()
+                 // Permitir recursos estáticos sin autenticación
+                    .requestMatchers(
+                        "/vendor/**",
+                        "/css/**",
+                        "/js/**",
+                        "/img/**",
+                        "/webjars/**"
+                    ).permitAll()
+
+                    //Permitir login y registro
+                    .requestMatchers("/api/v1/**").permitAll()
+
+                    .requestMatchers(
+                        "/login",
+                        "/register"
+                    ).permitAll()
+
+                    //Proteger todo lo demás
+                    .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")

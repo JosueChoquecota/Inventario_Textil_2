@@ -12,17 +12,14 @@ public class RolDTO {
     private Integer idRol;
     private String nombreRol;
 
-    // Constructor vacío (necesario para frameworks como Jackson)
     public RolDTO() {
     }
 
-    // Constructor con argumentos (opcional, pero útil)
     public RolDTO(Integer idRol, String nombreRol) {
         this.idRol = idRol;
         this.nombreRol = nombreRol;
     }
 
-    // Getters y Setters
     public Integer getIdRol() {
         return idRol;
     }

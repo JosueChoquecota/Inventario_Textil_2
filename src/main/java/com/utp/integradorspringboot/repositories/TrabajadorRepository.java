@@ -15,11 +15,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface TrabajadorRepository  extends JpaRepository<Trabajador, Integer> {
-    
-    // Buscar trabajador por correo (para login)
     Optional<Trabajador> findByCorreo(String correo);
-
-    // Verificar si un correo ya existe (para validación en registro)
     boolean existsByCorreo(String correo);
 }
 

@@ -5,6 +5,8 @@
 package com.utp.integradorspringboot.services;
 
 
+import com.utp.integradorspringboot.dtos.TrabajadorResponseDTO;
+import com.utp.integradorspringboot.mappers.TrabajadorMapper;
 import com.utp.integradorspringboot.models.Rol;
 import com.utp.integradorspringboot.models.TipoDocumento;
 import com.utp.integradorspringboot.models.Trabajador;
@@ -15,7 +17,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -33,12 +34,11 @@ public class TrabajadorService {
     @Autowired
     private TipoDocumentoRepository tipoDocumentoRepository;
 
+    private final TrabajadorMapper mapper = TrabajadorMapper.INSTANCE;
     
-     // ✅ Registrar un nuevo trabajador
     @Transactional
     public Trabajador registrarTrabajador(Trabajador trabajador, Integer tipoDocumentoId, Integer rolId) {
 
-       // Validaciones básicas
        if (trabajador.getContrasena() == null || trabajador.getContrasena().isEmpty()) {
            throw new IllegalArgumentException("La contraseña no puede estar vacía");
        }
@@ -51,19 +51,13 @@ public class TrabajadorService {
            throw new RuntimeException("El correo ya está registrado");
        }
 
-       // Encriptar la contraseña
        trabajador.setContrasena(passwordEncoder.encode(trabajador.getContrasena()));
-
-       // Asignar estado y fecha
        trabajador.setEstado(true);
        trabajador.setFechaCreacion(LocalDateTime.now());
-
-       // Asignar rol
        Rol rol = rolRepository.findById(rolId)
                .orElseThrow(() -> new RuntimeException("No existe el rol"));
        trabajador.setRol(rol);
 
-       // Asignar tipo de documento
        TipoDocumento tipoDocumento = tipoDocumentoRepository.findById(tipoDocumentoId)
                .orElseThrow(() -> new RuntimeException("No existe el tipo de documento"));
        trabajador.setTipoDocumento(tipoDocumento);
@@ -88,22 +82,17 @@ public class TrabajadorService {
     }
 
 
-    // ✅ Listar todos los trabajadores
     public List<Trabajador> listarTrabajadores() {
         return trabajadorRepository.findAll();
     }
-
-    // ✅ Buscar trabajador por ID
     public Optional<Trabajador> buscarPorId(Integer id) {
         return trabajadorRepository.findById(id);
     }
-
-    // ✅ Buscar trabajador por correo (para login)
-    public Optional<Trabajador> buscarPorCorreo(String correo) {
-        return trabajadorRepository.findByCorreo(correo);
+    public TrabajadorResponseDTO buscarPorCorreo(String correo) {
+        Trabajador trabajador = trabajadorRepository.findByCorreo(correo)
+            .orElseThrow(() -> new RuntimeException("No se encontró el trabajador"));
+        return mapper.entityToResponseDto(trabajador);
     }
-
-    // ✅ Actualizar datos de trabajador (sin afectar la contraseña)
     public Trabajador actualizarTrabajador(Integer id, Trabajador nuevosDatos) {
         return trabajadorRepository.findById(id).map(t -> {
             t.setNombres(nuevosDatos.getNombres());
@@ -115,8 +104,6 @@ public class TrabajadorService {
             return trabajadorRepository.save(t);
         }).orElseThrow(() -> new RuntimeException("Trabajador no encontrado"));
     }
-
-    // ✅ Eliminar trabajador por ID
     public void eliminarTrabajador(Integer id) {
         if (!trabajadorRepository.existsById(id)) {
             throw new RuntimeException("El trabajador no existe");

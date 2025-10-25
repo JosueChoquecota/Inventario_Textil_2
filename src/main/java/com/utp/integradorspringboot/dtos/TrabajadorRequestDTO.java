@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Size;
 
 public class TrabajadorRequestDTO {
     
-  // 1. Private Fields
     @NotNull(message = "El ID de tipo de documento es requerido")
     private Integer idTipoDoc;
 
@@ -31,20 +30,15 @@ public class TrabajadorRequestDTO {
     private String correo;
     @NotBlank(message = "La contrasena es requerido")
     private String contrasena;
-    // ... (otros campos privados) ...
-
     @NotNull(message = "El ID de rol es requerido")
     private Integer idRol;
 
-    // 3. Public No-Argument Constructor
     public TrabajadorRequestDTO() {
     }
 
-    // (Opcional: puedes tener otros constructores si los necesitas)
-    public TrabajadorRequestDTO(Integer idTipoDoc, Integer nDocumento, /*... otros ...*/ Integer idRol) {
+    public TrabajadorRequestDTO(Integer idTipoDoc, Integer nDocumento, Integer idRol) {
        this.idTipoDoc = idTipoDoc;
        this.nDocumento = nDocumento;
-       // ... asignar otros ...
        this.idRol = idRol;
     }  
 

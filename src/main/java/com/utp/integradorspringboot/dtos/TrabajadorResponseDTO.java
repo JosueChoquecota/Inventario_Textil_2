@@ -6,10 +6,6 @@ package com.utp.integradorspringboot.dtos;
 
 import java.time.LocalDateTime;
 
-/**
- *
- * @author User
- */
 public class TrabajadorResponseDTO {
     private Integer id_trabajador;
     private Integer nDocumento;
@@ -19,12 +15,9 @@ public class TrabajadorResponseDTO {
     private String correo;
     private Boolean estado;
     private LocalDateTime fechaCreacion;
-
-    // --- Campos de Objetos Relacionados (usando DTOs) ---
     private TipoDocumentoDTO tipoDocumento;
     private RolDTO rol;
 
-    // --- Constructor Vacío ---
     public TrabajadorResponseDTO() {
     }
 

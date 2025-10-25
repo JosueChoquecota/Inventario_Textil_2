@@ -18,28 +18,21 @@ public class TrabajadorController {
     @Autowired
     private TrabajadorService trabajadorService;
 
-    // 📋 Listar todos los trabajadores (para vistas HTML)
     @GetMapping
     public String listarTrabajadores(Model model) {
         model.addAttribute("trabajadores", trabajadorService.listarTrabajadores());
-        return "trabajadores/lista"; // Vista Thymeleaf
+        return "trabajadores/lista";
     }
-
-    // 🆕 Mostrar formulario de nuevo trabajador
     @GetMapping("/nuevo")
     public String mostrarFormulario(Model model) {
         model.addAttribute("trabajador", new Trabajador());
-        return "trabajadores/formulario"; // Vista Thymeleaf
+        return "trabajadores/formulario"; 
     }
-
-    // 💾 Guardar un nuevo trabajador desde formulario HTML
     @PostMapping("/guardar")
     public String guardarTrabajador(@ModelAttribute Trabajador trabajador, Integer tipoDocumentoId, Integer rolId) {
         trabajadorService.registrarTrabajador(trabajador, tipoDocumentoId, rolId);
         return "redirect:/trabajadores";
     }
-
-    // ✏️ Editar trabajador
     @GetMapping("/editar/{id}")
     public String editarTrabajador(@PathVariable Integer id, Model model) {
         var trabajadorOpt = trabajadorService.buscarPorId(id);
@@ -50,8 +43,6 @@ public class TrabajadorController {
             return "redirect:/trabajadores";
         }
     }
-
-    // 🗑️ Eliminar trabajador
     @GetMapping("/eliminar/{id}")
     public String eliminarTrabajador(@PathVariable Integer id) {
         trabajadorService.eliminarTrabajador(id);

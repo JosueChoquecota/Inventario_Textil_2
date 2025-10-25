@@ -16,12 +16,9 @@ public interface TipoDocumentoMapper {
 
     TipoDocumentoMapper INSTANCE = Mappers.getMapper(TipoDocumentoMapper.class);
 
-    // Convierte Entidad -> DTO
     TipoDocumentoDTO entityToDto(TipoDocumento tipoDocumento);
 
-    // Convierte DTO -> Entidad
     TipoDocumento dtoToEntity(TipoDocumentoDTO tipoDocumentoDTO);
 
-    // Para listas
     List<TipoDocumentoDTO> entityListToDtoList(List<TipoDocumento> tipoDocumentos);
 }

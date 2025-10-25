@@ -15,7 +15,6 @@ public class TipoDocumentoDTO {
     public TipoDocumentoDTO() {
     }
 
-    // Constructor con argumentos
     public TipoDocumentoDTO(Integer idTipoDoc, String tipo) {
         this.idTipoDoc = idTipoDoc;
         this.tipo = tipo;

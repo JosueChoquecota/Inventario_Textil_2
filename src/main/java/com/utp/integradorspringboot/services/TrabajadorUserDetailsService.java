@@ -22,7 +22,7 @@ public class TrabajadorUserDetailsService implements UserDetailsService {
 
     private final TrabajadorRepository trabajadorRepository;
 
-    @Autowired // Opcional si solo hay un constructor
+    @Autowired
     public TrabajadorUserDetailsService(TrabajadorRepository trabajadorRepository) {
         this.trabajadorRepository = trabajadorRepository;
     }
