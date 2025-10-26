@@ -11,8 +11,8 @@ public class Compra {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_compra")
     private Integer idComprar;
-    @ManyToOne(fetch = FetchType.LAZY)
     
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_proveedor", nullable = false)
     private Integer idProveedor;
     
@@ -22,7 +22,7 @@ public class Compra {
     @Column(name = "precio_total", nullable = false)
     private float precioTotal;
     
-    
+    @ManyToOne(fetch = FetchType.LAZY)
     @Column(name = "id_trabajador", nullable = false) 
     private Trabajador idTrabajador;
 
