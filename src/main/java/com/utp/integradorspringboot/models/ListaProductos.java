@@ -14,9 +14,9 @@ public class ListaProductos {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
     private Integer idProducto;
-    @Column(name = "id_talla", nullable = false) 
+    @JoinColumn(name = "id_talla", nullable = false) 
     private Integer idTalla; 
-    @Column(name = "id_color", nullable = false) 
+    @JoinColumn(name = "id_color", nullable = false) 
     private Integer idColor; 
     @Column(name = "cantidad", nullable = false) 
     private Number CantidadProd; 

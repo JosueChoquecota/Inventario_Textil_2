@@ -23,7 +23,7 @@ public class Compra {
     private float precioTotal;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "id_trabajador", nullable = false) 
+    @JoinColumn(name = "id_trabajador", nullable = false) 
     private Trabajador idTrabajador;
 
     public Compra() {
