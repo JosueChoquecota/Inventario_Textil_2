@@ -9,5 +9,5 @@ public interface DetalleCompraRepository extends JpaRepository<DetalleCompra,Int
     List<DetalleCompra> findByIdCompra_IdCompra(Integer idCompra);
     
     List<DetalleCompra> findByIdListaProducto_IdListaProducto(Integer idListaProducto);
-    
+     
 }

@@ -8,4 +8,4 @@ public interface TallaRepository extends JpaRepository<Talla,Integer>{
     
     Optional<Talla> findByTallaProd(String tallaProd);
     boolean existsByTallaProd(String tallaProd);
-}
+} 

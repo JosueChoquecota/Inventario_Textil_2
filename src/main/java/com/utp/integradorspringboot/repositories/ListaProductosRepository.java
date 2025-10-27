@@ -8,4 +8,4 @@ public interface ListaProductosRepository extends JpaRepository<ListaProductos,I
     //List<ListaProductos> findByIdProducto(Integer idProducto); REVISAR AUN
     List<ListaProductos> findByIdTalla_IdTalla(Integer idTalla);
     List<ListaProductos> findByIdColor_IdColor(Integer idColor);
-}
+} 

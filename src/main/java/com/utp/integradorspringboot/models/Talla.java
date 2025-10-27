@@ -2,7 +2,7 @@ package com.utp.integradorspringboot.models;
 
 import jakarta.persistence.*;
 
-@Entity
+@Entity 
 @Table(name = "tallas") 
 
 public class Talla {

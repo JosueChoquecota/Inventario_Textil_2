@@ -1,7 +1,7 @@
 package com.utp.integradorspringboot.models;
 
 import jakarta.persistence.*;
-
+ 
 @Entity
 @Table(name = "lista_productos") 
 
