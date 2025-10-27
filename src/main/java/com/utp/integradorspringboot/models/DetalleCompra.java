@@ -13,11 +13,11 @@ public class DetalleCompra {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_compra", nullable = false)
-    private Compra idCompra;
+    private Compra compra;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_lista_producto", nullable = false)
-    private ListaProductos idListaProducto;
+    private ListaProductos listaProductos;
     
     @Column(name = "precio_unitario", nullable = false)
     private float PrecioUnitario;
@@ -26,15 +26,15 @@ public class DetalleCompra {
     private float subTotal;
     
     @Column(name = "cantidad", nullable = false) 
-    private Number CantidadCompra; 
+    private int CantidadCompra; 
 
     public DetalleCompra() {
     }
 
-    public DetalleCompra(Integer idDetalleCompra, Compra idCompra, ListaProductos idListaProducto, float PrecioUnitario, float subTotal, Number CantidadCompra) {
+    public DetalleCompra(Integer idDetalleCompra, Compra compra, ListaProductos listaProductos, float PrecioUnitario, float subTotal, int CantidadCompra) {
         this.idDetalleCompra = idDetalleCompra;
-        this.idCompra = idCompra;
-        this.idListaProducto = idListaProducto;
+        this.compra = compra;
+        this.listaProductos = listaProductos;
         this.PrecioUnitario = PrecioUnitario;
         this.subTotal = subTotal;
         this.CantidadCompra = CantidadCompra;
@@ -48,20 +48,20 @@ public class DetalleCompra {
         this.idDetalleCompra = idDetalleCompra;
     }
 
-    public Compra getIdCompra() {
-        return idCompra;
+    public Compra getCompra() {
+        return compra;
     }
 
-    public void setIdCompra(Compra idCompra) {
-        this.idCompra = idCompra;
+    public void setCompra(Compra compra) {
+        this.compra = compra;
     }
 
-    public ListaProductos getIdListaProducto() {
-        return idListaProducto;
+    public ListaProductos getListaProductos() {
+        return listaProductos;
     }
 
-    public void setIdListaProducto(ListaProductos idListaProducto) {
-        this.idListaProducto = idListaProducto;
+    public void setListaProductos(ListaProductos listaProductos) {
+        this.listaProductos = listaProductos;
     }
 
     public float getPrecioUnitario() {
@@ -80,12 +80,13 @@ public class DetalleCompra {
         this.subTotal = subTotal;
     }
 
-    public Number getCantidadCompra() {
+    public int getCantidadCompra() {
         return CantidadCompra;
     }
 
-    public void setCantidadCompra(Number CantidadCompra) {
+    public void setCantidadCompra(int CantidadCompra) {
         this.CantidadCompra = CantidadCompra;
     }
+
     
 }

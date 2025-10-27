@@ -11,14 +11,14 @@ public class Color {
     @Column(name = "id_color")
     private Integer idColor;
     @Column(name = "color", length = 100)
-    private String Color;
+    private String color;
 
     public Color() {
     }
 
-    public Color(Integer idColor, String Color) {
+    public Color(Integer idColor, String color) {
         this.idColor = idColor;
-        this.Color = Color;
+        this.color = color;
     }
 
     public Integer getIdColor() {
@@ -30,10 +30,12 @@ public class Color {
     }
 
     public String getColor() {
-        return Color;
+        return color;
     }
 
-    public void setColor(String Color) {
-        this.Color = Color;
-    } 
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    
 }

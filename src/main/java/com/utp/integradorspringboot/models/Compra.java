@@ -14,7 +14,7 @@ public class Compra {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_proveedor", nullable = false)
-    private Proveedor idProveedor;
+    private Proveedor Proveedor;
     
     @Column(name = "fecha")
     private LocalDate  fecha;
@@ -24,17 +24,17 @@ public class Compra {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_trabajador", nullable = false) 
-    private Trabajador idTrabajador;
+    private Trabajador trabajador;
 
     public Compra() {
     }
 
-    public Compra(Integer idCompra, Proveedor idProveedor, LocalDate fecha, float precioTotal, Trabajador idTrabajador) {
+    public Compra(Integer idCompra, Proveedor Proveedor, LocalDate fecha, float precioTotal, Trabajador trabajador) {
         this.idCompra = idCompra;
-        this.idProveedor = idProveedor;
+        this.Proveedor = Proveedor;
         this.fecha = fecha;
         this.precioTotal = precioTotal;
-        this.idTrabajador = idTrabajador;
+        this.trabajador = trabajador;
     }
 
     public Integer getIdCompra() {
@@ -45,12 +45,12 @@ public class Compra {
         this.idCompra = idCompra;
     }
 
-    public Proveedor getIdProveedor() {
-        return idProveedor;
+    public Proveedor getProveedor() {
+        return Proveedor;
     }
 
-    public void setIdProveedor(Proveedor idProveedor) {
-        this.idProveedor = idProveedor;
+    public void setProveedor(Proveedor Proveedor) {
+        this.Proveedor = Proveedor;
     }
 
     public LocalDate getFecha() {
@@ -69,12 +69,14 @@ public class Compra {
         this.precioTotal = precioTotal;
     }
 
-    public Trabajador getIdTrabajador() {
-        return idTrabajador;
+    public Trabajador getTrabajador() {
+        return trabajador;
     }
 
-    public void setIdTrabajador(Trabajador idTrabajador) {
-        this.idTrabajador = idTrabajador;
+    public void setTrabajador(Trabajador trabajador) {
+        this.trabajador = trabajador;
     }
+
+    
 
 }

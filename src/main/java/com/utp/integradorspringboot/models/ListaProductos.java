@@ -14,18 +14,18 @@ public class ListaProductos {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
-    private Integer idProducto;
+    private Producto producto;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_talla", nullable = false) 
-    private Talla idTalla; 
+    private Talla talls; 
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_color", nullable = false) 
-    private Color idColor; 
+    private Color color; 
     
     @Column(name = "cantidad", nullable = false) 
-    private Number CantidadProd; 
+    private int CantidadProd; 
     
     @Column(name = "precio_unitario", nullable = false)
     private float PrecioUnitario;
@@ -33,11 +33,11 @@ public class ListaProductos {
     public ListaProductos() {
     }
 
-    public ListaProductos(Integer idListaProducto, Integer idProducto, Talla idTalla, Color idColor, Number CantidadProd, float PrecioUnitario) {
+    public ListaProductos(Integer idListaProducto, Producto producto, Talla talls, Color color, int CantidadProd, float PrecioUnitario) {
         this.idListaProducto = idListaProducto;
-        this.idProducto = idProducto;
-        this.idTalla = idTalla;
-        this.idColor = idColor;
+        this.producto = producto;
+        this.talls = talls;
+        this.color = color;
         this.CantidadProd = CantidadProd;
         this.PrecioUnitario = PrecioUnitario;
     }
@@ -50,35 +50,35 @@ public class ListaProductos {
         this.idListaProducto = idListaProducto;
     }
 
-    public Integer getIdProducto() {
-        return idProducto;
+    public Producto getProducto() {
+        return producto;
     }
 
-    public void setIdProducto(Integer idProducto) {
-        this.idProducto = idProducto;
+    public void setProducto(Producto producto) {
+        this.producto = producto;
     }
 
-    public Talla getIdTalla() {
-        return idTalla;
+    public Talla getTalls() {
+        return talls;
     }
 
-    public void setIdTalla(Talla idTalla) {
-        this.idTalla = idTalla;
+    public void setTalls(Talla talls) {
+        this.talls = talls;
     }
 
-    public Color getIdColor() {
-        return idColor;
+    public Color getColor() {
+        return color;
     }
 
-    public void setIdColor(Color idColor) {
-        this.idColor = idColor;
+    public void setColor(Color color) {
+        this.color = color;
     }
 
-    public Number getCantidadProd() {
+    public int getCantidadProd() {
         return CantidadProd;
     }
 
-    public void setCantidadProd(Number CantidadProd) {
+    public void setCantidadProd(int CantidadProd) {
         this.CantidadProd = CantidadProd;
     }
 
@@ -89,5 +89,7 @@ public class ListaProductos {
     public void setPrecioUnitario(float PrecioUnitario) {
         this.PrecioUnitario = PrecioUnitario;
     }
+
+    
 
 }
