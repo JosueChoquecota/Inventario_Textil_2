@@ -11,22 +11,29 @@ public class ListaProductos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_lista_producto")
     private Integer idListaProducto;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
     private Integer idProducto;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_talla", nullable = false) 
-    private Integer idTalla; 
+    private Talla idTalla; 
+    
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_color", nullable = false) 
-    private Integer idColor; 
+    private Color idColor; 
+    
     @Column(name = "cantidad", nullable = false) 
     private Number CantidadProd; 
+    
     @Column(name = "precio_unitario", nullable = false)
     private float PrecioUnitario;
 
     public ListaProductos() {
     }
 
-    public ListaProductos(Integer idListaProducto, Integer idProducto, Integer idTalla, Integer idColor, Number CantidadProd, float PrecioUnitario) {
+    public ListaProductos(Integer idListaProducto, Integer idProducto, Talla idTalla, Color idColor, Number CantidadProd, float PrecioUnitario) {
         this.idListaProducto = idListaProducto;
         this.idProducto = idProducto;
         this.idTalla = idTalla;
@@ -51,19 +58,19 @@ public class ListaProductos {
         this.idProducto = idProducto;
     }
 
-    public Integer getIdTalla() {
+    public Talla getIdTalla() {
         return idTalla;
     }
 
-    public void setIdTalla(Integer idTalla) {
+    public void setIdTalla(Talla idTalla) {
         this.idTalla = idTalla;
     }
 
-    public Integer getIdColor() {
+    public Color getIdColor() {
         return idColor;
     }
 
-    public void setIdColor(Integer idColor) {
+    public void setIdColor(Color idColor) {
         this.idColor = idColor;
     }
 
@@ -82,5 +89,5 @@ public class ListaProductos {
     public void setPrecioUnitario(float PrecioUnitario) {
         this.PrecioUnitario = PrecioUnitario;
     }
-    
+
 }

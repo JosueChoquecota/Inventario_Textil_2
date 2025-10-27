@@ -10,16 +10,16 @@ public class Talla {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_talla")
     private Integer idTalla;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "talla", nullable = false, length = 10)
-    private String Talla;
+    
+    @Column(name = "talla", nullable = false, length = 10, unique = true)
+    private String tallaProd;
 
     public Talla() {
     }
 
-    public Talla(Integer idTalla, String Talla) {
+    public Talla(Integer idTalla, String tallaProd) {
         this.idTalla = idTalla;
-        this.Talla = Talla;
+        this.tallaProd = tallaProd;
     }
 
     public Integer getIdTalla() {
@@ -30,13 +30,12 @@ public class Talla {
         this.idTalla = idTalla;
     }
 
-    public String getTalla() {
-        return Talla;
+    public String getTallaProd() {
+        return tallaProd;
     }
 
-    public void setTalla(String Talla) {
-        this.Talla = Talla;
+    public void setTallaProd(String tallaProd) {
+        this.tallaProd = tallaProd;
     }
-    
-    
+
 }

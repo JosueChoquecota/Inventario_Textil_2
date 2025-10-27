@@ -35,8 +35,5 @@ public class Color {
 
     public void setColor(String Color) {
         this.Color = Color;
-    }
-    
-    
-    
+    } 
 }

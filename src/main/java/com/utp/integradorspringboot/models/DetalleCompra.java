@@ -10,22 +10,28 @@ public class DetalleCompra {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_detalle_compra")
     private Integer idDetalleCompra;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_compra", nullable = false)
-    private Integer idCompra;
+    private Compra idCompra;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_lista_producto", nullable = false)
-    private Integer idListaProducto;
+    private ListaProductos idListaProducto;
+    
     @Column(name = "precio_unitario", nullable = false)
     private float PrecioUnitario;
+    
     @Column(name = "sub_total", nullable = false)
     private float subTotal;
+    
     @Column(name = "cantidad", nullable = false) 
     private Number CantidadCompra; 
 
     public DetalleCompra() {
     }
 
-    public DetalleCompra(Integer idDetalleCompra, Integer idCompra, Integer idListaProducto, float PrecioUnitario, float subTotal, Number CantidadCompra) {
+    public DetalleCompra(Integer idDetalleCompra, Compra idCompra, ListaProductos idListaProducto, float PrecioUnitario, float subTotal, Number CantidadCompra) {
         this.idDetalleCompra = idDetalleCompra;
         this.idCompra = idCompra;
         this.idListaProducto = idListaProducto;
@@ -42,19 +48,19 @@ public class DetalleCompra {
         this.idDetalleCompra = idDetalleCompra;
     }
 
-    public Integer getIdCompra() {
+    public Compra getIdCompra() {
         return idCompra;
     }
 
-    public void setIdCompra(Integer idCompra) {
+    public void setIdCompra(Compra idCompra) {
         this.idCompra = idCompra;
     }
 
-    public Integer getIdListaProducto() {
+    public ListaProductos getIdListaProducto() {
         return idListaProducto;
     }
 
-    public void setIdListaProducto(Integer idListaProducto) {
+    public void setIdListaProducto(ListaProductos idListaProducto) {
         this.idListaProducto = idListaProducto;
     }
 
@@ -81,7 +87,5 @@ public class DetalleCompra {
     public void setCantidadCompra(Number CantidadCompra) {
         this.CantidadCompra = CantidadCompra;
     }
-   
-    
     
 }

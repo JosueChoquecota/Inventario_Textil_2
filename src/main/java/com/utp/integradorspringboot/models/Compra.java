@@ -10,11 +10,11 @@ public class Compra {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_compra")
-    private Integer idComprar;
+    private Integer idCompra;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_proveedor", nullable = false)
-    private Integer idProveedor;
+    private Proveedor idProveedor;
     
     @Column(name = "fecha")
     private LocalDate  fecha;
@@ -29,27 +29,27 @@ public class Compra {
     public Compra() {
     }
 
-    public Compra(Integer idComprar, Integer idProveedor, LocalDate fecha, float precioTotal, Trabajador idTrabajador) {
-        this.idComprar = idComprar;
+    public Compra(Integer idCompra, Proveedor idProveedor, LocalDate fecha, float precioTotal, Trabajador idTrabajador) {
+        this.idCompra = idCompra;
         this.idProveedor = idProveedor;
         this.fecha = fecha;
         this.precioTotal = precioTotal;
         this.idTrabajador = idTrabajador;
     }
 
-    public Integer getIdComprar() {
-        return idComprar;
+    public Integer getIdCompra() {
+        return idCompra;
     }
 
-    public void setIdComprar(Integer idComprar) {
-        this.idComprar = idComprar;
+    public void setIdCompra(Integer idCompra) {
+        this.idCompra = idCompra;
     }
 
-    public Integer getIdProveedor() {
+    public Proveedor getIdProveedor() {
         return idProveedor;
     }
 
-    public void setIdProveedor(Integer idProveedor) {
+    public void setIdProveedor(Proveedor idProveedor) {
         this.idProveedor = idProveedor;
     }
 
@@ -76,7 +76,5 @@ public class Compra {
     public void setIdTrabajador(Trabajador idTrabajador) {
         this.idTrabajador = idTrabajador;
     }
-    
-    
-    
+
 }
