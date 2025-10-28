@@ -12,40 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/trabajadores")
 public class TrabajadorController {
-
-    @Autowired
-    private TrabajadorService trabajadorService;
-
-    @GetMapping
-    public String listarTrabajadores(Model model) {
-        model.addAttribute("trabajadores", trabajadorService.listarTrabajadores());
-        return "trabajadores/lista";
+@RequestMapping("/trabajadores")
+    public String page() {
+        return "trabajadores";
     }
-    @GetMapping("/nuevo")
-    public String mostrarFormulario(Model model) {
-        model.addAttribute("trabajador", new Trabajador());
-        return "trabajadores/formulario"; 
-    }
-    @PostMapping("/guardar")
-    public String guardarTrabajador(@ModelAttribute Trabajador trabajador, Integer tipoDocumentoId, Integer rolId) {
-        trabajadorService.registrarTrabajador(trabajador, tipoDocumentoId, rolId);
-        return "redirect:/trabajadores";
-    }
-    @GetMapping("/editar/{id}")
-    public String editarTrabajador(@PathVariable Integer id, Model model) {
-        var trabajadorOpt = trabajadorService.buscarPorId(id);
-        if (trabajadorOpt.isPresent()) {
-            model.addAttribute("trabajador", trabajadorOpt.get());
-            return "trabajadores/formulario";
-        } else {
-            return "redirect:/trabajadores";
-        }
-    }
-    @GetMapping("/eliminar/{id}")
-    public String eliminarTrabajador(@PathVariable Integer id) {
-        trabajadorService.eliminarTrabajador(id);
-        return "redirect:/trabajadores";
-    }
+  
 }
