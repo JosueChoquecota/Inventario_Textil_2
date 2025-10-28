@@ -11,17 +11,17 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {ProductoMapper.class, TallaMapper.class, ColorMapper.class})
+@Mapper(uses = {ProductoMapper.class, TallaMapper.class, ColorMapper.class, ProveedorMapper.class})
 public interface ListaProductoMapper {
+
     ListaProductoMapper INSTANCE = Mappers.getMapper(ListaProductoMapper.class);
 
-    // Entidad -> ResponseDTO
-    @Mapping(source = "producto", target = "producto") // Needs ProductoMapper (Entity -> ResponseDTO)
-    @Mapping(source = "talla", target = "talla")       // Needs TallaMapper (Entity -> DTO)
-    @Mapping(source = "color", target = "color")       // Needs ColorMapper (Entity -> DTO)
-    @Mapping(source = "cantidad", target = "cantidad")       // Map stock field
-    @Mapping(source = "precioUnitario", target = "precioUnitario") // Map selling price field
+    @Mapping(source = "producto", target = "producto")
+    @Mapping(source = "talla", target = "talla")
+    @Mapping(source = "color", target = "color")
+    @Mapping(source = "proveedor", target = "proveedor")
     ListaProductoResponseDTO entityToResponseDto(ListaProductos entity);
 
     List<ListaProductoResponseDTO> entityListToResponseDtoList(List<ListaProductos> entityList);
 }
+

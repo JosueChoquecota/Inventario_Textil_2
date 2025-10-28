@@ -5,6 +5,8 @@
 package com.utp.integradorspringboot.services;
 
 import com.utp.integradorspringboot.dtos.CompraRequestDTO;
+import com.utp.integradorspringboot.dtos.DetalleCompraRequestDTO;
+import com.utp.integradorspringboot.dtos.DetalleCompraResponseDTO;
 import com.utp.integradorspringboot.models.Compra;
 import com.utp.integradorspringboot.models.DetalleCompra;
 import com.utp.integradorspringboot.models.ListaProductos;
@@ -17,6 +19,7 @@ import com.utp.integradorspringboot.repositories.ProveedorRepository;
 import com.utp.integradorspringboot.repositories.TrabajadorRepository;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -32,61 +35,53 @@ public class CompraService {
     @Autowired private TrabajadorRepository trabajadorRepository;
     @Autowired private ListaProductoService listaProductoService; // Inyecta el nuevo servicio
     @Autowired private ListaProductosRepository listaProductosRepository; // <-- AÑADE ESTE
-    @Transactional
-    public Compra registrarNuevaCompraDetalle(CompraRequestDTO dto) {
-
-       // --- INICIO DE LA MODIFICACIÓN ---
-        // 1. Obtener el trabajador logueado desde Spring Security
+   
+   @Transactional
+    public Compra registrarCompra(CompraRequestDTO dto) {
+        // Obtener usuario logueado
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
-        // Verifica si hay un usuario autenticado
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-             throw new RuntimeException("No hay un usuario autenticado para registrar la compra.");
+            throw new RuntimeException("No hay un usuario autenticado para registrar la compra.");
         }
-        String correoLogueado = authentication.getName(); // Esto es el 'username' (correo)
-        
-        // Busca al trabajador en la BD usando el correo de la sesión
+
+        String correoLogueado = authentication.getName();
         Trabajador trabajador = trabajadorRepository.findByCorreo(correoLogueado)
-                .orElseThrow(() -> new RuntimeException("El trabajador logueado (" + correoLogueado + ") no fue encontrado en la base de datos."));
-        // --- FIN DE LA MODIFICACIÓN (se elimina el findById(7)) ---
+                .orElseThrow(() -> new RuntimeException("El trabajador logueado (" + correoLogueado + ") no fue encontrado."));
 
-        // 2. Buscar Proveedor
         Proveedor proveedor = proveedorRepository.findById(dto.getIdProveedor())
-                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado: " + dto.getIdProveedor()));
+            .orElseThrow(() -> new RuntimeException("Proveedor no encontrado: " + dto.getIdProveedor()));
 
-        // 3. Crear el Encabezado de la Compra (usando el trabajador encontrado)
         Compra compra = new Compra();
         compra.setProveedor(proveedor);
-        compra.setFecha(dto.getFecha());
-        compra.setTrabajador(trabajador); // <-- ¡Aquí se usa el trabajador logueado!
+        compra.setTrabajador(trabajador);
+        compra.setFecha(LocalDate.now());
         compra.setPrecioTotal(BigDecimal.ZERO);
+        compraRepository.save(compra);
 
-        Compra compraGuardada = compraRepository.save(compra);
-
-        // 4. Buscar la Variación (ListaProducto)
+        // Buscar la variación del producto
         ListaProductos listaProducto = listaProductosRepository.findById(dto.getIdListaProducto())
-                .orElseThrow(() -> new RuntimeException("Variación de producto (lista_producto) no encontrada con ID: " + dto.getIdListaProducto()));
+                .orElseThrow(() -> new RuntimeException("Variación de producto no encontrada con ID: " + dto.getIdListaProducto()));
 
-        // 5. Crear el Detalle de la Compra
         DetalleCompra detalle = new DetalleCompra();
-        detalle.setCompra(compraGuardada);
+        detalle.setCompra(compra);
         detalle.setListaProducto(listaProducto);
-        detalle.setCantidadCompra(dto.getCantidad()); // Asumiendo que el campo/setter se llama 'cantidad'
-        detalle.setPrecioUnitario(dto.getPrecioUnitario()); // Asumiendo que el campo/setter se llama 'precioUnitario'
+        detalle.setCantidadCompra(dto.getCantidad());
+        detalle.setPrecioUnitario(dto.getPrecioUnitario());
         BigDecimal subTotal = dto.getPrecioUnitario().multiply(BigDecimal.valueOf(dto.getCantidad()));
         detalle.setSubTotal(subTotal);
-
         detalleCompraRepository.save(detalle);
 
-        // 6. Actualizar Stock
-        listaProductoService.actualizarStock(listaProducto.getIdListaProducto(), dto.getCantidad()); // Suma la cantidad comprada
+        // Actualizar stock
+        listaProductoService.actualizarStock(listaProducto.getIdListaProducto(), dto.getCantidad());
 
-        // 7. Actualizar Precio Total de la Compra
-        compraGuardada.setPrecioTotal(subTotal);
-        compraRepository.save(compraGuardada);
+        // Guardar precio total
+        compra.setPrecioTotal(subTotal);
+        compraRepository.save(compra);
 
-        return compraGuardada;
+        return compra;
     }
+
+
 
     // ... (Métodos listarCompras, buscarCompraPorId, etc.) ...
      @Transactional

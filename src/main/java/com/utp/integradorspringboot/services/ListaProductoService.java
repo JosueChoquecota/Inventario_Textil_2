@@ -7,10 +7,12 @@ package com.utp.integradorspringboot.services;
 import com.utp.integradorspringboot.models.Color;
 import com.utp.integradorspringboot.models.ListaProductos;
 import com.utp.integradorspringboot.models.Producto;
+import com.utp.integradorspringboot.models.Proveedor;
 import com.utp.integradorspringboot.models.Talla;
 import com.utp.integradorspringboot.repositories.ColorRepository;
 import com.utp.integradorspringboot.repositories.ListaProductosRepository;
 import com.utp.integradorspringboot.repositories.ProductoRepository;
+import com.utp.integradorspringboot.repositories.ProveedorRepository;
 import com.utp.integradorspringboot.repositories.TallaRepository;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
@@ -26,39 +28,48 @@ public class ListaProductoService {
     private final ProductoRepository productoRepository;
     private final TallaRepository tallaRepository;
     private final ColorRepository colorRepository;
+    private final ProveedorRepository proveedorRepository;
 
     @Autowired
-    public ListaProductoService(ListaProductosRepository listaProductosRepository, ProductoRepository productoRepository, TallaRepository tallaRepository, ColorRepository colorRepository) {
+    public ListaProductoService(ListaProductosRepository listaProductosRepository, ProductoRepository productoRepository, TallaRepository tallaRepository, ColorRepository colorRepository,
+            ProveedorRepository proveedorRepository
+    
+    ) {
         this.listaProductosRepository = listaProductosRepository;
         this.productoRepository = productoRepository;
         this.tallaRepository = tallaRepository;
         this.colorRepository = colorRepository;
+        this.proveedorRepository = proveedorRepository;
     }
 
     @Transactional
-    public ListaProductos buscarOCrearListaProducto(Integer idProducto, Integer idTalla, Integer idColor) {
-        // Busca si ya existe la combinación
+    public ListaProductos buscarOCrearListaProducto(Integer idProducto, Integer idTalla, Integer idColor, Integer idProveedor) {
+        // Busca si ya existe la combinación producto-talla-color-proveedor
         Optional<ListaProductos> existente = listaProductosRepository
-                .findByProductoIdProductoAndTallaIdTallaAndColorIdColor(idProducto, idTalla, idColor);
+                .findByProductoIdProductoAndTallaIdTallaAndColorIdColorAndProveedorIdProveedor(idProducto, idTalla, idColor, idProveedor);
 
         if (existente.isPresent()) {
             return existente.get();
         } else {
-            // Si no existe, la crea con stock 0
+            // Obtener entidades base
             Producto producto = productoRepository.findById(idProducto)
                     .orElseThrow(() -> new RuntimeException("Producto base no encontrado: " + idProducto));
             Talla talla = (idTalla != null) ? tallaRepository.findById(idTalla)
                     .orElseThrow(() -> new RuntimeException("Talla no encontrada: " + idTalla)) : null;
             Color color = (idColor != null) ? colorRepository.findById(idColor)
                     .orElseThrow(() -> new RuntimeException("Color no encontrado: " + idColor)) : null;
+            Proveedor proveedor = proveedorRepository.findById(idProveedor)
+                    .orElseThrow(() -> new RuntimeException("Proveedor no encontrado: " + idProveedor));
 
+            // Crear nueva lista de producto
             ListaProductos nuevaLista = new ListaProductos();
             nuevaLista.setProducto(producto);
             nuevaLista.setTalla(talla);
             nuevaLista.setColor(color);
-            nuevaLista.setCantidad(0); // Stock inicial es 0
-            nuevaLista.setPrecioUnitario(BigDecimal.ZERO); // Precio de venta inicial (o podrías obtenerlo del producto base)
-            
+            nuevaLista.setProveedor(proveedor); // 🔹 ahora sí asignamos el proveedor
+            nuevaLista.setCantidad(0); // Stock inicial
+            nuevaLista.setPrecioUnitario(BigDecimal.ZERO); // Precio inicial
+
             return listaProductosRepository.save(nuevaLista);
         }
     }

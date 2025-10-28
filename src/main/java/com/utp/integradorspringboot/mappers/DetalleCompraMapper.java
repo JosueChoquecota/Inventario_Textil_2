@@ -4,7 +4,6 @@
  */
 package com.utp.integradorspringboot.mappers;
 
-import com.utp.integradorspringboot.dtos.CompraRequestDTO;
 import com.utp.integradorspringboot.dtos.DetalleCompraResponseDTO;
 import com.utp.integradorspringboot.models.DetalleCompra;
 import java.util.List;
@@ -16,19 +15,10 @@ import org.mapstruct.factory.Mappers;
 public interface DetalleCompraMapper {
     DetalleCompraMapper INSTANCE = Mappers.getMapper(DetalleCompraMapper.class);
 
-    // --- RequestDTO -> Partial DetalleCompra Entity ---
-    // The Service will handle setting 'compra' and 'listaProducto' relationships
-    @Mapping(target = "idDetalleCompra", ignore = true)
-    @Mapping(target = "compra", ignore = true)
-    @Mapping(target = "listaProducto", ignore = true)
-    @Mapping(target = "subTotal", ignore = true) // Service calculates this
-    // MapStruct maps 'cantidad' and 'precioUnitario' automatically if names match
-    DetalleCompra requestDtoToEntity(CompraRequestDTO dto);
-
-
-    // --- Entity -> ResponseDTO ---
-    @Mapping(source = "listaProducto", target = "listaProducto") // Uses ListaProductoMapper
-    // MapStruct maps idDetalleCompra, cantidad, precioUnitario, subTotal automatically
+    @Mapping(source = "listaProducto", target = "listaProducto")
+    @Mapping(source = "cantidadCompra", target = "cantidad")
+    @Mapping(source = "precioUnitario", target = "precioUnitario")
+    @Mapping(source = "subTotal", target = "subTotal")
     DetalleCompraResponseDTO entityToResponseDto(DetalleCompra entity);
 
     List<DetalleCompraResponseDTO> entityListToResponseDtoList(List<DetalleCompra> entityList);

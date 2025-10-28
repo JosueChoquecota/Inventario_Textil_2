@@ -6,6 +6,7 @@ package com.utp.integradorspringboot.api;
 
 import com.utp.integradorspringboot.dtos.CompraRequestDTO;
 import com.utp.integradorspringboot.dtos.CompraResponseDTO;
+import com.utp.integradorspringboot.dtos.DetalleCompraRequestDTO;
 import com.utp.integradorspringboot.dtos.DetalleCompraResponseDTO;
 import com.utp.integradorspringboot.mappers.CompraMapper;
 import com.utp.integradorspringboot.mappers.DetalleCompraMapper;
@@ -38,29 +39,23 @@ public class CompraApiController {
     private DetalleCompraRepository detalleCompraRepository;
     
     // 🔹 1. Registrar una nueva compra con detalle
-    @PostMapping("/registrar")
+   @PostMapping("/registrar")
     public ResponseEntity<?> registrarCompra(@RequestBody CompraRequestDTO compraDTO) {
+        Compra nuevaCompra = compraService.registrarCompra(compraDTO);
 
-            Compra nuevaCompra = compraService.registrarNuevaCompraDetalle(compraDTO);
+        // --- MAPEO MANUAL A DTO ---
+        CompraResponseDTO responseDto = compraMapper.entityToResponseDto(nuevaCompra);
 
-            // --- MAPEO MANUAL A DTO ---
-            // (Necesario porque la entidad Compra no tiene la lista de detalles cargada)
+        List<DetalleCompra> detallesEntidad = detalleCompraRepository.findByCompraIdCompra(nuevaCompra.getIdCompra());
+        List<DetalleCompraResponseDTO> detallesDto = detalleCompraMapper.entityListToResponseDtoList(detallesEntidad);
+        responseDto.setDetalles(detallesDto);
+        // --- FIN MAPEO MANUAL ---
 
-            // 1. Mapea la Compra principal (sin detalles)
-            CompraResponseDTO responseDto = compraMapper.entityToResponseDto(nuevaCompra);
-
-            // 2. Busca los detalles que acabas de crear (el service los guardó)
-            List<DetalleCompra> detallesEntidad = detalleCompraRepository.findByCompraIdCompra(nuevaCompra.getIdCompra());
-
-            // 3. Mapea los detalles a DTOs
-            List<DetalleCompraResponseDTO> detallesDto = detalleCompraMapper.entityListToResponseDtoList(detallesEntidad);
-
-            // 4. Asigna los detalles al DTO de respuesta
-            responseDto.setDetalles(detallesDto);
-            // --- FIN MAPEO MANUAL ---
-
-            return new ResponseEntity<>(responseDto, HttpStatus.CREATED); // <-- ¡CORRECTO! Devolviendo el DTO
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
+ 
+
+    
 
 
 

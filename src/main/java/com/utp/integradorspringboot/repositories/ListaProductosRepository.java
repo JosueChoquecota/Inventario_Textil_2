@@ -13,8 +13,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ListaProductosRepository extends JpaRepository<ListaProductos, Integer> {
 
-    Optional<ListaProductos> findByProductoIdProductoAndTallaIdTallaAndColorIdColor(
-            Integer idProducto, Integer idTalla, Integer idColor);
+    Optional<ListaProductos> findByProductoIdProductoAndTallaIdTallaAndColorIdColorAndProveedorIdProveedor(
+            Integer idProducto, Integer idTalla, Integer idColor, Integer idProveedor);
     List<ListaProductos> findByProductoIdProducto(Integer idProducto);
     
     boolean existsByProductoIdProductoAndTallaIdTallaAndColorIdColor(

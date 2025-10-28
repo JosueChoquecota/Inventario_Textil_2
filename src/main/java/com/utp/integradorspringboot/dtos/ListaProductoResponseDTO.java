@@ -13,17 +13,19 @@ public class ListaProductoResponseDTO {
     private ColorDTO color;
     private Integer cantidad; 
     private BigDecimal precioUnitario; 
+    private ProveedorResponseDTO proveedor;
 
     public ListaProductoResponseDTO() {
     }
 
-    public ListaProductoResponseDTO(Integer idListaProducto, ProductoResponseDTO producto, TallaDTO talla, ColorDTO color, Integer cantidad, BigDecimal precioUnitario) {
+    public ListaProductoResponseDTO(Integer idListaProducto, ProductoResponseDTO producto, TallaDTO talla, ColorDTO color, Integer cantidad, BigDecimal precioUnitario, ProveedorResponseDTO proveedor) {
         this.idListaProducto = idListaProducto;
         this.producto = producto;
         this.talla = talla;
         this.color = color;
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
+        this.proveedor = proveedor;
     }
 
     public Integer getIdListaProducto() {
@@ -66,8 +68,6 @@ public class ListaProductoResponseDTO {
         this.cantidad = cantidad;
     }
 
- 
-
     public BigDecimal getPrecioUnitario() {
         return precioUnitario;
     }
@@ -76,6 +76,13 @@ public class ListaProductoResponseDTO {
         this.precioUnitario = precioUnitario;
     }
 
-    
-    
+    public ProveedorResponseDTO getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(ProveedorResponseDTO proveedor) {
+        this.proveedor = proveedor;
+    }
+
+       
 }

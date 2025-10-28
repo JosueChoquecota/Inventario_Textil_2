@@ -4,14 +4,20 @@
  */
 package com.utp.integradorspringboot.api;
 
+import com.utp.integradorspringboot.dtos.ListaProductoRequestDTO;
+import com.utp.integradorspringboot.dtos.ListaProductoResponseDTO;
+import com.utp.integradorspringboot.mappers.ListaProductoMapper;
 import com.utp.integradorspringboot.models.ListaProductos;
+import com.utp.integradorspringboot.repositories.ListaProductosRepository;
 import com.utp.integradorspringboot.services.ListaProductoService;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,20 +30,34 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/ListaProductos")
 public class ListaProductosApiController {
     private final ListaProductoService listaProductoService;
-    
+    private final ListaProductosRepository listaProductosRepository;
     @Autowired
-    public ListaProductosApiController(ListaProductoService listaProductoService) {
+    public ListaProductosApiController(ListaProductoService listaProductoService,ListaProductosRepository listaProductosRepository) {
         this.listaProductoService = listaProductoService;
+        this.listaProductosRepository = listaProductosRepository;
     }
     
     // 🔹 1. Buscar o crear variación (producto + talla + color)
     @PostMapping("/Registrar")
-    public ListaProductos buscarOCrearListaProducto(
-            @RequestParam Integer idProducto,
-            @RequestParam(required = false) Integer idTalla,
-            @RequestParam(required = false) Integer idColor) {
-        return listaProductoService.buscarOCrearListaProducto(idProducto, idTalla, idColor);
+    public ListaProductoResponseDTO registrarListaProducto(
+            @RequestBody @Valid ListaProductoRequestDTO request) {
+
+        ListaProductos lista = listaProductoService.buscarOCrearListaProducto(
+                request.getIdProducto(),
+                request.getIdTalla(),
+                request.getIdColor(),
+                request.getIdProveedor()
+        );
+
+        // Aquí puedes asignar cantidad y precio si tu service lo permite:
+        lista.setCantidad(request.getCantidad());
+        lista.setPrecioUnitario(request.getPrecioUnitario());
+
+        listaProductosRepository.save(lista);
+
+        return ListaProductoMapper.INSTANCE.entityToResponseDto(lista);
     }
+
 
     // 🔹 2. Actualizar stock (sumar o restar)
     @PutMapping("/actualizar-stock")

@@ -17,6 +17,7 @@ public class ListaProductos {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_talla", nullable = false) 
     private Talla talla;   
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_color", nullable = false) 
     private Color color;  
@@ -24,14 +25,18 @@ public class ListaProductos {
     private int cantidad;   
     @Column(name = "precio_unitario", nullable = false)
     private BigDecimal precioUnitario;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_proveedor", nullable = false) 
+    private Proveedor proveedor;   
+    
     public ListaProductos() {
     }
 
-    public ListaProductos(Integer idListaProducto, Producto producto, Talla talla, Color color, int cantidad, BigDecimal precioUnitario) {
+    public ListaProductos(Integer idListaProducto, Producto producto, Talla talla, Proveedor proveedor, Color color, int cantidad, BigDecimal precioUnitario) {
         this.idListaProducto = idListaProducto;
         this.producto = producto;
         this.talla = talla;
+        this.proveedor = proveedor;
         this.color = color;
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
@@ -61,6 +66,14 @@ public class ListaProductos {
         this.talla = talla;
     }
 
+    public Proveedor getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(Proveedor proveedor) {
+        this.proveedor = proveedor;
+    }
+
     public Color getColor() {
         return color;
     }
@@ -85,6 +98,7 @@ public class ListaProductos {
         this.precioUnitario = precioUnitario;
     }
 
+   
    
 
    
