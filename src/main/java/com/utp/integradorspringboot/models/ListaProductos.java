@@ -1,45 +1,40 @@
 package com.utp.integradorspringboot.models;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
  
 @Entity
 @Table(name = "lista_productos") 
-
 public class ListaProductos {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_lista_producto")
-    private Integer idListaProducto;
-    
+    private Integer idListaProducto;   
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
     private Producto producto;
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_talla", nullable = false) 
-    private Talla talls; 
-    
+    private Talla talla;   
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_color", nullable = false) 
-    private Color color; 
-    
+    private Color color;  
     @Column(name = "cantidad", nullable = false) 
-    private int CantidadProd; 
-    
+    private int cantidad;   
     @Column(name = "precio_unitario", nullable = false)
-    private float PrecioUnitario;
+    private BigDecimal precioUnitario;
 
     public ListaProductos() {
     }
 
-    public ListaProductos(Integer idListaProducto, Producto producto, Talla talls, Color color, int CantidadProd, float PrecioUnitario) {
+    public ListaProductos(Integer idListaProducto, Producto producto, Talla talla, Color color, int cantidad, BigDecimal precioUnitario) {
         this.idListaProducto = idListaProducto;
         this.producto = producto;
-        this.talls = talls;
+        this.talla = talla;
         this.color = color;
-        this.CantidadProd = CantidadProd;
-        this.PrecioUnitario = PrecioUnitario;
+        this.cantidad = cantidad;
+        this.precioUnitario = precioUnitario;
     }
 
     public Integer getIdListaProducto() {
@@ -58,12 +53,12 @@ public class ListaProductos {
         this.producto = producto;
     }
 
-    public Talla getTalls() {
-        return talls;
+    public Talla getTalla() {
+        return talla;
     }
 
-    public void setTalls(Talla talls) {
-        this.talls = talls;
+    public void setTalla(Talla talla) {
+        this.talla = talla;
     }
 
     public Color getColor() {
@@ -74,22 +69,25 @@ public class ListaProductos {
         this.color = color;
     }
 
-    public int getCantidadProd() {
-        return CantidadProd;
+    public int getCantidad() {
+        return cantidad;
     }
 
-    public void setCantidadProd(int CantidadProd) {
-        this.CantidadProd = CantidadProd;
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
     }
 
-    public float getPrecioUnitario() {
-        return PrecioUnitario;
+    public BigDecimal getPrecioUnitario() {
+        return precioUnitario;
     }
 
-    public void setPrecioUnitario(float PrecioUnitario) {
-        this.PrecioUnitario = PrecioUnitario;
+    public void setPrecioUnitario(BigDecimal precioUnitario) {
+        this.precioUnitario = precioUnitario;
     }
 
+   
+
+   
     
 
 }

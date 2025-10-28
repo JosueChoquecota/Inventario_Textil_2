@@ -51,35 +51,24 @@ public class InventarioApiController {
             if (imagenFile != null && !imagenFile.isEmpty()) {
                 String uploadDir = "uploads/productos/";
 
-                // Crear directorio si no existe
                 File directorio = new File(uploadDir);
                 if (!directorio.exists()) {
                     directorio.mkdirs();
                 }
 
                 String nombreArchivo = System.currentTimeMillis() + "_" + imagenFile.getOriginalFilename();
-
-                // Ruta final
                 Path rutaArchivo = Paths.get(uploadDir, nombreArchivo);
-
-                // Guardar físicamente
                 Files.copy(imagenFile.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
-
-                // Guardar ruta en entidad
                 producto.setImagen(uploadDir + nombreArchivo);
             } else {
-                // Si no se envía imagen, usar una por defecto
                 producto.setImagen("uploads/productos/default.png");
             }
 
-            // 3️⃣ Guardar el producto con sus relaciones
             Producto productoGuardado = productoService.guardarOActualizarProducto(
                     producto,
                     requestDto.getIdMarca(),
                     requestDto.getIdCategoria()
             );
-
-            // 4️⃣ Mapea a DTO de respuesta
             ProductoResponseDTO responseDto = productoMapper.entityToResponseDto(productoGuardado);
 
             return new ResponseEntity<>(responseDto, HttpStatus.CREATED);

@@ -4,22 +4,20 @@ import jakarta.persistence.*;
 
 @Entity 
 @Table(name = "tallas") 
-
 public class Talla {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_talla")
-    private Integer idTalla;
-    
+    private Integer idTalla; 
     @Column(name = "talla", nullable = false, length = 10, unique = true)
-    private String tallaProd;
+    private String talla;
 
     public Talla() {
     }
 
-    public Talla(Integer idTalla, String tallaProd) {
+    public Talla(Integer idTalla, String talla) {
         this.idTalla = idTalla;
-        this.tallaProd = tallaProd;
+        this.talla = talla;
     }
 
     public Integer getIdTalla() {
@@ -30,12 +28,13 @@ public class Talla {
         this.idTalla = idTalla;
     }
 
-    public String getTallaProd() {
-        return tallaProd;
+    public String getTalla() {
+        return talla;
     }
 
-    public void setTallaProd(String tallaProd) {
-        this.tallaProd = tallaProd;
+    public void setTalla(String talla) {
+        this.talla = talla;
     }
 
+ 
 }

@@ -1,27 +1,23 @@
 package com.utp.integradorspringboot.models;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 @Entity
 @Table(name = "compras") 
- 
-
 public class Compra {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_compra")
     private Integer idCompra;
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_proveedor", nullable = false)
-    private Proveedor Proveedor;
-    
+    private Proveedor proveedor;   
     @Column(name = "fecha")
-    private LocalDate  fecha;
-    
+    private LocalDate   fecha;  
     @Column(name = "precio_total", nullable = false)
-    private float precioTotal;
-    
+    private BigDecimal  precioTotal;  
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_trabajador", nullable = false) 
     private Trabajador trabajador;
@@ -29,9 +25,9 @@ public class Compra {
     public Compra() {
     }
 
-    public Compra(Integer idCompra, Proveedor Proveedor, LocalDate fecha, float precioTotal, Trabajador trabajador) {
+    public Compra(Integer idCompra, Proveedor proveedor, LocalDate  fecha, BigDecimal precioTotal, Trabajador trabajador) {
         this.idCompra = idCompra;
-        this.Proveedor = Proveedor;
+        this.proveedor = proveedor;
         this.fecha = fecha;
         this.precioTotal = precioTotal;
         this.trabajador = trabajador;
@@ -46,26 +42,26 @@ public class Compra {
     }
 
     public Proveedor getProveedor() {
-        return Proveedor;
+        return proveedor;
     }
 
-    public void setProveedor(Proveedor Proveedor) {
-        this.Proveedor = Proveedor;
+    public void setProveedor(Proveedor proveedor) {
+        this.proveedor = proveedor;
     }
 
-    public LocalDate getFecha() {
+    public LocalDate  getFecha() {
         return fecha;
     }
 
-    public void setFecha(LocalDate fecha) {
+    public void setFecha(LocalDate  fecha) {
         this.fecha = fecha;
     }
 
-    public float getPrecioTotal() {
+    public BigDecimal getPrecioTotal() {
         return precioTotal;
     }
 
-    public void setPrecioTotal(float precioTotal) {
+    public void setPrecioTotal(BigDecimal precioTotal) {
         this.precioTotal = precioTotal;
     }
 
@@ -76,7 +72,5 @@ public class Compra {
     public void setTrabajador(Trabajador trabajador) {
         this.trabajador = trabajador;
     }
-
-    
 
 }
