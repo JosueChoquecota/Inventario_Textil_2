@@ -38,18 +38,16 @@ public class CompraApiController {
     @Autowired // Necesitarás esto para cargar detalles manualmente
     private DetalleCompraRepository detalleCompraRepository;
     
-    // 🔹 1. Registrar una nueva compra con detalle
    @PostMapping("/registrar")
     public ResponseEntity<?> registrarCompra(@RequestBody CompraRequestDTO compraDTO) {
         Compra nuevaCompra = compraService.registrarCompra(compraDTO);
 
-        // --- MAPEO MANUAL A DTO ---
         CompraResponseDTO responseDto = compraMapper.entityToResponseDto(nuevaCompra);
 
         List<DetalleCompra> detallesEntidad = detalleCompraRepository.findByCompraIdCompra(nuevaCompra.getIdCompra());
         List<DetalleCompraResponseDTO> detallesDto = detalleCompraMapper.entityListToResponseDtoList(detallesEntidad);
         responseDto.setDetalles(detallesDto);
-        // --- FIN MAPEO MANUAL ---
+
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }

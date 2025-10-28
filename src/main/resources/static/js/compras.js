@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnGuardarTallaColor = document.getElementById("btnGuardarTallaColor");
     $('.selectpicker').selectpicker(); // solo una vez al inicio
     // ===================== CARGAR DATOS =====================
-    cargarProveedores(); // ✅ Llamar solo aquí
+    cargarProveedores(); 
     cargarProductos();
     cargarTallas();
     cargarColores();

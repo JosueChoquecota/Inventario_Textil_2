@@ -47,9 +47,9 @@ public class TrabajadorUserDetailsService implements UserDetailsService {
         // 4. Devolver el objeto "User" de Spring Security
         // Spring se encargará de verificar la contraseña
         return new org.springframework.security.core.userdetails.User(
-                trabajador.getCorreo(),        // El username (correo)
-                trabajador.getContrasena(),    // ¡La contraseña ENCRIPTADA de la BD!
-                Collections.singletonList(authority) // La lista de roles
+                trabajador.getCorreo(),        
+                trabajador.getContrasena(),    
+                Collections.singletonList(authority) 
         );
     }
 }

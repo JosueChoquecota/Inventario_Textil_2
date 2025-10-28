@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Captura el formulario
     const form = document.getElementById("proveedorForm");
     form.addEventListener("submit", async function (event) {
-        event.preventDefault(); // Evita recargar la página
+        event.preventDefault(); 
 
         // Obtenemos los valores del formulario
         const proveedorData = {

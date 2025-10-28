@@ -37,7 +37,6 @@ public class ListaProductosApiController {
         this.listaProductosRepository = listaProductosRepository;
     }
     
-    // 🔹 1. Buscar o crear variación (producto + talla + color)
     @PostMapping("/Registrar")
     public ListaProductoResponseDTO registrarListaProducto(
             @RequestBody @Valid ListaProductoRequestDTO request) {
@@ -49,7 +48,6 @@ public class ListaProductosApiController {
                 request.getIdProveedor()
         );
 
-        // Aquí puedes asignar cantidad y precio si tu service lo permite:
         lista.setCantidad(request.getCantidad());
         lista.setPrecioUnitario(request.getPrecioUnitario());
 
@@ -59,7 +57,6 @@ public class ListaProductosApiController {
     }
 
 
-    // 🔹 2. Actualizar stock (sumar o restar)
     @PutMapping("/actualizar-stock")
     public ListaProductos actualizarStock(
             @RequestParam Integer idListaProducto,

@@ -33,8 +33,8 @@ public class CompraService {
     @Autowired private DetalleCompraRepository detalleCompraRepository;
     @Autowired private ProveedorRepository proveedorRepository;
     @Autowired private TrabajadorRepository trabajadorRepository;
-    @Autowired private ListaProductoService listaProductoService; // Inyecta el nuevo servicio
-    @Autowired private ListaProductosRepository listaProductosRepository; // <-- AÑADE ESTE
+    @Autowired private ListaProductoService listaProductoService; 
+    @Autowired private ListaProductosRepository listaProductosRepository; 
    
    @Transactional
     public Compra registrarCompra(CompraRequestDTO dto) {

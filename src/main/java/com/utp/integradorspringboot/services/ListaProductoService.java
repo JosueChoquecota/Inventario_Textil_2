@@ -66,21 +66,15 @@ public class ListaProductoService {
             nuevaLista.setProducto(producto);
             nuevaLista.setTalla(talla);
             nuevaLista.setColor(color);
-            nuevaLista.setProveedor(proveedor); // 🔹 ahora sí asignamos el proveedor
-            nuevaLista.setCantidad(0); // Stock inicial
-            nuevaLista.setPrecioUnitario(BigDecimal.ZERO); // Precio inicial
+            nuevaLista.setProveedor(proveedor); 
+            nuevaLista.setCantidad(0); 
+            nuevaLista.setPrecioUnitario(BigDecimal.ZERO); 
 
             return listaProductosRepository.save(nuevaLista);
         }
     }
 
-    /**
-     * Actualiza el stock de una variación de producto.
-     * @param idListaProducto El ID de la variación a actualizar.
-     * @param cantidadCambio La cantidad a sumar (positivo para compras) o restar (negativo para ventas).
-     * @return La entidad ListaProductos actualizada.
-     * @throws RuntimeException Si la variación no existe o si el stock resultante es negativo.
-     */
+
     @Transactional
     public ListaProductos actualizarStock(Integer idListaProducto, int cantidadCambio) {
         ListaProductos listaProducto = listaProductosRepository.findById(idListaProducto)
@@ -94,25 +88,19 @@ public class ListaProductoService {
         return listaProductosRepository.save(listaProducto);
     }
 
-    /**
-     * Busca una variación específica por su ID.
-     */
+
     @Transactional
     public ListaProductos buscarListaProductoPorId(Integer id) {
          return listaProductosRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Variación de producto (lista_producto) no encontrada: " + id));
     }
 
-    /**
-     * Lista todas las variaciones de un producto específico.
-     */
+
     @Transactional
     public List<ListaProductos> listarVariacionesPorProducto(Integer idProducto) {
         return listaProductosRepository.findByProductoIdProducto(idProducto);
     }
-     /**
-     * Lista todas las variaciones en inventario.
-     */
+
     @Transactional
     public List<ListaProductos> listarTodoInventario() {
         return listaProductosRepository.findAll();
