@@ -8,11 +8,14 @@ import com.utp.sistemaOdontologo.entities.enums.EstadoUsuario;
 
 
 public class Usuario {
-    private final Integer idUsuario;
-    private final String usuario;
+    private  Integer idUsuario;
+    private  String usuario;
     private String contrasena;
     private EstadoUsuario estado;
-    private final Empresa empresa;
+    private  Empresa empresa;
+
+    public Usuario() {
+    }
 
     public Usuario(Integer idUsuario, String usuario, String contrasena, EstadoUsuario estado, Empresa empresa) {
         this.idUsuario = idUsuario;
@@ -49,4 +52,20 @@ public class Usuario {
     public void setEstado(EstadoUsuario estado) {
         this.estado = estado;
     }
+
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
+    
+    
 }
+
+

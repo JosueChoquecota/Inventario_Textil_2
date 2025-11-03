@@ -19,7 +19,7 @@ public class ConnectionDataBase {
     private static final String USER = "db_abf869_dbsistemaodon_admin";
     private static final String PASS = "Sistema_2025";
 
-    private ConnectionDataBase() {
+    public ConnectionDataBase() {
 
         try {
             Class.forName(DRIVER);

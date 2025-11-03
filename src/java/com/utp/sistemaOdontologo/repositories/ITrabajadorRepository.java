@@ -5,11 +5,10 @@
 package com.utp.sistemaOdontologo.repositories;
 
 import com.utp.sistemaOdontologo.entities.Trabajador;
+import java.sql.Connection;
+import java.sql.SQLException;
 
-/**
- *
- * @author ASUS
- */
 public interface ITrabajadorRepository extends ICRUD<Trabajador, Integer>{
-    
+    Trabajador listByName(String nombre);
+    Boolean insert(Connection con, Trabajador trabajador) throws SQLException;
 }

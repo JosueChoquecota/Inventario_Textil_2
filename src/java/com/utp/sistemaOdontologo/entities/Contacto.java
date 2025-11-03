@@ -10,11 +10,14 @@ import com.utp.sistemaOdontologo.entities.enums.TipoContacto;
  * @author ASUS
  */
 public class Contacto {
-    private final Integer idContacto;
+    private  Integer idContacto;
     private TipoContacto tipoContacto;
     private String telefono;
     private String correo;
     private String direccion;
+
+    public Contacto() {
+    }
 
     public Contacto(Integer idContacto, TipoContacto tipoContacto, String telefono, String correo, String direccion) {
         this.idContacto = idContacto;
@@ -51,4 +54,10 @@ public class Contacto {
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }  
+
+    public void setIdContacto(Integer idContacto) {
+        this.idContacto = idContacto;
+    }
+    
+    
 }
