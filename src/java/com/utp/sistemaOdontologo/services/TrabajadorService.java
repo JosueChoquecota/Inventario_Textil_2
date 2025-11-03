@@ -61,9 +61,10 @@ public class TrabajadorService {
             
             // Lógica de Servicio: Asignación de estado y hash
             usuario.setEstado(EstadoUsuario.ACTIVO);
+            
             Empresa empresaStub = new Empresa();
-            // Asumimos que tienes un setter para el ID en la clase Empresa
-            empresaStub.setIdEmpresa(1);         
+empresaStub.setIdEmpresa(1); 
+usuario.setEmpresa(empresaStub); // <--- ESTO DEBE ASIGNAR EL OBJETO        
             
             // 2.2. ENCRIPTACIÓN REALIZADA CON TU CLASE
             String clavePlana = usuario.getContrasena();

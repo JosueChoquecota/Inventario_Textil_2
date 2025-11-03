@@ -21,7 +21,15 @@ public class UsuarioDAO implements IUsuarioRepository{
         String SQL = "INSERT INTO Usuarios (id_empresa, username, contraseña, estado) OUTPUT INSERTED.id_usuario VALUES (?, ?, ?, ?);";
         
         try (PreparedStatement ps = con.prepareStatement(SQL)) {
-            ps.setInt(1, usuario.getEmpresa().getIdEmpresa());
+            Integer idEmpresaFK = null;
+            if (usuario.getEmpresa() != null) {
+                idEmpresaFK = usuario.getEmpresa().getIdEmpresa();
+            } else {
+                // En un sistema real, esto DEBERÍA fallar, pero si usamos la empresa 1 por defecto,
+                // podemos asignarlo aquí si el Service falló al hacerlo.
+                idEmpresaFK = 1; 
+            }
+            ps.setInt(1, idEmpresaFK);
             ps.setString(2, usuario.getUsuario());
             ps.setString(3, usuario.getContrasena()); // Clave ya hasheada
             ps.setString(4, usuario.getEstado().name());
