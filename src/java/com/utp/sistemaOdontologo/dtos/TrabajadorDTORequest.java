@@ -31,12 +31,15 @@ public class TrabajadorDTORequest {
     // -----------------------------------------------------------------
     // B. Campos de Usuario (Para el INSERT en la tabla Usuarios)
     // -----------------------------------------------------------------
-    private String usuario;
+    private Integer idUsuario;
+    private String username;
     private String contrasena;    // La clave en texto plano del formulario
     
     // -----------------------------------------------------------------
     // C. Campos de Contacto (Para el INSERT en la tabla Contactos)
     // -------------------------------------------------
+    private Integer idContacto;
+    private String tipoContacto;
     private String telefono;
     private String correo;
     private String direccion;
@@ -44,7 +47,7 @@ public class TrabajadorDTORequest {
     public TrabajadorDTORequest() {
     }
 
-    public TrabajadorDTORequest(Integer idTrabajador, String nombre, String apellido, String colegiatura, Integer idTipoDocumento, Integer idEspecialidad, Integer idRol, LocalDate fechaRegistro, String usuario, String contrasena, String telefono, String correo, String direccion) {
+    public TrabajadorDTORequest(Integer idTrabajador, String nombre, String apellido, String colegiatura, Integer idTipoDocumento, Integer idEspecialidad, Integer idRol, LocalDate fechaRegistro, Integer idUsuario, String username, String contrasena, Integer idContacto, String tipoContacto, String telefono, String correo, String direccion) {
         this.idTrabajador = idTrabajador;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -53,8 +56,11 @@ public class TrabajadorDTORequest {
         this.idEspecialidad = idEspecialidad;
         this.idRol = idRol;
         this.fechaRegistro = fechaRegistro;
-        this.usuario = usuario;
+        this.idUsuario = idUsuario;
+        this.username = username;
         this.contrasena = contrasena;
+        this.idContacto = idContacto;
+        this.tipoContacto = tipoContacto;
         this.telefono = telefono;
         this.correo = correo;
         this.direccion = direccion;
@@ -124,12 +130,20 @@ public class TrabajadorDTORequest {
         this.fechaRegistro = fechaRegistro;
     }
 
-    public String getUsuario() {
-        return usuario;
+    public Integer getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getContrasena() {
@@ -138,6 +152,22 @@ public class TrabajadorDTORequest {
 
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
+    }
+
+    public Integer getIdContacto() {
+        return idContacto;
+    }
+
+    public void setIdContacto(Integer idContacto) {
+        this.idContacto = idContacto;
+    }
+
+    public String getTipoContacto() {
+        return tipoContacto;
+    }
+
+    public void setTipoContacto(String tipoContacto) {
+        this.tipoContacto = tipoContacto;
     }
 
     public String getTelefono() {
@@ -163,6 +193,8 @@ public class TrabajadorDTORequest {
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
+
+    
 
    
 }

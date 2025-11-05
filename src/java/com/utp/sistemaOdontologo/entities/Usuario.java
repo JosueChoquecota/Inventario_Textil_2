@@ -9,7 +9,7 @@ import com.utp.sistemaOdontologo.entities.enums.EstadoUsuario;
 
 public class Usuario {
     private  Integer idUsuario;
-    private  String usuario;
+    private  String username;
     private String contrasena;
     private EstadoUsuario estado;
     private  Empresa empresa;
@@ -17,9 +17,9 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(Integer idUsuario, String usuario, String contrasena, EstadoUsuario estado, Empresa empresa) {
+    public Usuario(Integer idUsuario, String username, String contrasena, EstadoUsuario estado, Empresa empresa) {
         this.idUsuario = idUsuario;
-        this.usuario = usuario;
+        this.username = username;
         this.contrasena = contrasena;
         this.estado = estado;
         this.empresa = empresa;
@@ -29,43 +29,43 @@ public class Usuario {
         return idUsuario;
     }
 
-    public String getUsuario() {
-        return usuario;
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getContrasena() {
         return contrasena;
     }
 
-    public EstadoUsuario getEstado() {
-        return estado;
-    }
-
-    public Empresa getEmpresa() {
-        return empresa;
-    }
-
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
+    }
+
+    public EstadoUsuario getEstado() {
+        return estado;
     }
 
     public void setEstado(EstadoUsuario estado) {
         this.estado = estado;
     }
 
-    public void setIdUsuario(Integer idUsuario) {
-        this.idUsuario = idUsuario;
-    }
-
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
+    public Empresa getEmpresa() {
+        return empresa;
     }
 
     public void setEmpresa(Empresa empresa) {
         this.empresa = empresa;
     }
-    
-    
+
+   
 }
 
 

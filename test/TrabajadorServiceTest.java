@@ -20,24 +20,25 @@ public class TrabajadorServiceTest {
         TrabajadorDTORequest dto = new TrabajadorDTORequest();
         
         // --- Datos de Trabajador ---
-        dto.setNombre("Carlos");
-        dto.setApellido("López");
-        dto.setColegiatura("777111"); // 
+        dto.setNombre("Alex");
+        dto.setApellido("Uruchi");
+        dto.setColegiatura("777123"); // 
         dto.setFechaRegistro(LocalDate.now());
 
         // Claves Foráneas de Catálogo (Asumimos que estos IDs existen en la BD)
         dto.setIdTipoDocumento(1); // Ejemplo: ID de DNI/Cédula
         dto.setIdRol(2);           // Ejemplo: ID de Rol ODONTOLOGO
-        dto.setIdEspecialidad(3);  // Ejemplo: ID de Especialidad
+        dto.setIdEspecialidad(2);  // Ejemplo: ID de Especialidad
         
         // --- Datos de Usuario (Login) ---
-        dto.setUsuario("carlos.lopez");
+        dto.setUsername("Alex12");
         dto.setContrasena("ClaveSegura2025!"); // Clave en texto plano
         
         // --- Datos de Contacto ---
-        dto.setCorreo("carlos.lopez@ejemplo.com");
-        dto.setTelefono("955123456");
-        dto.setDireccion("Av. Test 101");
+        dto.setTipoContacto("EMAIL");
+        dto.setCorreo("Alex.fu@ejemplo.com");
+        dto.setTelefono("983455182");
+        dto.setDireccion("Av. Test 103");
         
         // 3. EJECUTAR: Llamar al Service para realizar la transacción de 3 pasos
         Boolean resultado = trabajadorService.insert(dto);

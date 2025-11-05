@@ -4,14 +4,17 @@
  */
 package com.utp.sistemaOdontologo.dao;
 import com.utp.sistemaOdontologo.connection.ConnectionDataBase;
-import com.utp.sistemaOdontologo.dtos.TrabajadorDTORequest;
 import com.utp.sistemaOdontologo.entities.Contacto;
+import com.utp.sistemaOdontologo.entities.Especialidad;
+import com.utp.sistemaOdontologo.entities.TipoDocumento;
 import com.utp.sistemaOdontologo.entities.Trabajador;
 import com.utp.sistemaOdontologo.entities.Usuario;
-import com.utp.sistemaOdontologo.mappers.TrabajadorMapper;
+import com.utp.sistemaOdontologo.entities.enums.EstadoUsuario;
+import com.utp.sistemaOdontologo.entities.enums.Rol;
 import com.utp.sistemaOdontologo.repositories.ITrabajadorRepository;
 import java.util.List;
 import java.sql.*;
+import java.util.ArrayList;
 
 
 /**
@@ -47,37 +50,175 @@ public class TrabajadorDAO implements ITrabajadorRepository {
             return ps.executeUpdate() > 0;
         }
     }
+
+    @Override
+    public Boolean update(Connection con, Trabajador trabajador) throws SQLException {
+    throw new UnsupportedOperationException("Método UPDATE aún no implementado.");
+        }
+
+    @Override
+        public Boolean delete(Connection con, Integer idTrabajador) throws SQLException {
+    String SQL = "DELETE FROM Trabajadores WHERE id_trabajador = ?;";
+            try (PreparedStatement ps = con.prepareStatement(SQL)) {
+                ps.setInt(1, idTrabajador);
+                return ps.executeUpdate() > 0;
+            }
+        }
+
+    @Override
+        public int[] findFksById(Connection con, Integer idTrabajador) throws SQLException {
+            String sql = "SELECT id_contacto, id_usuario FROM Trabajadores WHERE id_trabajador = ?";
+            int[] fks = new int[2]; 
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, idTrabajador);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        fks[0] = rs.getInt("id_contacto");
+                        fks[1] = rs.getInt("id_usuario");
+                    }
+                }
+            }
+            return fks; // Devuelve {0, 0} si no lo encuentra o los IDs
+        }
+
+    @Override
+    public List<Trabajador> findAll(Connection con) throws SQLException {
     
- 
+        // Consulta SQL con JOINs para obtener Trabajador, Contacto, Usuario, Especialidad, etc.
+        String sql = "SELECT T.*, C.*, U.*, E.nombre AS especialidad_nombre " +
+                     "FROM Trabajadores T " +
+                     "INNER JOIN Usuarios U ON T.id_usuario = U.id_usuario " +
+                     "INNER JOIN Contactos C ON T.id_contacto = C.id_contacto " +
+                     "INNER JOIN TiposDocumentos TD ON T.id_tipo_doc = TD.id_tipo_doc " +
+                     "LEFT JOIN Especialidades E ON T.id_especialidad = E.id_especialidad"; 
 
-    @Override
-    public Boolean update(Trabajador t) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+        List<Trabajador> lista = new ArrayList<>();
 
-    @Override
-    public Boolean delete(Integer id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+        // Usar try-with-resources para manejar el PreparedStatement y ResultSet
+        try (PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-    @Override
-    public List<Trabajador> list() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+            while (rs.next()) {
+                Trabajador t = new Trabajador();
+                t.setIdTrabajador(rs.getInt("id_trabajador"));
+                t.setNombre(rs.getString("nombre")); // <-- Esta línea falta o el nombre de la columna es incorrecto
+                t.setApellido(rs.getString("apellido"));
+                // ... (otros mapeos directos) ...
 
-    @Override
-    public Trabajador listById(Integer id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+                // 2. CONSTRUCCIÓN DE ENTIDAD ANIDADA: USUARIO
+                // Se asume que la columna id_usuario está listada en el SELECT
+                if (rs.getObject("id_usuario") != null) { 
+                    Usuario usuario = new Usuario();
+                    usuario.setIdUsuario(rs.getInt("id_usuario"));
+                    usuario.setUsername(rs.getString("username")); // <-- ¡VERIFICA ESTE NOMBRE DE COLUMNA!
+                    usuario.setEstado(EstadoUsuario.valueOf(rs.getString("estado")));
+                    // 
 
-    @Override
-    public Trabajador listByName(String nombre) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+                    t.setUsuario(usuario); // <-- ESTA ASIGNACIÓN DEBE SUCEDER
+                }
 
-    @Override
-    public Boolean insert(Trabajador t) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+                // 3. CONSTRUCCIÓN DE ENTIDAD ANIDADA: CONTACTO
+                if (rs.getObject("id_contacto") != null) {
+                    Contacto contacto = new Contacto();
+                    contacto.setIdContacto(rs.getInt("id_contacto"));
+                    contacto.setCorreo(rs.getString("correo")); // <-- ¡VERIFICA ESTE NOMBRE DE COLUMNA!
+                    // ... otros campos del Contacto
+
+                    t.setContacto(contacto); // <-- ESTA ASIGNACIÓN DEBE SUCEDER
+                }
+                String rolDB = rs.getString("rol"); // El nombre de la columna en la tabla Trabajadores es 'rol'
+
+                if (rolDB != null) {
+                    // La conversión a ENUM requiere que el String coincida. 
+                    // Por seguridad, se suele convertir a mayúsculas antes de usar valueOf().
+                    t.setRol(Rol.valueOf(rolDB.toUpperCase()));
+                } else {
+                    // Manejo de error si el rol fuera NULL en la DB (lo cual no debería pasar)
+                    // Pero si pasa, puedes lanzar una excepción o asignar un valor por defecto.
+                }
+                // ... Y asignar las entidades relacionadas (Usuario, Contacto, etc.)
+                lista.add(t); 
+            }
+        }
+
+        return lista;
     }
     
+    @Override 
+    public Trabajador findById(Connection con, Integer idTrabajador) throws SQLException { 
+        // Consulta SQL con JOINs (similar a findAll, pero con WHERE)
+    String sql = "SELECT T.*, C.*, U.*, TD.nombre AS tipo_doc_nombre, E.nombre AS especialidad_nombre " +
+                 "FROM Trabajadores T " +
+                 "INNER JOIN Usuarios U ON T.id_usuario = U.id_usuario " +
+                 "INNER JOIN Contactos C ON T.id_contacto = C.id_contacto " +
+                 "INNER JOIN TiposDocumentos TD ON T.id_tipo_doc = TD.id_tipo_doc " +
+                 "LEFT JOIN Especialidades E ON T.id_especialidad = E.id_especialidad " +
+                 "WHERE T.id_trabajador = ?"; 
+                 
+    Trabajador trabajador = null;
+
+    try (PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, idTrabajador);
+        
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+        trabajador = new Trabajador();
+        Usuario usuario = new Usuario();
+        // 1. Mapeo de campos directos del Trabajador
+        trabajador.setIdTrabajador(rs.getInt("id_trabajador"));
+        trabajador.setNombre(rs.getString("nombre"));
+        trabajador.setApellido(rs.getString("apellido"));
+        trabajador.setColegiatura(rs.getString("colegiatura"));
+        trabajador.setFechaRegistro(rs.getDate("fecha_registro").toLocalDate()); // Asumiendo conversión a LocalDate
+        trabajador.setRol(Rol.valueOf(rs.getString("rol").toUpperCase()));
+        trabajador.setUsuario(usuario);
+        // Mapeo del Tipo de Documento
+        TipoDocumento tipoDoc = new TipoDocumento();
+        tipoDoc.setIdTipoDocumento(rs.getInt("id_tipo_doc"));
+        tipoDoc.setNombre(rs.getString("tipo_doc_nombre"));
+        trabajador.setTipoDocumento(tipoDoc);
+
+        // Mapeo de Especialidad (Manejo de NULL)
+        if (rs.getObject("id_especialidad") != null) {
+            Especialidad especialidad = new Especialidad();
+            especialidad.setIdEspecialidad(rs.getInt("id_especialidad"));
+            especialidad.setNombre(rs.getString("especialidad_nombre"));
+            trabajador.setEspecialidad(especialidad);
+        }
+        
+        // -------------------------------------------------------------
+        // 2. Mapeo de Usuario (Para UsuarioInfoDTO)
+        // -------------------------------------------------------------
+        if (rs.getObject("id_usuario") != null) { 
+            
+            usuario.setIdUsuario(rs.getInt("id_usuario"));
+            // **CORRECCIÓN DE CONVENCIÓN (asumiendo campo en DB y entidad):**
+            usuario.setUsername(rs.getString("username")); 
+            usuario.setEstado(EstadoUsuario.valueOf(rs.getString("estado")));
+            // Puedes mapear el ID de empresa si es necesario para el DTO
+            
+            trabajador.setUsuario(usuario); 
+        }
+
+        // -------------------------------------------------------------
+        // 3. Mapeo de Contacto (Para ContactoInfoDTO)
+        // -------------------------------------------------------------
+        if (rs.getObject("id_contacto") != null) {
+            Contacto contacto = new Contacto();
+            contacto.setIdContacto(rs.getInt("id_contacto"));
+            
+            // ************ ESTOS CAMPOS DEBEN SER MAPEADOS ************
+            contacto.setCorreo(rs.getString("correo")); 
+            contacto.setTelefono(rs.getString("telefono")); 
+            contacto.setDireccion(rs.getString("direccion"));
+            contacto.setTipoContacto(rs.getString("tipo_contacto"));
+            
+            trabajador.setContacto(contacto); 
+        }
+    }
+    }
+    
+    return trabajador;
+    }
+    }
 }
