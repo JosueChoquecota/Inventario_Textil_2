@@ -21,7 +21,8 @@ public interface ProveedorMapper {
     @Mapping(target = "idProveedor", ignore = true)
     @Mapping(target = "tipoDocumento", ignore = true)
     void updateEntityFromRequestDto(ProveedorRequestDTO dto, @MappingTarget Proveedor entity);
-
+    
+    @Mapping(source = "nDocumento", target = "nDocumento")
     @Mapping(source = "tipoDocumento", target = "tipoDocumento")
     ProveedorResponseDTO entityToResponseDto(Proveedor entity);
 

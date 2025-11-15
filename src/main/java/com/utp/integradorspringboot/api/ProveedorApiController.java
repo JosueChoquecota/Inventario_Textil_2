@@ -53,6 +53,7 @@ public class ProveedorApiController {
     @GetMapping("/listar")
     public ResponseEntity<List<ProveedorResponseDTO>> listarProveedores() {
         List<Proveedor> proveedores = proveedorService.listarTodosProveedores();
+        System.out.println("PRUEBA DOC: " + proveedores.get(0).getnDocumento());
         List<ProveedorResponseDTO> responseDtos = proveedorMapper.entityListToResponseDtoList(proveedores);
         return ResponseEntity.ok(responseDtos);
     }

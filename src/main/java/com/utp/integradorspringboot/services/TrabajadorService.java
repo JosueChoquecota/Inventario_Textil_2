@@ -36,79 +36,103 @@ public class TrabajadorService {
 
     private final TrabajadorMapper mapper = TrabajadorMapper.INSTANCE;
     
-    @Transactional
-    public Trabajador registrarTrabajador(Trabajador trabajador, Integer tipoDocumentoId, Integer rolId) {
-
-       if (trabajador.getContrasena() == null || trabajador.getContrasena().isEmpty()) {
-           throw new IllegalArgumentException("La contraseña no puede estar vacía");
-       }
-
-       if (trabajador.getCorreo() == null || trabajador.getCorreo().isEmpty()) {
-           throw new IllegalArgumentException("El correo no puede estar vacío");
-       }
-
-       if (trabajadorRepository.existsByCorreo(trabajador.getCorreo())) {
-           throw new RuntimeException("El correo ya está registrado");
-       }
-
-       trabajador.setContrasena(passwordEncoder.encode(trabajador.getContrasena()));
-       trabajador.setEstado(true);
-       trabajador.setFechaCreacion(LocalDateTime.now());
-       Rol rol = rolRepository.findById(rolId)
-               .orElseThrow(() -> new RuntimeException("No existe el rol"));
-       trabajador.setRol(rol);
-
-       TipoDocumento tipoDocumento = tipoDocumentoRepository.findById(tipoDocumentoId)
-               .orElseThrow(() -> new RuntimeException("No existe el tipo de documento"));
-       trabajador.setTipoDocumento(tipoDocumento);
-
-       return trabajadorRepository.save(trabajador);
-   }
-
-    public Trabajador login(String correo, String contrasena) {
-        Trabajador trabajador = trabajadorRepository.findByCorreo(correo)
-            .orElseThrow(() -> new RuntimeException("Correo o contraseña incorrectos"));
-        if (!passwordEncoder.matches(contrasena, trabajador.getContrasena())) {
-                    throw new RuntimeException("Correo o contraseña incorrectos");
-        }
-        System.out.println("Trabajador encontrado: " + trabajador.getCorreo());
-        System.out.println("Contraseña en DB: " + trabajador.getContrasena());
-
-        if (!passwordEncoder.matches(contrasena, trabajador.getContrasena())) {
-            System.out.println("Contraseña ingresada: " + contrasena);
-            throw new RuntimeException("Correo o contraseña incorrectos");
-        }
-    return trabajador;
+   public List<Trabajador> listarActivos() {
+        return trabajadorRepository.findByEstado(true);
     }
-
-
-    public List<Trabajador> listarTrabajadores() {
+    public List<Trabajador> listarTodos() {
         return trabajadorRepository.findAll();
     }
-    public Optional<Trabajador> buscarPorId(Integer id) {
-        return trabajadorRepository.findById(id);
+    public Trabajador obtenerPorId(Integer id) {
+        return trabajadorRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Trabajador no encontrado con ID: " + id));
     }
-    public TrabajadorResponseDTO buscarPorCorreo(String correo) {
-        Trabajador trabajador = trabajadorRepository.findByCorreo(correo)
-            .orElseThrow(() -> new RuntimeException("No se encontró el trabajador"));
-        return mapper.entityToResponseDto(trabajador);
+
+    
+    public Trabajador crear(Trabajador trabajador, Integer idRol, Integer idTipoDoc) {
+        // Validar documento duplicado
+        validarDocumentoDuplicado(trabajador.getnDocumento(), null);
+        
+        // ✅ Encriptar contraseña con BCrypt
+        String contrasenaEncriptada = passwordEncoder.encode(trabajador.getContrasena());
+        trabajador.setContrasena(contrasenaEncriptada);
+        
+        // Asignar relaciones
+        trabajador.setRol(obtenerRol(idRol));
+        trabajador.setTipoDocumento(obtenerTipoDocumento(idTipoDoc));
+        trabajador.setEstado(true);
+        trabajador.setFechaCreacion(LocalDateTime.now());
+        
+        return trabajadorRepository.save(trabajador);
     }
-    public Trabajador actualizarTrabajador(Integer id, Trabajador nuevosDatos) {
-        return trabajadorRepository.findById(id).map(t -> {
-            t.setNombres(nuevosDatos.getNombres());
-            t.setApellidos(nuevosDatos.getApellidos());
-            t.setTelefono(nuevosDatos.getTelefono());
-            t.setCorreo(nuevosDatos.getCorreo());
-            t.setRol(nuevosDatos.getRol());
-            t.setEstado(nuevosDatos.getEstado());
-            return trabajadorRepository.save(t);
-        }).orElseThrow(() -> new RuntimeException("Trabajador no encontrado"));
-    }
-    public void eliminarTrabajador(Integer id) {
-        if (!trabajadorRepository.existsById(id)) {
-            throw new RuntimeException("El trabajador no existe");
+    
+    /**
+     * Actualizar trabajador existente
+     * Valida documento duplicado, actualiza relaciones y encripta contraseña si viene nueva
+     */
+    public Trabajador actualizar(Integer id, Trabajador nuevosDatos, Integer idRol, Integer idTipoDoc, String nuevaContrasena) {
+        Trabajador existente = obtenerPorId(id);
+        
+        // Validar documento duplicado (excluyendo el ID actual)
+        validarDocumentoDuplicado(nuevosDatos.getnDocumento(), id);
+        
+        // Actualizar campos básicos
+        existente.setNombres(nuevosDatos.getNombres());
+        existente.setApellidos(nuevosDatos.getApellidos());
+        existente.setnDocumento(nuevosDatos.getnDocumento());
+        existente.setTelefono(nuevosDatos.getTelefono());
+        existente.setCorreo(nuevosDatos.getCorreo());
+        if (nuevosDatos.getEstado() != null) {
+        existente.setEstado(nuevosDatos.getEstado());
         }
-        trabajadorRepository.deleteById(id);
+        // Actualizar relaciones
+        existente.setRol(obtenerRol(idRol));
+        existente.setTipoDocumento(obtenerTipoDocumento(idTipoDoc));
+        
+        // ✅ Actualizar contraseña solo si viene nueva (y encriptarla)
+        actualizarContrasena(existente, nuevaContrasena);
+        
+        return trabajadorRepository.save(existente);
+    }
+    
+    /**
+     * Desactivar trabajador (soft delete)
+     */
+    public void desactivar(Integer id) {
+        Trabajador trabajador = obtenerPorId(id);
+        trabajador.setEstado(false);
+        trabajadorRepository.save(trabajador);
+    }
+    
+    // ========================================
+    // MÉTODOS AUXILIARES PRIVADOS
+    // ========================================
+    
+    private void validarDocumentoDuplicado(String nDocumento, Integer idExcluir) {
+        trabajadorRepository.findByNDocumento(nDocumento).ifPresent(existente -> {
+            // Si es actualización, excluir el ID actual de la validación
+            boolean esDuplicado = (idExcluir == null) || (!existente.getId_trabajador().equals(idExcluir));
+            
+            if (esDuplicado) {
+                throw new RuntimeException("El número de documento ya existe");
+            }
+        });
+    }
+    
+    private Rol obtenerRol(Integer idRol) {
+        return rolRepository.findById(idRol)
+            .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + idRol));
+    }
+    
+    private TipoDocumento obtenerTipoDocumento(Integer idTipoDoc) {
+        return tipoDocumentoRepository.findById(idTipoDoc)
+            .orElseThrow(() -> new RuntimeException("Tipo de documento no encontrado con ID: " + idTipoDoc));
+    }
+    
+    private void actualizarContrasena(Trabajador trabajador, String nuevaContrasena) {
+        // Solo actualizar si viene una nueva contraseña
+        if (nuevaContrasena != null && !nuevaContrasena.trim().isEmpty()) {
+            trabajador.setContrasena(nuevaContrasena);
+        }
     }
 }
 

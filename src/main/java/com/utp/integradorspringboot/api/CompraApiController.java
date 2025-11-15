@@ -53,10 +53,6 @@ public class CompraApiController {
     }
  
 
-    
-
-
-
     // 🔹 2. Listar todas las compras
     @GetMapping("/listar")
     public ResponseEntity<List<Compra>> listarCompras() {

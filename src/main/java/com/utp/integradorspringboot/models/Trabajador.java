@@ -25,38 +25,47 @@ public class Trabajador {
      @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_trabajador;
-
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_tipo_doc", nullable = true)
     private TipoDocumento tipoDocumento;
-
-     @Column(name = "n_documento", nullable = false)
-    private Integer nDocumento;
-
+    @Column(name = "n_documento", nullable = false)
+    private String nDocumento;
     @Column(name = "nombres", nullable = false, length = 255)
     private String nombres;
-
     @Column(name = "apellidos", nullable = false, length = 255)
     private String apellidos;
-
     @Column(name = "telefono", nullable = false, length = 9)
     private String telefono;
-
     @Column(name = "correo", nullable = false, length = 255, unique = true)
     private String correo;
-
     @Column(name = "contrasena", nullable = false, length = 255)
     private String contrasena;
-
     @Column(name = "estado")
     private Boolean estado;
-
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
-
     @ManyToOne
     @JoinColumn(name = "id_rol")
     private Rol rol;
+
+    
+    public Trabajador() {
+    }
+
+    
+    public Trabajador(Integer id_trabajador, TipoDocumento tipoDocumento, String nDocumento, String nombres, String apellidos, String telefono, String correo, String contrasena, Boolean estado, LocalDateTime fechaCreacion, Rol rol) {
+        this.id_trabajador = id_trabajador;
+        this.tipoDocumento = tipoDocumento;
+        this.nDocumento = nDocumento;
+        this.nombres = nombres;
+        this.apellidos = apellidos;
+        this.telefono = telefono;
+        this.correo = correo;
+        this.contrasena = contrasena;
+        this.estado = estado;
+        this.fechaCreacion = fechaCreacion;
+        this.rol = rol;
+    }
 
     public Integer getId_trabajador() {
         return id_trabajador;
@@ -74,11 +83,11 @@ public class Trabajador {
         this.tipoDocumento = tipoDocumento;
     }
 
-    public Integer getnDocumento() {
+    public String getnDocumento() {
         return nDocumento;
     }
 
-    public void setnDocumento(Integer nDocumento) {
+    public void setnDocumento(String nDocumento) {
         this.nDocumento = nDocumento;
     }
 
@@ -146,6 +155,6 @@ public class Trabajador {
         this.rol = rol;
     }
 
-   
+ 
     
 }

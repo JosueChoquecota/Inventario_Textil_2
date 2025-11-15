@@ -7,34 +7,51 @@ package com.utp.integradorspringboot.dtos;
 import java.time.LocalDateTime;
 
 public class TrabajadorResponseDTO {
-    private Integer id_trabajador;
-    private Integer nDocumento;
+     private Integer id;  // ✅ Cambiar según tu @Id (id_trabajador)
+    
     private String nombres;
     private String apellidos;
+    private String nDocumento;
     private String telefono;
     private String correo;
+    
+    // ✅ Información del tipo de documento
+    private Integer idTipoDoc;
+    private String tipoDocumentoNombre;  // Ejemplo: "DNI", "RUC"
+    
+    // ✅ Información del rol
+    private Integer idRol;
+    private String rolNombre;  // Ejemplo: "Administrador", "Vendedor"
+    
+    // ✅ Estado como Boolean
     private Boolean estado;
+    
     private LocalDateTime fechaCreacion;
-    private TipoDocumentoDTO tipoDocumento;
-    private RolDTO rol;
 
     public TrabajadorResponseDTO() {
     }
 
-    public Integer getId_trabajador() {
-        return id_trabajador;
-    }
-
-    public void setId_trabajador(Integer id_trabajador) {
-        this.id_trabajador = id_trabajador;
-    }
-
-    public Integer getnDocumento() {
-        return nDocumento;
-    }
-
-    public void setnDocumento(Integer nDocumento) {
+    public TrabajadorResponseDTO(Integer id, String nombres, String apellidos, String nDocumento, String telefono, String correo, Integer idTipoDoc, String tipoDocumentoNombre, Integer idRol, String rolNombre, Boolean estado, LocalDateTime fechaCreacion) {
+        this.id = id;
+        this.nombres = nombres;
+        this.apellidos = apellidos;
         this.nDocumento = nDocumento;
+        this.telefono = telefono;
+        this.correo = correo;
+        this.idTipoDoc = idTipoDoc;
+        this.tipoDocumentoNombre = tipoDocumentoNombre;
+        this.idRol = idRol;
+        this.rolNombre = rolNombre;
+        this.estado = estado;
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getNombres() {
@@ -53,6 +70,14 @@ public class TrabajadorResponseDTO {
         this.apellidos = apellidos;
     }
 
+    public String getnDocumento() {
+        return nDocumento;
+    }
+
+    public void setnDocumento(String nDocumento) {
+        this.nDocumento = nDocumento;
+    }
+
     public String getTelefono() {
         return telefono;
     }
@@ -67,6 +92,38 @@ public class TrabajadorResponseDTO {
 
     public void setCorreo(String correo) {
         this.correo = correo;
+    }
+
+    public Integer getIdTipoDoc() {
+        return idTipoDoc;
+    }
+
+    public void setIdTipoDoc(Integer idTipoDoc) {
+        this.idTipoDoc = idTipoDoc;
+    }
+
+    public String getTipoDocumentoNombre() {
+        return tipoDocumentoNombre;
+    }
+
+    public void setTipoDocumentoNombre(String tipoDocumentoNombre) {
+        this.tipoDocumentoNombre = tipoDocumentoNombre;
+    }
+
+    public Integer getIdRol() {
+        return idRol;
+    }
+
+    public void setIdRol(Integer idRol) {
+        this.idRol = idRol;
+    }
+
+    public String getRolNombre() {
+        return rolNombre;
+    }
+
+    public void setRolNombre(String rolNombre) {
+        this.rolNombre = rolNombre;
     }
 
     public Boolean getEstado() {
@@ -85,23 +142,6 @@ public class TrabajadorResponseDTO {
         this.fechaCreacion = fechaCreacion;
     }
 
-    public TipoDocumentoDTO getTipoDocumento() {
-        return tipoDocumento;
-    }
-
-    public void setTipoDocumento(TipoDocumentoDTO tipoDocumento) {
-        this.tipoDocumento = tipoDocumento;
-    }
-
-    public RolDTO getRol() {
-        return rol;
-    }
-
-    public void setRol(RolDTO rol) {
-        this.rol = rol;
-    }
-    
-    
     
     
     

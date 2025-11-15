@@ -39,6 +39,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+                
+            .cors(cors -> cors.configurationSource(request -> {
+                var config = new org.springframework.web.cors.CorsConfiguration();
+                config.setAllowedOriginPatterns(java.util.List.of("http://localhost:5173")); // tu frontend
+                config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(java.util.List.of("*"));
+                config.setAllowCredentials(true);
+                return config;
+            }))
+                
             .authorizeHttpRequests(auth -> auth
                  // Permitir recursos estáticos sin autenticación
                     .requestMatchers(
@@ -48,32 +58,16 @@ public class SecurityConfig {
                         "/img/**",
                         "/webjars/**"
                     ).permitAll()
-
                     //Permitir login y registro
-                    .requestMatchers("/api/v1/**").permitAll()
-
-                    .requestMatchers(
-                        "/login",
-                        "/register"
-                    ).permitAll()
-
+                    .requestMatchers("/api/v1/**","/login",
+                        "/register")
+                    .permitAll()
                     //Proteger todo lo demás
                     .anyRequest().authenticated()
             )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/dashboard", true) 
-                .failureUrl("/login?error=true")
-                .permitAll() 
-            )
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout=true") 
-                .invalidateHttpSession(true) 
-                .deleteCookies("JSESSIONID") 
-                .permitAll() 
-            );
-
+                .formLogin(form -> form.disable())
+                .logout(logout -> logout.disable())
+                .httpBasic(basic -> basic.disable());
         return http.build();
     }
 }
