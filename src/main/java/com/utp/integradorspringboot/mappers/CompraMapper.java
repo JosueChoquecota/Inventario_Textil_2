@@ -12,7 +12,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {ProveedorMapper.class, TrabajadorMapper.class, DetalleCompraMapper.class})
+@Mapper(uses = {ProveedorMapper.class, TrabajadorMapper.class})
 public interface CompraMapper {
 
     CompraMapper INSTANCE = Mappers.getMapper(CompraMapper.class);

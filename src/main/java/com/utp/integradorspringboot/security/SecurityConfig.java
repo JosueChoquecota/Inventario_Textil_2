@@ -18,6 +18,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import com.utp.integradorspringboot.services.TrabajadorUserDetailsService;
+import java.util.List;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -25,49 +29,77 @@ import com.utp.integradorspringboot.services.TrabajadorUserDetailsService;
 public class SecurityConfig {
 
     
-    private final TrabajadorUserDetailsService userDetailesService;
+    private final TrabajadorUserDetailsService userDetailsService;
 
-    public SecurityConfig(TrabajadorUserDetailsService userDetailesService) {
-        this.userDetailesService = userDetailesService;
+    public SecurityConfig(TrabajadorUserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-                
+            
             .cors(cors -> cors.configurationSource(request -> {
-                var config = new org.springframework.web.cors.CorsConfiguration();
-                config.setAllowedOriginPatterns(java.util.List.of("http://localhost:5173")); // tu frontend
-                config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                config.setAllowedHeaders(java.util.List.of("*"));
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOriginPatterns(List.of("http://localhost:5173"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(List.of("*"));
                 config.setAllowCredentials(true);
                 return config;
             }))
-                
+            
             .authorizeHttpRequests(auth -> auth
-                 // Permitir recursos estáticos sin autenticación
-                    .requestMatchers(
-                        "/vendor/**",
-                        "/css/**",
-                        "/js/**",
-                        "/img/**",
-                        "/webjars/**"
-                    ).permitAll()
-                    //Permitir login y registro
-                    .requestMatchers("/api/v1/**","/login",
-                        "/register")
-                    .permitAll()
-                    //Proteger todo lo demás
-                    .anyRequest().authenticated()
+                // Recursos estáticos públicos
+                .requestMatchers("/vendor/**", "/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
+                
+                // Endpoints de autenticación públicos
+                .requestMatchers("/api/v1/auth/**").permitAll()
+                
+                // API protegida
+                .requestMatchers("/api/v1/**").authenticated()
+                
+                // Todo lo demás requiere autenticación
+                .anyRequest().authenticated()
             )
-                .formLogin(form -> form.disable())
-                .logout(logout -> logout.disable())
-                .httpBasic(basic -> basic.disable());
+            
+            // Deshabilitar form login de Spring (usaremos REST API)
+            .formLogin(form -> form.disable())
+            
+            // Configurar logout personalizado
+            .logout(logout -> logout
+                .logoutUrl("/api/v1/auth/logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setStatus(200);
+                    response.getWriter().write("{\"message\":\"Sesión cerrada correctamente\"}");
+                })
+            )
+            
+            .httpBasic(basic -> basic.disable())
+            
+            .authenticationProvider(authenticationProvider());
+
         return http.build();
     }
 }

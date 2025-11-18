@@ -15,18 +15,16 @@ public class CompraResponseDTO {
     private LocalDate  fecha;
     private BigDecimal precioTotal;
     private TrabajadorResponseDTO trabajador; 
-    private List<DetalleCompraResponseDTO> detalles; 
 
     public CompraResponseDTO() {
     }
 
-    public CompraResponseDTO(Integer idCompra, ProveedorResponseDTO proveedor, LocalDate  fecha, BigDecimal precioTotal, TrabajadorResponseDTO trabajador, List<DetalleCompraResponseDTO> detalles) {
+    public CompraResponseDTO(Integer idCompra, ProveedorResponseDTO proveedor, LocalDate  fecha, BigDecimal precioTotal, TrabajadorResponseDTO trabajador) {
         this.idCompra = idCompra;
         this.proveedor = proveedor;
         this.fecha = fecha;
         this.precioTotal = precioTotal;
         this.trabajador = trabajador;
-        this.detalles = detalles;
     }
 
     public Integer getIdCompra() {
@@ -68,15 +66,5 @@ public class CompraResponseDTO {
     public void setTrabajador(TrabajadorResponseDTO trabajador) {
         this.trabajador = trabajador;
     }
-
-    public List<DetalleCompraResponseDTO> getDetalles() {
-        return detalles;
-    }
-
-    public void setDetalles(List<DetalleCompraResponseDTO> detalles) {
-        this.detalles = detalles;
-    }
-
-    
 
 }
