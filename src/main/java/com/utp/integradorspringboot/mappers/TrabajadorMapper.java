@@ -11,8 +11,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
-
 import java.util.List;
+
 @Mapper(componentModel = "spring")  // ✅ Cambiado a "spring" para inyección automática
 public interface TrabajadorMapper {
 
@@ -23,7 +23,7 @@ public interface TrabajadorMapper {
      * Ignora: id, estado, fechaCreacion, rol, tipoDocumento
      * (Se asignarán manualmente en el controller)
      */
-    @Mapping(target = "id_trabajador", ignore = true) 
+    @Mapping(target = "idTrabajador", ignore = true) 
     @Mapping(target = "estado", ignore = true)     
     @Mapping(target = "fechaCreacion", ignore = true)
     @Mapping(target = "rol", ignore = true)           
@@ -35,7 +35,7 @@ public interface TrabajadorMapper {
      * Ignora: id, estado, fechaCreacion, rol, tipoDocumento
      * (Se actualizarán manualmente en el controller)
      */
-    @Mapping(target = "id_trabajador", ignore = true)
+    @Mapping(target = "idTrabajador", ignore = true)
     @Mapping(target = "estado", ignore = true)
     @Mapping(target = "fechaCreacion", ignore = true)
     @Mapping(target = "rol", ignore = true)
@@ -47,11 +47,12 @@ public interface TrabajadorMapper {
      * ✅ Convierte Entidad → ResponseDTO
      * Mapea objetos relacionados a sus IDs y nombres
      */
-    @Mapping(source = "id_trabajador", target = "id")
+    @Mapping(source = "idTrabajador", target = "id")
     @Mapping(source = "rol.id_rol", target = "idRol")
     @Mapping(source = "rol.nombreRol", target = "rolNombre")
     @Mapping(source = "tipoDocumento.id_tipo_doc", target = "idTipoDoc")
-    @Mapping(source = "tipoDocumento.tipo", target = "nDocumento")
+    @Mapping(source = "tipoDocumento.tipo", target = "tipoDocumento")
+    @Mapping(source = "nDocumento", target = "nDocumento")
     TrabajadorResponseDTO entityToResponseDto(Trabajador entity);
 
     /**

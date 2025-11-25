@@ -4,29 +4,33 @@
  */
 package com.utp.integradorspringboot.dtos;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
+/**
+ *
+ * @author ASUS
+ */
 public class ProductoRequestDTO {
-    
-    @NotBlank
-    @Size
+    @NotBlank(message = "El nombre no puede estar vacío")
     private String nombre;
-    @NotNull
-    private Integer idCategoria;   
-    @NotNull
-    private Integer idMarca;    
-    @Size
-    private String imagen;   
-    @Size
-
+    @NotNull(message = "El ID del tipo de idCategoria es requerido")
+    private Integer idCategoria;
+    @NotNull(message = "El ID del tipo de idMarca es requerido")
+    private Integer idMarca;
+    @NotBlank(message = "El nombre no puede estar vacío")
+    private String descripcion;
+    private String imagen;
 
     public ProductoRequestDTO() {
     }
 
-    public ProductoRequestDTO(String nombre, Integer idCategoria, Integer idMarca, String imagen) {
+    public ProductoRequestDTO(String nombre, Integer idCategoria, Integer idMarca, String descripcion, String imagen) {
         this.nombre = nombre;
         this.idCategoria = idCategoria;
         this.idMarca = idMarca;
+        this.descripcion = descripcion;
         this.imagen = imagen;
     }
 
@@ -54,11 +58,20 @@ public class ProductoRequestDTO {
         this.idMarca = idMarca;
     }
 
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
     public String getImagen() {
         return imagen;
     }
 
     public void setImagen(String imagen) {
         this.imagen = imagen;
-    } 
+    }
+
 }

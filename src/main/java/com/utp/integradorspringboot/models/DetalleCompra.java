@@ -17,22 +17,22 @@ public class DetalleCompra {
     @JoinColumn(name = "id_lista_producto", nullable = false)
     private ListaProductos listaProducto;
     @Column(name = "precio_unitario", nullable = false)
-    private BigDecimal  PrecioUnitario;  
+    private BigDecimal   PrecioUnitario;  
     @Column(name = "sub_total", nullable = false)
-    private BigDecimal  subTotal;
+    private BigDecimal   subTotal;
     @Column(name = "cantidad", nullable = false) 
-    private int CantidadCompra; 
+    private Integer cantidad; 
 
     public DetalleCompra() {
     }
 
-    public DetalleCompra(Integer idDetalleCompra, Compra compra, ListaProductos listaProducto, BigDecimal PrecioUnitario, BigDecimal subTotal, int CantidadCompra) {
+    public DetalleCompra(Integer idDetalleCompra, Compra compra, ListaProductos listaProducto, BigDecimal PrecioUnitario, BigDecimal subTotal, Integer cantidad) {
         this.idDetalleCompra = idDetalleCompra;
         this.compra = compra;
         this.listaProducto = listaProducto;
         this.PrecioUnitario = PrecioUnitario;
         this.subTotal = subTotal;
-        this.CantidadCompra = CantidadCompra;
+        this.cantidad = cantidad;
     }
 
     public Integer getIdDetalleCompra() {
@@ -75,14 +75,12 @@ public class DetalleCompra {
         this.subTotal = subTotal;
     }
 
-    public int getCantidadCompra() {
-        return CantidadCompra;
+    public Integer getCantidad() {
+        return cantidad;
     }
 
-    public void setCantidadCompra(int CantidadCompra) {
-        this.CantidadCompra = CantidadCompra;
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
     }
 
-    
-    
 }

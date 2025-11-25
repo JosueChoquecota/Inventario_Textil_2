@@ -6,26 +6,35 @@ package com.utp.integradorspringboot.dtos;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
+import lombok.Data;
 
+/**
+ *
+ * @author ASUS
+ */
+@Data
 public class CompraResponseDTO {
     private Integer idCompra;
-    private ProveedorResponseDTO proveedor; 
-    private LocalDate  fecha;
+    private String fecha;           // "2025-11-22" para frontend
     private BigDecimal precioTotal;
-    private TrabajadorResponseDTO trabajador; 
-
-    public CompraResponseDTO() {
-    }
-
-    public CompraResponseDTO(Integer idCompra, ProveedorResponseDTO proveedor, LocalDate  fecha, BigDecimal precioTotal, TrabajadorResponseDTO trabajador) {
-        this.idCompra = idCompra;
-        this.proveedor = proveedor;
-        this.fecha = fecha;
-        this.precioTotal = precioTotal;
-        this.trabajador = trabajador;
-    }
+    
+    // Proveedor
+    private Integer idProveedor;
+    private String nombreProveedor;
+    private Integer documentoProveedor;
+    private String tipoDocumentoProveedor;
+    
+    // Trabajador
+    private Integer idTrabajador;
+    private String nombreCompletoTrabajador;
+    
+    // Detalles
+    private List<DetalleCompraResponseDTO> detalles;
+    
+    // Totales
+    private Integer  totalProductos;
+    private Integer  totalUnidades;
 
     public Integer getIdCompra() {
         return idCompra;
@@ -35,19 +44,11 @@ public class CompraResponseDTO {
         this.idCompra = idCompra;
     }
 
-    public ProveedorResponseDTO getProveedor() {
-        return proveedor;
-    }
-
-    public void setProveedor(ProveedorResponseDTO proveedor) {
-        this.proveedor = proveedor;
-    }
-
-    public LocalDate  getFecha() {
+    public String getFecha() {
         return fecha;
     }
 
-    public void setFecha(LocalDate  fecha) {
+    public void setFecha(String fecha) {
         this.fecha = fecha;
     }
 
@@ -59,12 +60,78 @@ public class CompraResponseDTO {
         this.precioTotal = precioTotal;
     }
 
-    public TrabajadorResponseDTO getTrabajador() {
-        return trabajador;
+    public Integer getIdProveedor() {
+        return idProveedor;
     }
 
-    public void setTrabajador(TrabajadorResponseDTO trabajador) {
-        this.trabajador = trabajador;
+    public void setIdProveedor(Integer idProveedor) {
+        this.idProveedor = idProveedor;
     }
 
+    public String getNombreProveedor() {
+        return nombreProveedor;
+    }
+
+    public void setNombreProveedor(String nombreProveedor) {
+        this.nombreProveedor = nombreProveedor;
+    }
+
+    public Integer getDocumentoProveedor() {
+        return documentoProveedor;
+    }
+
+    public void setDocumentoProveedor(Integer documentoProveedor) {
+        this.documentoProveedor = documentoProveedor;
+    }
+
+    public String getTipoDocumentoProveedor() {
+        return tipoDocumentoProveedor;
+    }
+
+    public void setTipoDocumentoProveedor(String tipoDocumentoProveedor) {
+        this.tipoDocumentoProveedor = tipoDocumentoProveedor;
+    }
+
+    public Integer getIdTrabajador() {
+        return idTrabajador;
+    }
+
+    public void setIdTrabajador(Integer idTrabajador) {
+        this.idTrabajador = idTrabajador;
+    }
+
+    public String getNombreCompletoTrabajador() {
+        return nombreCompletoTrabajador;
+    }
+
+    public void setNombreCompletoTrabajador(String nombreCompletoTrabajador) {
+        this.nombreCompletoTrabajador = nombreCompletoTrabajador;
+    }
+
+    public List<DetalleCompraResponseDTO> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetalleCompraResponseDTO> detalles) {
+        this.detalles = detalles;
+    }
+
+    public Integer getTotalProductos() {
+        return totalProductos;
+    }
+
+    public void setTotalProductos(Integer totalProductos) {
+        this.totalProductos = totalProductos;
+    }
+
+    public Integer getTotalUnidades() {
+        return totalUnidades;
+    }
+
+    public void setTotalUnidades(Integer totalUnidades) {
+        this.totalUnidades = totalUnidades;
+    }
+
+    
+   
 }

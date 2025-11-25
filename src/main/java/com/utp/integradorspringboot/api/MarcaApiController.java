@@ -1,19 +1,13 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.utp.integradorspringboot.api;
 
-import com.utp.integradorspringboot.dtos.MarcaDTO;
 import com.utp.integradorspringboot.dtos.MarcaRequestDTO;
+import com.utp.integradorspringboot.dtos.MarcaResponseDTO;
 import com.utp.integradorspringboot.mappers.MarcaMapper;
 import com.utp.integradorspringboot.models.Marca;
+import com.utp.integradorspringboot.repositories.MarcaRepository;
+import com.utp.integradorspringboot.services.ImagenService;
 import com.utp.integradorspringboot.services.MarcaService;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,107 +25,111 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/v1/marcas") 
+@RequestMapping("/api/v1/marcas")
 public class MarcaApiController {
 
-     @Autowired
-    private MarcaService marcaService;
+    private final MarcaService marcaService;
+    private final MarcaMapper marcaMapper;
+    private final ImagenService imagenService;
 
-    private final MarcaMapper marcaMapper = MarcaMapper.INSTANCE;
-
-    @PostMapping(value = "/registrar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> crearMarca(
-            @RequestPart("data") MarcaRequestDTO requestDto,
-            @RequestPart(value = "logo", required = false) MultipartFile logoFile
-    ) {
-        try {
-            Marca marcaNueva = marcaMapper.requestDtoToEntity(requestDto);
-
-            if (logoFile != null && !logoFile.isEmpty()) {
-                String uploadDir = "uploads/marcas/";
-                File directorio = new File(uploadDir);
-                if (!directorio.exists()) directorio.mkdirs();
-
-                String nombreArchivo = System.currentTimeMillis() + "_" + logoFile.getOriginalFilename();
-                Path rutaArchivo = Paths.get(uploadDir, nombreArchivo);
-                Files.copy(logoFile.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
-
-                marcaNueva.setLogo(uploadDir + nombreArchivo);
-            } else {
-                marcaNueva.setLogo("uploads/marcas/default.png");
-            }
-
-            Marca marcaGuardada = marcaService.guardarOActualizarMarca(marcaNueva);
-            MarcaDTO responseDto = marcaMapper.entityToDto(marcaGuardada);
-
-            return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al crear la marca: " + e.getMessage());
-        }
+    @Autowired
+    public MarcaApiController(
+            MarcaService marcaService,
+            MarcaMapper marcaMapper,
+            ImagenService imagenService) {
+        this.marcaService = marcaService;
+        this.marcaMapper = marcaMapper;
+        this.imagenService = imagenService;
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<List<MarcaDTO>> listarMarcas() {
-        List<Marca> marcas = marcaService.listarTodasMarcas();
-        List<MarcaDTO> marcasDto = marcas.stream()
-                .map(marcaMapper::entityToDto)
-                .toList();
-        return ResponseEntity.ok(marcasDto);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerMarcaPorId(@PathVariable Integer id) {
+    public ResponseEntity<List<MarcaResponseDTO>> listarMarcas() {
         try {
-            Marca marca = marcaService.buscarMarcaPorId(id);
-            MarcaDTO responseDto = marcaMapper.entityToDto(marca);
-            return ResponseEntity.ok(responseDto);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            List<Marca> marcas = marcaService.listarMarcas();
+            List<MarcaResponseDTO> response = marcaMapper.toDTOList(marcas);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    // ✅ REGISTRAR
+    @PostMapping(value = "/registrar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> registrarMarca(
+            @RequestPart("data") MarcaRequestDTO dto,
+            @RequestPart(value = "logo", required = false) MultipartFile logo
+    ) {
+        System.out.println("======================================");
+        System.out.println("📥 REGISTRAR MARCA");
+        System.out.println("📦 DTO: " + dto);
+        System.out.println("📦 Logo: " + (logo != null ? logo.getOriginalFilename() : "null"));
+        System.out.println("======================================");
+        
+        try {
+            // ✅ Guardar logo AQUÍ y setear la ruta en el DTO
+            if (logo != null && !logo.isEmpty()) {
+                String rutaLogo = imagenService.guardarImagenMarca(logo);
+                dto.setLogo(rutaLogo);
+                System.out.println("💾 Logo guardado: " + rutaLogo);
+            }
+            
+            Marca creada = marcaService.crear(dto);
+            MarcaResponseDTO response = marcaMapper.toDTOResponse(creada);
+            
+            return ResponseEntity.ok(response);
+
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    // ✅ ACTUALIZAR
     @PutMapping(value = "/actualizar/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> actualizarMarca(
             @PathVariable Integer id,
-            @RequestPart("data") MarcaRequestDTO requestDto,
-            @RequestPart(value = "logo", required = false) MultipartFile logoFile
+            @RequestPart("data") MarcaRequestDTO dto,
+            @RequestPart(value = "logo", required = false) MultipartFile nuevoLogo
     ) {
+        System.out.println("======================================");
+        System.out.println("📥 ACTUALIZAR MARCA ID: " + id);
+        System.out.println("📦 DTO: " + dto);
+        System.out.println("📦 Nuevo logo: " + (nuevoLogo != null ? nuevoLogo.getOriginalFilename() : "null"));
+        System.out.println("======================================");
+        
         try {
-            Marca marcaExistente = marcaService.buscarMarcaPorId(id);
+            // ✅ Obtener marca actual
+            Marca marcaActual = marcaService.obtenerPorId(id);
 
-            marcaExistente.setMarca(requestDto.getMarca());
-            marcaExistente.setDescLogo(requestDto.getDescLogo());
-
-            // Actualizar logo si se envía uno nuevo
-            if (logoFile != null && !logoFile.isEmpty()) {
-                String uploadDir = "uploads/marcas/";
-                File directorio = new File(uploadDir);
-                if (!directorio.exists()) directorio.mkdirs();
-
-                String nombreArchivo = System.currentTimeMillis() + "_" + logoFile.getOriginalFilename();
-                Path rutaArchivo = Paths.get(uploadDir, nombreArchivo);
-                Files.copy(logoFile.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
-
-                marcaExistente.setLogo(uploadDir + nombreArchivo);
+            // ✅ Si hay nuevo logo, guardarlo y setear en el DTO
+            if (nuevoLogo != null && !nuevoLogo.isEmpty()) {
+                System.out.println("📦 Procesando nuevo logo: " + nuevoLogo.getOriginalFilename());
+                System.out.println("📦 Tamaño: " + nuevoLogo.getSize() + " bytes");
+                
+                // Guardar nuevo logo
+                String rutaNuevoLogo = imagenService.guardarImagenMarca(nuevoLogo);
+                dto.setLogo(rutaNuevoLogo);
+                System.out.println("💾 Nuevo logo guardado: " + rutaNuevoLogo);
+            } else {
+                System.out.println("📝 Sin logo nuevo, manteniendo el existente");
+                // ✅ Mantener el logo actual
+                dto.setLogo(marcaActual.getLogo());
             }
 
-            Marca marcaActualizada = marcaService.guardarOActualizarMarca(marcaExistente);
-            MarcaDTO responseDto = marcaMapper.entityToDto(marcaActualizada);
+            // ✅ Actualizar marca (el service eliminará el logo anterior si cambió)
+            Marca actualizada = marcaService.actualizar(id, dto);
+            MarcaResponseDTO response = marcaMapper.toDTOResponse(actualizada);
 
-            return ResponseEntity.ok(responseDto);
+            System.out.println("✅ Marca actualizada correctamente");
+            return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al actualizar la marca: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminarMarca(@PathVariable Integer id) {
         try {

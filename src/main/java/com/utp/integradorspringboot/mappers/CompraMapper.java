@@ -4,34 +4,63 @@
  */
 package com.utp.integradorspringboot.mappers;
 
-import com.utp.integradorspringboot.dtos.CompraRequestDTO;
 import com.utp.integradorspringboot.dtos.CompraResponseDTO;
 import com.utp.integradorspringboot.models.Compra;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(uses = {ProveedorMapper.class, TrabajadorMapper.class})
+@Mapper(
+    componentModel = "spring",
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface CompraMapper {
-
-    CompraMapper INSTANCE = Mappers.getMapper(CompraMapper.class);
-
-    // --- RequestDTO -> Partial Compra Entity ---
-    // Service will handle setting 'proveedor', 'trabajador', 'precioTotal', and details
-    @Mapping(target = "idCompra", ignore = true)
-    @Mapping(target = "proveedor", ignore = true)
-    @Mapping(target = "trabajador", ignore = true)
-    @Mapping(target = "precioTotal", ignore = true)
-    // MapStruct maps 'fecha' automatically
-    Compra requestDtoToEntity(CompraRequestDTO dto);
-
-
-    // --- Entity -> ResponseDTO ---
-    @Mapping(source = "proveedor", target = "proveedor")
-    @Mapping(source = "trabajador", target = "trabajador")
-    // @Mapping(source = "detalleCompras", target = "detalles") // <-- ¡BORRA ESTA LÍNEA!
-    CompraResponseDTO entityToResponseDto(Compra entity);
-
-    List<CompraResponseDTO> entityListToResponseDtoList(List<Compra> entityList);
+    
+    /**
+     * Mapeo de Compra → CompraResponseDTO
+     * ✅ Basado en tu model: Compra tiene LocalDate fecha
+     */
+    @Mapping(target = "idCompra", source = "idCompra")
+    @Mapping(target = "fecha", expression = "java(formatearFecha(compra.getFecha()))")
+    @Mapping(target = "precioTotal", source = "precioTotal")
+    
+    // Proveedor (según tu model: proveedor tiene "nombres" no "nombre")
+    @Mapping(target = "idProveedor", source = "proveedor.idProveedor")
+    @Mapping(target = "nombreProveedor", source = "proveedor.nombres")
+    @Mapping(target = "documentoProveedor", source = "proveedor.nDocumento")
+    @Mapping(target = "tipoDocumentoProveedor", source = "proveedor.tipoDocumento.tipo")
+    
+    // Trabajador (según tu model: trabajador tiene "nombres" y "apellidos")
+    @Mapping(target = "idTrabajador", source = "trabajador.idTrabajador")
+    @Mapping(target = "nombreCompletoTrabajador", expression = "java(obtenerNombreCompleto(compra))")
+    
+    // Ignorar (se setean manualmente en el Service)
+    @Mapping(target = "detalles", ignore = true)
+    @Mapping(target = "totalProductos", ignore = true)
+    @Mapping(target = "totalUnidades", ignore = true)
+    
+    CompraResponseDTO toResponseDTO(Compra compra);
+    
+    /**
+     * ✅ Convierte LocalDate → String "2025-11-22"
+     */
+    default String formatearFecha(LocalDate fecha) {
+        if (fecha == null) return null;
+        return fecha.format(DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+    
+    /**
+     * Obtener nombre completo del trabajador
+     */
+    default String obtenerNombreCompleto(Compra compra) {
+        if (compra.getTrabajador() == null) return "";
+        String nombres = compra.getTrabajador().getNombres() != null ? 
+                         compra.getTrabajador().getNombres() : "";
+        String apellidos = compra.getTrabajador().getApellidos() != null ? 
+                           compra.getTrabajador().getApellidos() : "";
+        return (nombres + " " + apellidos).trim();
+    }
 }

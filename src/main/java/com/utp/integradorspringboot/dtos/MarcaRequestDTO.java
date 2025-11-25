@@ -5,48 +5,39 @@
 package com.utp.integradorspringboot.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
-/**
- *
- * @author ASUS
- */
+
 public class MarcaRequestDTO {
-    @NotBlank(message = "El nombre de la marca no puede estar vacío")
-    @Size(max = 255, message = "El nombre no puede exceder los 255 caracteres")
-    private String marca; 
-    @Size(max = 255, message = "La ruta del logo no puede exceder los 255 caracteres")
+    @NotBlank(message = "La marca es requerido")
+    private String marca;
+    @NotBlank(message = "El logo es requerido")
     private String logo; 
-
-    @Size(max = 255, message = "La descripción del logo no puede exceder los 255 caracteres")
-    private String descLogo; 
+    @NotBlank(message = "La descripcion es requerido")
+    private String descripcion;
 
     public MarcaRequestDTO() {
     }
-
+    public MarcaRequestDTO(String marca, String logo, String descripcion) {
+        this.marca = marca;
+        this.logo = logo;
+        this.descripcion = descripcion;
+    }
     public String getMarca() {
         return marca;
     }
-
     public void setMarca(String marca) {
         this.marca = marca;
     }
-
     public String getLogo() {
         return logo;
     }
-
     public void setLogo(String logo) {
         this.logo = logo;
     }
-
-    public String getDescLogo() {
-        return descLogo;
+    public String getDescripcion() {
+        return descripcion;
     }
-
-    public void setDescLogo(String descLogo) {
-        this.descLogo = descLogo;
-    }
-
-
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }   
 }

@@ -7,8 +7,6 @@ package com.utp.integradorspringboot.api;
 import com.utp.integradorspringboot.dtos.TrabajadorRequestDTO;
 import com.utp.integradorspringboot.dtos.TrabajadorResponseDTO;
 import com.utp.integradorspringboot.mappers.TrabajadorMapper;
-import com.utp.integradorspringboot.models.Rol;
-import com.utp.integradorspringboot.models.TipoDocumento;
 import com.utp.integradorspringboot.models.Trabajador;
 import com.utp.integradorspringboot.repositories.TrabajadorRepository;
 import com.utp.integradorspringboot.services.TrabajadorService;
@@ -17,9 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 
 @RestController 
 @RequestMapping("/api/v1/trabajadores") 
@@ -69,7 +65,7 @@ public class TrabajadorApiController {
             // 3. Convertir Entidad → ResponseDTO
             TrabajadorResponseDTO response = trabajadorMapper.entityToResponseDto(guardado);
             
-            System.out.println("✅ Trabajador registrado con ID: " + guardado.getId_trabajador());
+            System.out.println("✅ Trabajador registrado con ID: " + guardado.getIdTrabajador());
             return ResponseEntity.ok(response);
             
         } catch (RuntimeException e) {

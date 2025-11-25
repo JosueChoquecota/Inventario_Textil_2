@@ -1,41 +1,50 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.utp.integradorspringboot.services;
 
+import com.utp.integradorspringboot.mappers.CategoriaMapper;
 import com.utp.integradorspringboot.models.Categoria;
 import com.utp.integradorspringboot.repositories.CategoriaRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ *
+ * @author ASUS
+ */
 @Service
 public class CategoriaService {
-
     @Autowired
     private CategoriaRepository categoriaRepository;
-    @Transactional
-    public Categoria guardarOActualizarCategoria(Categoria categoria) {
-        Optional<Categoria> existente = categoriaRepository.findByNombreIgnoreCase(categoria.getNombre());
-        if (existente.isPresent() && !existente.get().getIdCategoria().equals(categoria.getIdCategoria())) {
-            throw new RuntimeException("Ya existe una categoría con el nombre: " + categoria.getNombre());
-        }
-        return categoriaRepository.save(categoria);
-    }
-
-    @Transactional
-    public List<Categoria> listarTodasCategorias() {
+    @Autowired
+    private final CategoriaMapper mapper = CategoriaMapper.INSTANCE;
+    
+    public List<Categoria> listarCategoria() {
         return categoriaRepository.findAll();
     }
-    @Transactional
-    public Categoria buscarCategoriaPorId(Integer id) {
+    
+    public Categoria obtenerPorId(Integer id) {
         return categoriaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Categoria no encontrado ID: "+ id));
     }
-    @Transactional
+    public Categoria crear(Categoria categoria) {
+        return categoriaRepository.save(categoria);
+    }
+    public Categoria actualizar(Integer id, Categoria nuevaCategoria){
+        Categoria existente = obtenerPorId(id);
+        
+        existente.setNombre(nuevaCategoria.getNombre());
+        existente.setDescripcion(nuevaCategoria.getDescripcion());
+        return categoriaRepository.save(existente);
+    }
     public void eliminarCategoria(Integer id) {
         if (!categoriaRepository.existsById(id)) {
-            throw new RuntimeException("Categoría no encontrada con ID: " + id);
+            throw new RuntimeException("Categoria no encontrado: "+ id);
         }
         categoriaRepository.deleteById(id);
     }
+    
 }

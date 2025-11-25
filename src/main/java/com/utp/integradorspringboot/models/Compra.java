@@ -15,9 +15,9 @@ public class Compra {
     @JoinColumn(name = "id_proveedor", nullable = false)
     private Proveedor proveedor;   
     @Column(name = "fecha")
-    private LocalDate   fecha;  
+    private LocalDate fecha;  
     @Column(name = "precio_total", nullable = false)
-    private BigDecimal  precioTotal;  
+    private BigDecimal   precioTotal;  
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_trabajador", nullable = false) 
     private Trabajador trabajador;
@@ -25,7 +25,7 @@ public class Compra {
     public Compra() {
     }
 
-    public Compra(Integer idCompra, Proveedor proveedor, LocalDate  fecha, BigDecimal precioTotal, Trabajador trabajador) {
+    public Compra(Integer idCompra, Proveedor proveedor, LocalDate fecha, BigDecimal precioTotal, Trabajador trabajador) {
         this.idCompra = idCompra;
         this.proveedor = proveedor;
         this.fecha = fecha;
@@ -49,11 +49,11 @@ public class Compra {
         this.proveedor = proveedor;
     }
 
-    public LocalDate  getFecha() {
+    public LocalDate getFecha() {
         return fecha;
     }
 
-    public void setFecha(LocalDate  fecha) {
+    public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
     }
 
@@ -72,5 +72,6 @@ public class Compra {
     public void setTrabajador(Trabajador trabajador) {
         this.trabajador = trabajador;
     }
+
 
 }

@@ -23,7 +23,6 @@ public class TipoDocumento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_tipo_doc;
     @Column(name = "tipo", nullable = false, length = 255)
-
     private String tipo;
 
     public Integer getId_tipo_doc() {

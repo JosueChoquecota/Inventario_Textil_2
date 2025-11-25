@@ -17,7 +17,7 @@ public class TrabajadorResponseDTO {
     
     // ✅ Información del tipo de documento
     private Integer idTipoDoc;
-    private String tipoDocumentoNombre;  // Ejemplo: "DNI", "RUC"
+    private String tipoDocumento;  // Ejemplo: "DNI", "RUC"
     
     // ✅ Información del rol
     private Integer idRol;
@@ -29,21 +29,6 @@ public class TrabajadorResponseDTO {
     private LocalDateTime fechaCreacion;
 
     public TrabajadorResponseDTO() {
-    }
-
-    public TrabajadorResponseDTO(Integer id, String nombres, String apellidos, String nDocumento, String telefono, String correo, Integer idTipoDoc, String tipoDocumentoNombre, Integer idRol, String rolNombre, Boolean estado, LocalDateTime fechaCreacion) {
-        this.id = id;
-        this.nombres = nombres;
-        this.apellidos = apellidos;
-        this.nDocumento = nDocumento;
-        this.telefono = telefono;
-        this.correo = correo;
-        this.idTipoDoc = idTipoDoc;
-        this.tipoDocumentoNombre = tipoDocumentoNombre;
-        this.idRol = idRol;
-        this.rolNombre = rolNombre;
-        this.estado = estado;
-        this.fechaCreacion = fechaCreacion;
     }
 
     public Integer getId() {
@@ -102,12 +87,12 @@ public class TrabajadorResponseDTO {
         this.idTipoDoc = idTipoDoc;
     }
 
-    public String getTipoDocumentoNombre() {
-        return tipoDocumentoNombre;
+    public String getTipoDocumento() {
+        return tipoDocumento;
     }
 
-    public void setTipoDocumentoNombre(String tipoDocumentoNombre) {
-        this.tipoDocumentoNombre = tipoDocumentoNombre;
+    public void setTipoDocumento(String tipoDocumento) {
+        this.tipoDocumento = tipoDocumento;
     }
 
     public Integer getIdRol() {
@@ -142,7 +127,5 @@ public class TrabajadorResponseDTO {
         this.fechaCreacion = fechaCreacion;
     }
 
-    
-    
     
 }

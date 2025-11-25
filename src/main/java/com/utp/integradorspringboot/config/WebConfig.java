@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-     @Override
+    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Expone la carpeta uploads para que el navegador pueda acceder
         registry.addResourceHandler("/uploads/**")

@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 public class Trabajador {
      @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_trabajador;
+    private Integer idTrabajador;
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id_tipo_doc", nullable = true)
     private TipoDocumento tipoDocumento;
@@ -53,8 +53,8 @@ public class Trabajador {
     }
 
     
-    public Trabajador(Integer id_trabajador, TipoDocumento tipoDocumento, String nDocumento, String nombres, String apellidos, String telefono, String correo, String contrasena, Boolean estado, LocalDateTime fechaCreacion, Rol rol) {
-        this.id_trabajador = id_trabajador;
+    public Trabajador(Integer idTrabajador, TipoDocumento tipoDocumento, String nDocumento, String nombres, String apellidos, String telefono, String correo, String contrasena, Boolean estado, LocalDateTime fechaCreacion, Rol rol) {
+        this.idTrabajador = idTrabajador;
         this.tipoDocumento = tipoDocumento;
         this.nDocumento = nDocumento;
         this.nombres = nombres;
@@ -67,12 +67,12 @@ public class Trabajador {
         this.rol = rol;
     }
 
-    public Integer getId_trabajador() {
-        return id_trabajador;
+    public Integer getIdTrabajador() {
+        return idTrabajador;
     }
 
-    public void setId_trabajador(Integer id_trabajador) {
-        this.id_trabajador = id_trabajador;
+    public void setIdTrabajador(Integer idTrabajador) {
+        this.idTrabajador = idTrabajador;
     }
 
     public TipoDocumento getTipoDocumento() {

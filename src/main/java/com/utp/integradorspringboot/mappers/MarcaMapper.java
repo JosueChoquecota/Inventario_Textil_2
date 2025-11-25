@@ -4,27 +4,38 @@
  */
 package com.utp.integradorspringboot.mappers;
 
-import com.utp.integradorspringboot.dtos.MarcaDTO;
 import com.utp.integradorspringboot.dtos.MarcaRequestDTO;
+import com.utp.integradorspringboot.dtos.MarcaResponseDTO;
 import com.utp.integradorspringboot.models.Marca;
 import java.util.List;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+
+@Mapper(componentModel = "spring")
 public interface MarcaMapper {
     MarcaMapper INSTANCE = Mappers.getMapper(MarcaMapper.class);
-
-    @Mapping(target = "idMarca", ignore = true) 
-
-    Marca requestDtoToEntity(MarcaRequestDTO dto);
-
+    
+    //CON ESTO MAPEO Y MANDO MI INFORMACION
+    @Mapping(target ="idMarca", ignore =true)
+    @Mapping(target="logo", source="logo" )
+    Marca toEntityRequest(MarcaRequestDTO dto);
+    
+    //CON ESTO MAPEO Y RECIBO INFORMACION    
+    MarcaResponseDTO toDTOResponse(Marca entity);
+    
+    //CON ESTO ACTUALIZO INFORMACION
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "idMarca", ignore = true)
-    void updateEntityFromRequestDto(MarcaRequestDTO dto, @MappingTarget Marca entity);
+    @Mapping(target="logo", source="logo" )
+    void updateEntityFromDTO(MarcaRequestDTO dto, @MappingTarget Marca entity);
+    
+    //LISTAR INFORMACION
+    List<MarcaResponseDTO> toDTOList(List<Marca> entities);
+    List<Marca> toEntityList(List<MarcaRequestDTO>dtos);
 
-    MarcaDTO entityToDto(Marca marca);
-
-    List<MarcaDTO> entityListToDtoList(List<Marca> marcas);
 }

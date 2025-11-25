@@ -4,36 +4,38 @@
  */
 package com.utp.integradorspringboot.dtos;
 
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import lombok.Data;
 
+/**
+ *
+ * @author ASUS
+ */
+@Data
 public class CompraRequestDTO {
-
-    @NotNull(message = "El ID del proveedor es requerido")
     private Integer idProveedor;
-    @NotNull(message = "La fecha es requerida")
-    @FutureOrPresent(message = "La fecha no puede ser pasada")
-    private LocalDate  fecha;
-    @NotNull(message = "El ID de lista_producto es requerido") // ID de la variación (Producto+Talla+Color)
-    private Integer idListaProducto; 
-    @NotNull(message = "La cantidad es requerida")
-    @Min(value = 1, message = "La cantidad debe ser al menos 1")
-    private Integer cantidad;
-    @NotNull(message = "El precio unitario es requerido")
-    private BigDecimal precioUnitario; 
-    
+    private Integer idTrabajador;
+    private String fecha;           // "2025-11-22" desde frontend
+    private BigDecimal  precioTotal;
+    private List<DetalleCompraRequestDTO> detalles;
+
     public CompraRequestDTO() {
     }
 
-    public CompraRequestDTO(Integer idProveedor, LocalDate  fecha, Integer idListaProducto, Integer cantidad, BigDecimal precioUnitario) {
+    public CompraRequestDTO(Integer idProveedor, Integer idTrabajador, String fecha, BigDecimal precioTotal, List<DetalleCompraRequestDTO> detalles) {
         this.idProveedor = idProveedor;
+        this.idTrabajador = idTrabajador;
         this.fecha = fecha;
-        this.idListaProducto = idListaProducto;
-        this.cantidad = cantidad;
-        this.precioUnitario = precioUnitario;
+        this.precioTotal = precioTotal;
+        this.detalles = detalles;
     }
 
     public Integer getIdProveedor() {
@@ -44,37 +46,37 @@ public class CompraRequestDTO {
         this.idProveedor = idProveedor;
     }
 
-    public LocalDate  getFecha() {
+    public Integer getIdTrabajador() {
+        return idTrabajador;
+    }
+
+    public void setIdTrabajador(Integer idTrabajador) {
+        this.idTrabajador = idTrabajador;
+    }
+
+    public String getFecha() {
         return fecha;
     }
 
-    public void setFecha(LocalDate  fecha) {
+    public void setFecha(String fecha) {
         this.fecha = fecha;
     }
 
-    public Integer getIdListaProducto() {
-        return idListaProducto;
+    public BigDecimal getPrecioTotal() {
+        return precioTotal;
     }
 
-    public void setIdListaProducto(Integer idListaProducto) {
-        this.idListaProducto = idListaProducto;
+    public void setPrecioTotal(BigDecimal precioTotal) {
+        this.precioTotal = precioTotal;
     }
 
-    public Integer getCantidad() {
-        return cantidad;
+    public List<DetalleCompraRequestDTO> getDetalles() {
+        return detalles;
     }
 
-    public void setCantidad(Integer cantidad) {
-        this.cantidad = cantidad;
+    public void setDetalles(List<DetalleCompraRequestDTO> detalles) {
+        this.detalles = detalles;
     }
 
-    public BigDecimal getPrecioUnitario() {
-        return precioUnitario;
-    }
-
-    public void setPrecioUnitario(BigDecimal precioUnitario) {
-        this.precioUnitario = precioUnitario;
-    }
-    
     
 }

@@ -110,7 +110,7 @@ public class TrabajadorService {
     private void validarDocumentoDuplicado(String nDocumento, Integer idExcluir) {
         trabajadorRepository.findByNDocumento(nDocumento).ifPresent(existente -> {
             // Si es actualización, excluir el ID actual de la validación
-            boolean esDuplicado = (idExcluir == null) || (!existente.getId_trabajador().equals(idExcluir));
+            boolean esDuplicado = (idExcluir == null) || (!existente.getIdTrabajador().equals(idExcluir));
             
             if (esDuplicado) {
                 throw new RuntimeException("El número de documento ya existe");

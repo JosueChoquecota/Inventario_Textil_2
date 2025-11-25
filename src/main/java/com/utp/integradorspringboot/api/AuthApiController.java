@@ -72,7 +72,7 @@ public class AuthApiController {
 
             // 5. Preparar respuesta
             LoginResponseDTO response = new LoginResponseDTO();
-            response.setId(trabajador.getId_trabajador());
+            response.setId(trabajador.getIdTrabajador());
             response.setNombres(trabajador.getNombres());
             response.setApellidos(trabajador.getApellidos());
             response.setCorreo(trabajador.getCorreo());
@@ -111,7 +111,7 @@ public class AuthApiController {
                 .orElseThrow(() -> new RuntimeException("Trabajador no encontrado"));
 
             LoginResponseDTO response = new LoginResponseDTO();
-            response.setId(trabajador.getId_trabajador());
+            response.setId(trabajador.getIdTrabajador());
             response.setNombres(trabajador.getNombres());
             response.setApellidos(trabajador.getApellidos());
             response.setCorreo(trabajador.getCorreo());
