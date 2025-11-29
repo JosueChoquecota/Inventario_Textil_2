@@ -1,0 +1,189 @@
+/* Estilos del sidebar y animación hover (ajustes de distribución) */
+.sidebar {
+  width: 300px;
+  transition: background-color .2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* moved logo to top */
+  padding-top: 0; /* alinea con la topbar */
+}
+
+/* Brand fijo en la parte superior (a la altura de la topbar) */
+.sidebar-brand {
+  margin: 0;
+  padding: 10px 0 8px 0;
+  position: sticky;
+  top: 0;          /* queda a la altura del topbar */
+  z-index: 10;
+  background: transparent;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+/* Contenedor central (ajustado para no solaparse con el brand) */
+.nav-center {
+  margin-top: 6px;
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  height: 660px;     /* ajusta según necesites */
+  padding: 0.5rem 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  gap: .5rem;
+}
+
+/* Reserva espacio adicional al final del área de menú para que
+   submenus desplegables no empujen el botón de cerrar sesión */
+.nav-center::after {
+  content: "";
+  display: block;
+  height: 120px; /* espacio de reserva; ajusta si necesitas más/menos */
+  pointer-events: none;
+}
+
+/* Asegura que la lista no se estire y conserve su dirección columna */
+.sidebar-nav {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  width: 100%;
+}
+
+/* Resto de estilos de links (sin cambios) */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding: .6rem .75rem;
+  color: #e9eef1;
+  border-radius: .5rem;
+  text-decoration: none;
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+  will-change: transform, background, box-shadow;
+}
+
+.sidebar-link .icon {
+  font-size: 1.2rem;
+  color: #cfe3e9;
+  flex-shrink: 0;
+}
+
+.sidebar-link .label {
+  font-size: 0.95rem;
+}
+
+.sidebar-link.small-link {
+  padding-left: .4rem;
+  font-size: .95rem;
+  color: #eef6f9;
+}
+
+.sidebar-link:hover,
+.sidebar-link:focus {
+  transform: translateX(6px);
+  background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  color: #fff;
+  text-decoration: none;
+}
+
+.sidebar-link:hover .icon,
+.sidebar-link:focus .icon {
+  color: #fff;
+}
+
+.collapse-toggle .chevron {
+  transition: transform .18s ease;
+}
+.collapse-toggle.collapsed .chevron { transform: rotate(0deg); }
+.collapse-toggle:not(.collapsed) .chevron { transform: rotate(180deg); }
+
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateX(3px);
+}
+
+.logout-btn:active {
+  transform: scale(0.98);
+}
+
+.logout-btn i {
+  font-size: 1.1rem;
+}
+
+/* User info */
+.user-info,
+.user-info-mobile {
+  transition: all 0.3s ease;
+}
+
+.user-info:hover,
+.user-info-mobile:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.avatar {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ✅ ESTADO ACTIVO - NavLink automáticamente agrega clase "active" */
+.sidebar-link.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-weight: 600;
+  border-left: 4px solid #fff;
+  padding-left: calc(0.75rem - 4px);
+}
+
+/* Hover sobre link activo */
+.sidebar-link.active:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Submenú activo */
+.sidebar-link.small-link.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-weight: 500;
+  border-left: 3px solid rgba(255, 255, 255, 0.9);
+  padding-left: calc(0.4rem - 3px);
+}
+
+/* Animación suave */
+@keyframes slideInActive {
+  from {
+    border-left-width: 0px;
+    background: transparent;
+  }
+  to {
+    border-left-width: 4px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.sidebar-link.active {
+  animation: slideInActive 0.3s ease;
+}

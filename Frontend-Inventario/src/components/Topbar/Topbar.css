@@ -1,0 +1,161 @@
+/* Topbar Principal */
+.topbar {
+    height: 70px;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Avatar del usuario */
+.user-avatar {
+    text-transform: uppercase;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.user-avatar-wrapper:hover .user-avatar {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+/* Botón del dropdown */
+.dropdown > button {
+    transition: all 0.3s ease;
+}
+
+.dropdown > button:hover {
+    opacity: 0.8;
+}
+
+/* Menú desplegable */
+.dropdown-menu {
+    animation: fadeInDown 0.3s ease;
+    border-radius: 12px;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Items del dropdown */
+.dropdown-item {
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    margin: 2px 8px;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: #fee;
+    color: #dc3545 !important;
+}
+
+/* Header del dropdown */
+.dropdown-header {
+    border-radius: 12px 12px 0 0;
+}
+
+/* Badge de rol */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .topbar {
+        height: 60px;
+    }
+    
+    .user-avatar {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1rem !important;
+    }
+}
+
+/* Badge de estado online */
+.position-absolute.badge {
+    border: 2px solid white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Topbar */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Avatar hover effect */
+.dropdown .bg-primary {
+    transition: all 0.3s ease;
+}
+
+.dropdown:hover .bg-primary {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+    animation: fadeIn 0.2s ease;
+    border-radius: 8px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Items del dropdown */
+.dropdown-item {
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    margin: 2px 8px;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: #fee;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar {
+        height: 60px !important;
+    }
+}
