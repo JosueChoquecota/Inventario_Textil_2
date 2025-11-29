@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react'
 
-export default function ModalEditar({ 
+export default function ModalEditar({
   title = "Editar",
-  initialData = {}, 
+  initialData = {},
   fields = [],
-  onClose, 
+  onClose,
   onSave,
   transformPayload,
   getId  // ← ✅ Agregar prop
 }) {
   const [formData, setFormData] = useState(initialData)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     setFormData(initialData)
+    setError(null)
   }, [initialData])
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData({ ...formData, [name]: value })
@@ -36,8 +38,13 @@ export default function ModalEditar({
 
     console.log('📤 Modal → Guardando:', { id, payload })
 
-    await onSave(id, payload)
-    onClose?.()
+    try {
+      setError(null)
+      await onSave(id, payload)
+      onClose?.()
+    } catch (err) {
+      setError(err.message || 'Error al guardar los cambios')
+    }
   }
 
   return (
@@ -49,21 +56,29 @@ export default function ModalEditar({
     >
       <div className="card shadow-sm w-100" style={{ width: 900, maxWidth: 920, maxHeight: '90vh', overflow: 'hidden' }}>
         <div className="card-body d-flex flex-column" style={{ overflowY: 'auto', paddingBottom: 16 }}>
-          
+
           {/* Header */}
           <div className="d-flex justify-content-between align-items-start mb-2">
             <div>
               <h5 className="mb-1">{title}</h5>
               <small className="text-muted">Complete los datos requeridos</small>
             </div>
-            <button 
-              type="button" 
-              className="btn btn-sm btn-outline-secondary" 
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
               onClick={() => onClose?.()}
             >
               Cerrar
             </button>
           </div>
+
+          {/* Alerta de Error */}
+          {error && (
+            <div className="alert alert-danger d-flex align-items-center mb-3" role="alert">
+              <i className="bi bi-exclamation-triangle-fill me-2"></i>
+              <div>{error}</div>
+            </div>
+          )}
 
           {/* Formulario */}
           <form onSubmit={handleSubmit}>
@@ -71,7 +86,7 @@ export default function ModalEditar({
               {fields.map(field => (
                 <div key={field.name} className={field.colClass || 'col-12 col-md-6'}>
                   <label className="form-label small">{field.label}</label>
-                  
+
                   {field.type === 'select' ? (
                     // ✅ Campo tipo SELECT
                     <select
@@ -90,16 +105,32 @@ export default function ModalEditar({
                     </select>
                   ) : (
                     // ✅ Campo tipo INPUT
-                    <input
-                      type={field.type || 'text'}
-                      name={field.name}
-                      value={formData[field.name] || ''}
-                      onChange={handleChange}
-                      className="form-control"
-                      placeholder={field.placeholder}
-                      required={field.required}
-                      maxLength={field.maxLength}
-                    />
+                    (() => {
+                      // Resolver maxLength dinámico
+                      const resolvedMaxLength = typeof field.maxLength === 'function'
+                        ? field.maxLength(formData)
+                        : field.maxLength
+
+                      return (
+                        <input
+                          type={field.type || 'text'}
+                          name={field.name}
+                          value={formData[field.name] || ''}
+                          onChange={(e) => {
+                            // ✅ Lógica onlyNumbers
+                            if (field.onlyNumbers) {
+                              e.target.value = e.target.value.replace(/[^0-9]/g, '')
+                            }
+                            handleChange(e)
+                          }}
+                          className="form-control"
+                          placeholder={field.placeholder}
+                          required={field.required}
+                          maxLength={resolvedMaxLength}
+                          inputMode={field.onlyNumbers ? 'numeric' : undefined}
+                        />
+                      )
+                    })()
                   )}
                 </div>
               ))}
@@ -107,9 +138,9 @@ export default function ModalEditar({
 
             {/* Botones */}
             <div className="d-flex justify-content-end gap-2 mt-4">
-              <button 
-                type="button" 
-                className="btn btn-outline-secondary" 
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
                 onClick={() => onClose?.()}
               >
                 Cancelar

@@ -78,6 +78,11 @@ public class AuthApiController {
             response.setCorreo(trabajador.getCorreo());
             response.setRol(trabajador.getRol().getNombreRol());
             response.setIdRol(trabajador.getRol().getId_rol());
+            response.setTelefono(trabajador.getTelefono());
+            response.setnDocumento(trabajador.getnDocumento());
+            response.setId_tipo_doc(trabajador.getTipoDocumento().getId_tipo_doc());
+            
+            
 
             System.out.println("✅ Login exitoso: " + trabajador.getCorreo() + " - Rol: " + trabajador.getRol().getNombreRol());
 
@@ -117,7 +122,10 @@ public class AuthApiController {
             response.setCorreo(trabajador.getCorreo());
             response.setRol(trabajador.getRol().getNombreRol());
             response.setIdRol(trabajador.getRol().getId_rol());
-
+            response.setId_tipo_doc(trabajador.getTipoDocumento().getId_tipo_doc());
+            response.setTelefono(trabajador.getTelefono());
+            response.setnDocumento(trabajador.getnDocumento());
+            
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {

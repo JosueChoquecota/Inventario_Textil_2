@@ -1,13 +1,50 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { obtenerStock } from '../../api/stockApi'
 import Spinner from '../../components/Common/Spinner'
 import Error from '../../components/Common/error'
+
+// ✅ Mapa de colores
+const colorMap = {
+  'rojo': '#dc3545',
+  'azul': '#0d6efd',
+  'verde': '#198754',
+  'amarillo': '#ffc107',
+  'negro': '#212529',
+  'blanco': '#ffffff',
+  'gris': '#6c757d',
+  'naranja': '#fd7e14',
+  'morado': '#6f42c1',
+  'rosa': '#d63384',
+  'marrón': '#795548',
+  'celeste': '#0dcaf0',
+  'beige': '#f5f5dc',
+  'turquesa': '#20c997',
+  'lila': '#e0cffc',
+  'fucsia': '#d63384',
+  'vino': '#800020'
+}
+
+const getColorStyle = (colorName) => {
+  const name = colorName?.toLowerCase()?.trim()
+  const bg = colorMap[name] || '#e9ecef' // Default gray
+  const isLight = ['amarillo', 'blanco', 'beige', 'celeste', 'lila'].includes(name)
+
+  return {
+    backgroundColor: bg,
+    color: isLight ? '#000' : '#fff',
+    border: name === 'blanco' ? '1px solid #dee2e6' : '1px solid transparent'
+  }
+}
 
 export default function StockPage() {
   const [stock, setStock] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [expandedId, setExpandedId] = useState(null)
+
+  // ✅ Estados para búsqueda y ordenamiento
+  const [search, setSearch] = useState('')
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
 
   useEffect(() => {
     obtenerStock()
@@ -22,6 +59,56 @@ export default function StockPage() {
   }, [])
 
   const formatCurrency = (value) => `S/ ${Number(value || 0).toFixed(2)}`
+
+  // ✅ Manejador de ordenamiento
+  const handleSort = (key) => {
+    let direction = 'asc'
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc'
+    }
+    setSortConfig({ key, direction })
+  }
+
+  // ✅ Lógica de filtrado y ordenamiento
+  const filteredStock = useMemo(() => {
+    let result = [...stock]
+
+    // 1. Filtrar
+    if (search) {
+      const q = search.toLowerCase()
+      result = result.filter(item =>
+        item.nombreProducto?.toLowerCase().includes(q) ||
+        item.marca?.toLowerCase().includes(q) ||
+        item.categoria?.toLowerCase().includes(q) ||
+        item.talla?.toLowerCase().includes(q) ||
+        item.color?.toLowerCase().includes(q) ||
+        item.proveedor?.toLowerCase().includes(q)
+      )
+    }
+
+    // 2. Ordenar
+    if (sortConfig.key) {
+      result.sort((a, b) => {
+        // Manejo de nulos
+        const valA = a[sortConfig.key] || ''
+        const valB = b[sortConfig.key] || ''
+
+        if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1
+        if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1
+        return 0
+      })
+    }
+
+    return result
+  }, [stock, search, sortConfig])
+
+  // ✅ Helper para icono de ordenamiento
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) return <i className="bi bi-arrow-down-up text-muted ms-1" style={{ fontSize: '0.8em' }}></i>
+    return sortConfig.direction === 'asc'
+      ? <i className="bi bi-sort-down-alt text-primary ms-1"></i>
+      : <i className="bi bi-sort-up text-primary ms-1"></i>
+  }
 
   if (loading) {
     return (
@@ -52,13 +139,39 @@ export default function StockPage() {
       </div>
 
       <div className="card shadow-sm">
-        {/* Título de la tabla */}
-        <div className="mb-2 pt-3 px-3 pb-0">
-          <strong>Clientes</strong>
-          <small className="text-muted ms-2">
-            ({stock.length} {stock.length === 1 ? 'producto' : 'productos'})
-          </small>
+        {/* ✅ Barra de búsqueda y contador */}
+        <div className="card-header bg-white py-3">
+          <div className="row align-items-center">
+            <div className="col-12 col-md-6 mb-2 mb-md-0">
+              <div className="input-group">
+                <span className="input-group-text bg-light border-end-0">
+                  <i className="bi bi-search text-muted"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control border-start-0 bg-light"
+                  placeholder="Buscar por producto, marca, categoría, color..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                {search && (
+                  <button
+                    className="btn btn-outline-secondary border-start-0 bg-light"
+                    onClick={() => setSearch('')}
+                  >
+                    <i className="bi bi-x-lg"></i>
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="col-12 col-md-6 text-md-end">
+              <span className="badge bg-primary rounded-pill">
+                {filteredStock.length} {filteredStock.length === 1 ? 'producto' : 'productos'} encontrados
+              </span>
+            </div>
+          </div>
         </div>
+
         <div className="card-body p-0">
           {/* Vista escritorio/tablet */}
           <div className="d-none d-md-block" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '60vh' }}>
@@ -66,28 +179,46 @@ export default function StockPage() {
               <table className="table table-hover align-middle" style={{ minWidth: 900 }}>
                 <thead className="table-light sticky-top">
                   <tr>
-                    <th>ID</th>
-                    <th>Producto</th>
-                    <th>Categoría</th>
-                    <th>Marca</th>
-                    <th>Talla</th>
-                    <th>Color</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Proveedor</th>
+                    <th onClick={() => handleSort('idListaProducto')} style={{ cursor: 'pointer' }}>
+                      ID {getSortIcon('idListaProducto')}
+                    </th>
+                    <th onClick={() => handleSort('nombreProducto')} style={{ cursor: 'pointer' }}>
+                      Producto {getSortIcon('nombreProducto')}
+                    </th>
+                    <th onClick={() => handleSort('categoria')} style={{ cursor: 'pointer' }}>
+                      Categoría {getSortIcon('categoria')}
+                    </th>
+                    <th onClick={() => handleSort('marca')} style={{ cursor: 'pointer' }}>
+                      Marca {getSortIcon('marca')}
+                    </th>
+                    <th onClick={() => handleSort('talla')} style={{ cursor: 'pointer' }}>
+                      Talla {getSortIcon('talla')}
+                    </th>
+                    <th onClick={() => handleSort('color')} style={{ cursor: 'pointer' }}>
+                      Color {getSortIcon('color')}
+                    </th>
+                    <th onClick={() => handleSort('cantidad')} style={{ cursor: 'pointer' }}>
+                      Cantidad {getSortIcon('cantidad')}
+                    </th>
+                    <th onClick={() => handleSort('precioUnitario')} style={{ cursor: 'pointer' }}>
+                      Precio Unitario {getSortIcon('precioUnitario')}
+                    </th>
+                    <th onClick={() => handleSort('proveedor')} style={{ cursor: 'pointer' }}>
+                      Proveedor {getSortIcon('proveedor')}
+                    </th>
                     <th style={{ width: 140 }}>Detalles</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {stock.length === 0 ? (
+                  {filteredStock.length === 0 ? (
                     <tr>
                       <td colSpan={10} className="text-center text-muted py-4">
-                        <i className="bi bi-inbox display-4 d-block mb-2"></i>
-                        No hay productos en stock
+                        <i className="bi bi-search display-4 d-block mb-2"></i>
+                        No se encontraron resultados
                       </td>
                     </tr>
                   ) : (
-                    stock.map(item => {
+                    filteredStock.map(item => {
                       const id = item.idListaProducto
                       const isExpanded = expandedId === id
                       return (
@@ -111,7 +242,9 @@ export default function StockPage() {
                               <span className="badge bg-secondary">{item.talla || '-'}</span>
                             </td>
                             <td>
-                              <span className="badge bg-info text-dark">{item.color || '-'}</span>
+                              <span className="badge" style={getColorStyle(item.color)}>
+                                {item.color || '-'}
+                              </span>
                             </td>
                             <td>
                               <span className="badge bg-primary rounded-pill px-3">
@@ -169,16 +302,13 @@ export default function StockPage() {
           </div>
           {/* Vista móvil */}
           <div className="d-block d-md-none p-3">
-            {stock.length === 0 ? (
+            {filteredStock.length === 0 ? (
               <div className="text-center text-muted py-5">
-                <i className="bi bi-inbox fs-1 d-block mb-3 text-secondary"></i>
-                <p className="mb-0">No hay productos en stock</p>
-                <small className="text-muted">
-                  Registra compras para agregar productos al stock
-                </small>
+                <i className="bi bi-search fs-1 d-block mb-3 text-secondary"></i>
+                <p className="mb-0">No se encontraron resultados</p>
               </div>
             ) : (
-              stock.map(item => {
+              filteredStock.map(item => {
                 const id = item.idListaProducto
                 const isExpanded = expandedId === id
                 return (
@@ -194,7 +324,9 @@ export default function StockPage() {
                       </div>
                       <div className="mb-2">
                         <span className="badge bg-secondary me-1">{item.talla || '-'}</span>
-                        <span className="badge bg-info text-dark">{item.color || '-'}</span>
+                        <span className="badge" style={getColorStyle(item.color)}>
+                          {item.color || '-'}
+                        </span>
                       </div>
                       <div className="mb-2">
                         <small className="text-muted">

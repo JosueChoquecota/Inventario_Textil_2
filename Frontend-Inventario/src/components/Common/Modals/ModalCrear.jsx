@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import PasswordInput from '../../../pages/Trabajadores/validations/PasswordInput'
 
-export default function ModalCrear({ 
+export default function ModalCrear({
   title = "Crear",
   fields = [],
-  onClose, 
+  onClose,
   onCreate,
   transformPayload
 }) {
@@ -19,17 +19,17 @@ export default function ModalCrear({
   useEffect(() => {
     const loadSelectOptions = async () => {
       const selectFields = fields.filter(f => f.type === 'select' && f.apiEndpoint)
-      
+
       if (selectFields.length === 0) {
         setLoadingOptions(false)
         return
       }
-      
+
       console.log('🔄 Cargando opciones de selects...')
-      
+
       for (const field of selectFields) {
         try {
-          const url = `http://localhost:8081${field.apiEndpoint}`          
+          const url = `http://localhost:8081${field.apiEndpoint}`
           const response = await fetch(url, {
             method: 'GET',
             credentials: 'include',
@@ -37,12 +37,12 @@ export default function ModalCrear({
               'Content-Type': 'application/json'
             }
           })
-          
+
           if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`)
           }
-          
-          const data = await response.json()          
+
+          const data = await response.json()
           setSelectOptions(prev => ({
             ...prev,
             [field.name]: data
@@ -51,10 +51,10 @@ export default function ModalCrear({
           console.error(`❌ Error cargando ${field.name}:`, err)
         }
       }
-      
+
       setLoadingOptions(false)
     }
-    
+
     if (fields.length > 0) {
       loadSelectOptions()
     }
@@ -62,12 +62,12 @@ export default function ModalCrear({
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target
-    
+
     // ✅ Manejo especial para archivos
     if (type === 'file') {
       const file = files[0]
       setFormData(prev => ({ ...prev, [name]: file || null }))
-      
+
       // ✅ Generar preview si es imagen
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader()
@@ -86,7 +86,7 @@ export default function ModalCrear({
     } else {
       setFormData(prev => ({ ...prev, [name]: value }))
     }
-    
+
     setError(null)
   }
 
@@ -96,8 +96,8 @@ export default function ModalCrear({
     setError(null)
 
     try {
-      
-      const payload = transformPayload ? transformPayload(formData) : formData      
+
+      const payload = transformPayload ? transformPayload(formData) : formData
       await onCreate(payload)
       onClose?.()
     } catch (err) {
@@ -119,15 +119,15 @@ export default function ModalCrear({
     >
       <div className="card shadow-sm" style={{ width: 920, maxWidth: '90vw', maxHeight: '90vh', overflow: 'hidden' }}>
         <div className="card-body" style={{ overflowY: 'auto' }}>
-          
+
           <div className="d-flex justify-content-between align-items-start mb-3">
             <div>
               <h5 className="mb-1">{title}</h5>
               <small className="text-muted">Complete los datos requeridos</small>
             </div>
-            <button 
-              type="button" 
-              className="btn-close" 
+            <button
+              type="button"
+              className="btn-close"
               onClick={onClose}
               aria-label="Cerrar"
             />
@@ -158,18 +158,18 @@ export default function ModalCrear({
                         {field.label}
                         {field.required && <span className="text-danger ms-1">*</span>}
                       </label>
-                      
+
                       {/* Preview de imagen */}
                       {imagePreviews[field.name] && (
                         <div className="mb-2">
-                          <img 
+                          <img
                             src={imagePreviews[field.name]}
                             alt="Preview"
                             className="img-thumbnail d-block"
-                            style={{ 
-                              maxWidth: field.previewSize || 200, 
-                              maxHeight: field.previewSize || 200, 
-                              objectFit: 'cover' 
+                            style={{
+                              maxWidth: field.previewSize || 200,
+                              maxHeight: field.previewSize || 200,
+                              objectFit: 'cover'
                             }}
                           />
                           <small className="text-success d-block mt-1">
@@ -177,7 +177,7 @@ export default function ModalCrear({
                           </small>
                         </div>
                       )}
-                      
+
                       <input
                         type="file"
                         name={field.name}
@@ -186,7 +186,7 @@ export default function ModalCrear({
                         onChange={handleChange}
                         required={field.required}
                       />
-                      
+
                       {field.helperText && (
                         <small className="text-muted d-block mt-1">
                           {field.helperText}
@@ -226,7 +226,7 @@ export default function ModalCrear({
                 // ✅ Campo select (con opciones estáticas o dinámicas)
                 if (field.type === 'select') {
                   // Usar opciones de API si están disponibles, sino usar opciones estáticas
-                  const options = field.apiEndpoint 
+                  const options = field.apiEndpoint
                     ? (selectOptions[field.name] || [])
                     : (field.options || [])
 
@@ -248,15 +248,15 @@ export default function ModalCrear({
                           {loadingOptions && field.apiEndpoint ? 'Cargando...' : 'Seleccione...'}
                         </option>
                         {options.map((opt, index) => (
-                          <option 
-                            key={field.valueKey ? opt[field.valueKey] : opt.id || index} 
+                          <option
+                            key={field.valueKey ? opt[field.valueKey] : opt.id || index}
                             value={field.valueKey ? opt[field.valueKey] : opt.id}
                           >
                             {field.labelKey ? opt[field.labelKey] : opt.nombre}
                           </option>
                         ))}
                       </select>
-                      
+
                       {!loadingOptions && field.apiEndpoint && options.length === 0 && (
                         <small className="text-warning d-block mt-1">
                           ⚠️ No se pudieron cargar las opciones
@@ -273,20 +273,36 @@ export default function ModalCrear({
                       {field.label}
                       {field.required && <span className="text-danger ms-1">*</span>}
                     </label>
-                    <input
-                      type={field.type || 'text'}
-                      name={field.name}
-                      value={formData[field.name] || ''}
-                      onChange={handleChange}
-                      className="form-control"
-                      placeholder={field.placeholder}
-                      required={field.required}
-                      maxLength={field.maxLength}
-                      minLength={field.minLength}
-                      min={field.min}
-                      max={field.max}
-                      step={field.step}
-                    />
+                    {(() => {
+                      // Resolver maxLength dinámico
+                      const resolvedMaxLength = typeof field.maxLength === 'function'
+                        ? field.maxLength(formData)
+                        : field.maxLength
+
+                      return (
+                        <input
+                          type={field.type || 'text'}
+                          name={field.name}
+                          value={formData[field.name] || ''}
+                          onChange={(e) => {
+                            // ✅ Lógica onlyNumbers
+                            if (field.onlyNumbers) {
+                              e.target.value = e.target.value.replace(/[^0-9]/g, '')
+                            }
+                            handleChange(e)
+                          }}
+                          className="form-control"
+                          placeholder={field.placeholder}
+                          required={field.required}
+                          maxLength={resolvedMaxLength}
+                          minLength={field.minLength}
+                          min={field.min}
+                          max={field.max}
+                          step={field.step}
+                          inputMode={field.onlyNumbers ? 'numeric' : undefined}
+                        />
+                      )
+                    })()}
                     {field.helperText && (
                       <small className="text-muted d-block mt-1">
                         {field.helperText}
@@ -305,16 +321,16 @@ export default function ModalCrear({
             )}
 
             <div className="d-flex justify-content-end gap-2 mt-4">
-              <button 
-                type="button" 
-                className="btn btn-outline-secondary" 
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
                 onClick={onClose}
                 disabled={saving}
               >
                 Cancelar
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn btn-primary"
                 disabled={saving || loadingOptions}
               >

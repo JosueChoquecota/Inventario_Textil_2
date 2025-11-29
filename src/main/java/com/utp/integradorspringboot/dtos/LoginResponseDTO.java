@@ -12,12 +12,18 @@ public class LoginResponseDTO {
     private Integer id;
     private String nombres;
     private String apellidos;
+    private String telefono;
+    private String nDocumento;
+    private Integer id_tipo_doc;
     private String correo;
     private String rol;
     private Integer idRol;
 
     public LoginResponseDTO() {
     }
+
+
+
     
     public Integer getId() {
         return id;
@@ -41,6 +47,30 @@ public class LoginResponseDTO {
 
     public void setApellidos(String apellidos) {
         this.apellidos = apellidos;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getnDocumento() {
+        return nDocumento;
+    }
+
+    public void setnDocumento(String nDocumento) {
+        this.nDocumento = nDocumento;
+    }
+
+    public Integer getId_tipo_doc() {
+        return id_tipo_doc;
+    }
+
+    public void setId_tipo_doc(Integer id_tipo_doc) {
+        this.id_tipo_doc = id_tipo_doc;
     }
 
     public String getCorreo() {
@@ -67,5 +97,5 @@ public class LoginResponseDTO {
         this.idRol = idRol;
     }
     
-    
+   
 }

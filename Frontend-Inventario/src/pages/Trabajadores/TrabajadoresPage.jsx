@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useCRUD } from '../../hooks/useCRUD.jsx'
-import { trabajadoresConfig } from './config/trabajadoresConfig'
+import { createTrabajadoresConfig } from './config/trabajadoresConfig'
 import { createFilterConfig } from './config/filterConfig'
 import { useTrabajadoresFilter } from './hooks/useTrabajadoresFilter.jsx'
 import TablaTrabajadores from './TablaTrabajadores'
@@ -8,10 +8,25 @@ import ModalEditar from '../../components/Common/Modals/ModalEditor'
 import ModalEliminar from '../../components/Common/Modals/ModalEliminar.jsx'
 import ModalCrear from '../../components/Common/Modals/ModalCrear.jsx'
 import FilterBar from '../../components/Common/filters/FIlterBar.jsx'
+import { obtenerTiposDocumento } from '../../api/tipoDocumentoApi'
 
 export default function TrabajadoresPage() {
+  const [tiposDoc, setTiposDoc] = useState([])
+
+  // ✅ Cargar tipos de documento al montar
+  useEffect(() => {
+    obtenerTiposDocumento()
+      .then(data => setTiposDoc(data))
+      .catch(err => console.error("Error cargando tipos de documento:", err))
+  }, [])
+
+  // ✅ Generar configuración dinámica
+  const trabajadoresConfig = useMemo(() => {
+    return createTrabajadoresConfig(tiposDoc)
+  }, [tiposDoc])
+
   const { data, loading, error, onRefresh, create, update, remove } = useCRUD(trabajadoresConfig)
-  
+
   const [showCreate, setShowCreate] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showToggle, setShowToggle] = useState(false)
@@ -44,7 +59,7 @@ export default function TrabajadoresPage() {
   const handleUpdate = async (id, trabajadorActualizado) => {
     await update(id, trabajadorActualizado)
     setShowEdit(false)
-  } 
+  }
   const handleToggleEstado = async (id) => {
     await remove(id)
     setShowToggle(false)
@@ -77,7 +92,7 @@ export default function TrabajadoresPage() {
     <div className="container-fluid">
       {/* Título */}
       <div className="mb-3">
-        
+
         <h4 className="mb-1"><i className="bi bi-people me-2"></i>Trabajadores</h4>
         <small className="text-muted">
           Gestión completa de trabajadores
@@ -99,7 +114,7 @@ export default function TrabajadoresPage() {
       )}
 
       {/* Tabla de trabajadores */}
-      <TablaTrabajadores 
+      <TablaTrabajadores
         trabajadores={filtered}
         loading={loading}
         error={error}
@@ -129,7 +144,7 @@ export default function TrabajadoresPage() {
           key={`toggle-${trabajadoresConfig.getId(selected)}`}
           title={selected.estado ? "Desactivar Trabajador" : "Activar Trabajador"}
           message={
-            selected.estado 
+            selected.estado
               ? "¿Está seguro que desea desactivar este trabajador? El usuario no podrá iniciar sesión."
               : "¿Está seguro que desea activar este trabajador?"
           }

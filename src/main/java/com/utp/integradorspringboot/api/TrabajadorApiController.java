@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.function.Supplier;
 import org.springframework.http.HttpStatus;
 
 @RestController 
@@ -44,6 +45,7 @@ public class TrabajadorApiController {
         }
     }
     
+
     // ========================================
     // POST /registrar
     // ========================================
@@ -79,6 +81,21 @@ public class TrabajadorApiController {
                 .body("Error al registrar trabajador");
         }
     }
+    @GetMapping("/obtener/{id}")
+        public ResponseEntity<?> obtenerTrabajadorPorId(@PathVariable Integer id) {
+            try {
+                Trabajador trabajador = trabajadorService.obtenerPorId(id);
+                if (trabajador == null) {
+                    return ResponseEntity.status(404)
+                        .body("Trabajador con ID " + id + " no encontrado");
+                }
+                TrabajadorResponseDTO response = trabajadorMapper.entityToResponseDto(trabajador);
+                return ResponseEntity.ok(response);
+            } catch (Exception e) {
+                return ResponseEntity.status(500)
+                    .body("Error al obtener trabajador");
+            }
+        }
     
     // ========================================
     // PUT /actualizar/{id}
@@ -146,4 +163,6 @@ public class TrabajadorApiController {
                 .body("Error al desactivar trabajador");
         }
     }
+    
+    
 }

@@ -10,13 +10,16 @@ export const obtenerTrabajadores = async () => {
 };
 
 export const registrarTrabajador = async (trabajador) => {
-  const response = await fetch(`${API_URL}/registrar`, {  
+  const response = await fetch(`${API_URL}/registrar`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(trabajador)
   });
-  if (!response.ok) throw new Error(`Error ${response.status}`)
+  if (!response.ok) {
+    const errorData = await response.text();
+    throw new Error(errorData || `Error ${response.status}`);
+  }
   return response.json();
 };
 
@@ -27,7 +30,10 @@ export const actualizarTrabajador = async (id, trabajador) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(trabajador),
   });
-  if (!response.ok) throw new Error(`Error ${response.status}`)
+  if (!response.ok) {
+    const errorData = await response.text();
+    throw new Error(errorData || `Error ${response.status}`);
+  }
   return response.json();
 };
 
@@ -36,19 +42,19 @@ export const eliminarTrabajador = async (id) => {
     method: 'DELETE',
     credentials: 'include',
   });
-  
+
   if (!response.ok) throw new Error(`Error ${response.status}`)
-  
+
   const contentType = response.headers.get('content-type')
   const text = await response.text()
-  
+
   if (!text || text.trim() === '') {
     return { success: true, id }
   }
-  
+
   if (contentType && contentType.includes('application/json')) {
     return JSON.parse(text)
   }
-  
+
   return { success: true, message: text }
 };

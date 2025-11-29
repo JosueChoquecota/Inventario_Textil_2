@@ -18,7 +18,6 @@ import org.springframework.stereotype.Repository;
 public interface TrabajadorRepository  extends JpaRepository<Trabajador, Integer> {
     Optional<Trabajador> findByCorreo(String correo);
     List<Trabajador> findByEstado(Boolean estado);
-    
     boolean existsByNDocumento(String nDocumento);
     // ✅ AGREGAR ESTE MÉTODO
     Optional<Trabajador> findByNDocumento(String nDocumento);

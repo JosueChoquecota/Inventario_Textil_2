@@ -46,8 +46,13 @@ public class TrabajadorService {
         return trabajadorRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Trabajador no encontrado con ID: " + id));
     }
-
     
+    
+    
+    public Optional<Trabajador> obtenerTrabajadorPorId(Integer id) {
+        return trabajadorRepository.findById(id);
+    }
+             
     public Trabajador crear(Trabajador trabajador, Integer idRol, Integer idTipoDoc) {
         // Validar documento duplicado
         validarDocumentoDuplicado(trabajador.getnDocumento(), null);
