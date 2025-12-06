@@ -24,6 +24,50 @@ export const obtenerProductos = async () => {
     throw error;
   }
 };
+
+export const obtenerProductosConStock = async () => {
+  try {
+    const response = await fetch(`${API_URL}/listar-con-stock`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    
+    if (!response.ok) {
+      // FALLBACK: usar el endpoint normal que funciona
+      const fallbackResponse = await fetch(`${API_URL}/listar`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!fallbackResponse.ok) {
+        throw new Error(`Error en fallback ${fallbackResponse.status}: ${fallbackResponse.statusText}`);
+      }
+
+      const productos = await fallbackResponse.json();
+      
+      // Agregar campo stock vacío para que no falle el filtrado
+      return productos.map(producto => ({
+        ...producto,
+        stock: [] // Sin stock - dropdowns estarán vacíos hasta que arregles el backend
+      }));
+    }
+
+    const productos = await response.json();
+    
+    return productos;
+    
+  } catch (error) {
+    console.error("Error al obtener productos con stock:", error);
+    throw error;
+  }
+};
+
 export const registrarProducto = async (producto) => {
   try {
 
@@ -156,4 +200,5 @@ export const eliminarProducto = async (id) => {
     // Si no es JSON, devolver texto o mensaje genérico
     const text = await response.text();
     return { success: true, message: text || 'Marca eliminada' };
-};
+  };
+

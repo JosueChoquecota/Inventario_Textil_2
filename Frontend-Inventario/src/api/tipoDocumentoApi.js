@@ -1,6 +1,6 @@
 const API_URL = 'http://localhost:8081/api/v1/tipos-documento';
 
-export const obtenerTiposDocumento = async () => {
+export const getTiposDocumento = async () => {
     const response = await fetch(API_URL, {
         method: 'GET',
         credentials: 'include',

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react'
 
-export default function PasswordInput({ 
+export default function PasswordInput({
   name = 'contrasena',
   value = '',
   onChange,
-  required = true 
+  required = true,
+  withConfirmation = true, // ✅ Nuevo prop para controlar el campo de confirmación
+  label = 'Contraseña',    // ✅ Nuevo prop para personalizar la etiqueta
+  showStrength = true,     // ✅ Nuevo prop para mostrar/ocultar fortaleza
+  placeholder = 'Ingrese contraseña'
 }) {
   const [showPassword, setShowPassword] = useState(false)
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -14,7 +18,7 @@ export default function PasswordInput({
 
   // ✅ Calcular fortaleza de la contraseña
   useEffect(() => {
-    if (!value) {
+    if (!showStrength || !value) {
       setStrength(0)
       setErrors([])
       return
@@ -52,11 +56,11 @@ export default function PasswordInput({
 
     setStrength(score)
     setErrors(newErrors)
-  }, [value])
+  }, [value, showStrength])
 
-  // ✅ Verificar si las contraseñas coinciden
-  const passwordsMatch = value && confirmPassword && value === confirmPassword
-  const showMismatch = confirmPassword && !passwordsMatch
+  // ✅ Verificar si las contraseñas coinciden (Solo si withConfirmation es true)
+  const passwordsMatch = !withConfirmation || (value && confirmPassword && value === confirmPassword)
+  const showMismatch = withConfirmation && confirmPassword && !passwordsMatch
 
   // ✅ Obtener color y texto según fortaleza
   const getStrengthInfo = () => {
@@ -72,10 +76,12 @@ export default function PasswordInput({
     <div className="password-input-container">
       {/* Campo Contraseña */}
       <div className="mb-3">
-        <label className="form-label small mb-1">
-          Contraseña
-          {required && <span className="text-danger ms-1">*</span>}
-        </label>
+        {label && (
+          <label className="form-label small mb-1">
+            {label}
+            {required && <span className="text-danger ms-1">*</span>}
+          </label>
+        )}
         <div className="input-group">
           <input
             type={showPassword ? 'text' : 'password'}
@@ -83,7 +89,7 @@ export default function PasswordInput({
             value={value}
             onChange={onChange}
             className="form-control"
-            placeholder="Ingrese contraseña"
+            placeholder={placeholder}
             required={required}
             minLength={6}
           />
@@ -98,13 +104,13 @@ export default function PasswordInput({
         </div>
 
         {/* Barra de fortaleza con animación */}
-        {value && (
+        {showStrength && value && (
           <div className="mt-2">
             <div className="progress" style={{ height: '6px' }}>
               <div
                 className={`progress-bar bg-${strengthInfo.color}`}
                 role="progressbar"
-                style={{ 
+                style={{
                   width: `${strengthInfo.width}%`,
                   transition: 'width 0.3s ease-in-out'
                 }}
@@ -125,7 +131,7 @@ export default function PasswordInput({
         )}
 
         {/* Mensajes de error */}
-        {errors.length > 0 && (
+        {showStrength && errors.length > 0 && (
           <div className="mt-2">
             {errors.map((error, idx) => (
               <small key={idx} className="text-danger d-block">
@@ -137,50 +143,51 @@ export default function PasswordInput({
         )}
       </div>
 
-      {/* Campo Confirmar Contraseña */}
-      <div>
-        <label className="form-label small mb-1">
-          Confirmar Contraseña
-          {required && <span className="text-danger ms-1">*</span>}
-        </label>
-        <div className="input-group">
-          <input
-            type={showConfirm ? 'text' : 'password'}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className={`form-control ${
-              confirmPassword && (passwordsMatch ? 'is-valid' : 'is-invalid')
-            }`}
-            placeholder="Confirme su contraseña"
-            required={required}
-          />
-          <button
-            type="button"
-            className="btn btn-outline-secondary"
-            onClick={() => setShowConfirm(!showConfirm)}
-            tabIndex={-1}
-          >
-            <i className={`bi bi-eye${showConfirm ? '-slash' : ''}`}></i>
-          </button>
-        </div>
+      {/* Campo Confirmar Contraseña (Condicional) */}
+      {withConfirmation && (
+        <div>
+          <label className="form-label small mb-1">
+            Confirmar Contraseña
+            {required && <span className="text-danger ms-1">*</span>}
+          </label>
+          <div className="input-group">
+            <input
+              type={showConfirm ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className={`form-control ${confirmPassword && (passwordsMatch ? 'is-valid' : 'is-invalid')
+                }`}
+              placeholder="Confirme su contraseña"
+              required={required}
+            />
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => setShowConfirm(!showConfirm)}
+              tabIndex={-1}
+            >
+              <i className={`bi bi-eye${showConfirm ? '-slash' : ''}`}></i>
+            </button>
+          </div>
 
-        {/* Feedback de coincidencia */}
-        {passwordsMatch && (
-          <small className="text-success d-block mt-1">
-            <i className="bi bi-check-circle-fill me-1"></i>
-            Las contraseñas coinciden
-          </small>
-        )}
-        {showMismatch && (
-          <small className="text-danger d-block mt-1">
-            <i className="bi bi-x-circle-fill me-1"></i>
-            Las contraseñas no coinciden
-          </small>
-        )}
-      </div>
+          {/* Feedback de coincidencia */}
+          {passwordsMatch && confirmPassword && (
+            <small className="text-success d-block mt-1">
+              <i className="bi bi-check-circle-fill me-1"></i>
+              Las contraseñas coinciden
+            </small>
+          )}
+          {showMismatch && (
+            <small className="text-danger d-block mt-1">
+              <i className="bi bi-x-circle-fill me-1"></i>
+              Las contraseñas no coinciden
+            </small>
+          )}
+        </div>
+      )}
 
       {/* Indicador de validación completa */}
-      {passwordsMatch && strength >= 60 && (
+      {withConfirmation && passwordsMatch && strength >= 60 && (
         <div className="alert alert-success mt-3 mb-0 py-2 px-3 d-flex align-items-center">
           <i className="bi bi-check-circle-fill me-2 fs-5"></i>
           <span className="small">Contraseña válida y confirmada</span>

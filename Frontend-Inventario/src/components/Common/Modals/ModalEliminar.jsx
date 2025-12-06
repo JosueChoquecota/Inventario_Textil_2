@@ -15,11 +15,11 @@ export default function ModalEliminar({
     const id = getId ? getId(itemData) : null
 
     if (!id) {
-      console.error('❌ ID no proporcionado en itemData:', itemData)
+
       return
     }
 
-    console.log('🗑️ Modal → Eliminando ID:', id)
+
     await onConfirm(id)
     onClose?.()
   }

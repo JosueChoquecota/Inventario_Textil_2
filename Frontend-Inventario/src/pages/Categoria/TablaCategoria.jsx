@@ -7,76 +7,98 @@ export default function TablaCategoria({
   error,
   onEdit,
   onDelete,
-  getId
+  getId,
+  canUpdate = false,
+  canDelete = false
 }) {
- if (loading) return <Spinner fullScreen size='5rem' />
-    if (error) return <Error />
-
   return (
     <div className="card mt-3 p-3">
       {/* Contador dinámico */}
       <div className="mb-2">
         <strong>Categorías</strong>
         <small className="text-muted ms-2">
-          ({categorias.length} {categorias.length === 1 ? 'categoría' : 'categorías'})
+          ({loading ? '...' : categorias.length} {categorias.length === 1 ? 'categoría' : 'categorías'})
         </small>
       </div>
+
+      {/* Show error if exists */}
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <i className="bi bi-exclamation-triangle me-2"></i>
+          <Error />
+        </div>
+      )}
+
+      {/* Show loading only in table area */}
+      {loading ? (
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+          <div className="text-center">
+            <Spinner size="3rem" />
+            <p className="mt-3 text-muted">Cargando categorías...</p>
+          </div>
+        </div>
+      ) : (
+        <>
 
       {/* Escritorio / Tablet */}
       <div className="d-none d-md-block" style={{ overflowX: 'auto', maxHeight: '60vh' }}>
         <div className='table-responsive'>
-        <table className="table table-hover align-middle" style={{ minWidth: 700 }}>
-          <thead className="table-light sticky-top">
-            <tr>
-              <th style={{ width: 120 }}>ID</th>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th style={{ width: 140 }}>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categorias.length === 0 ? (
+          <table className="table table-hover align-middle" style={{ minWidth: 700 }}>
+            <thead className="table-light sticky-top">
               <tr>
-                <td colSpan={4} className="text-center text-muted py-4">
-                  <i className="bi bi-inbox display-4 d-block mb-2"></i>
-                  No hay categorías registradas
-                </td>
+                <th style={{ width: 120 }}>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th style={{ width: 140 }}>Acción</th>
               </tr>
-            ) : (
-              categorias.map(t => {
-                const id = getId(t)  // ✅ Usar getId
-                return (
-                  <tr key={id}>{/* ✅ SIN espacios después de <tr> */}
+            </thead>
+            <tbody>
+              {categorias.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center text-muted py-4">
+                    <i className="bi bi-inbox display-4 d-block mb-2"></i>
+                    No hay categorías registradas
+                  </td>
+                </tr>
+              ) : (
+                categorias.map(t => {
+                  const id = getId(t)  // ✅ Usar getId
+                  return (
+                    <tr key={id}>{/* ✅ SIN espacios después de <tr> */}
                       <td className="text-muted">{id}</td>
                       <td><strong>{t.nombre}</strong></td>
                       <td>{t.descripcion || '—'}</td>
                       <td>
                         <div className="d-flex gap-2">
-                          <button 
-                            className="btn btn-sm btn-outline-primary" 
-                            title="Editar" 
-                            onClick={() => onEdit && onEdit(t)}
-                          >
-                            <i className="bi bi-pencil-fill" aria-hidden="true"></i>
-                          </button>
-                          <button 
-                            className="btn btn-sm btn-outline-danger" 
-                            title="Eliminar" 
-                            onClick={() => onDelete && onDelete(t)}
-                          >
-                            <i className="bi bi-trash-fill" aria-hidden="true"></i>
-                          </button>
+                          {canUpdate && (
+                            <button
+                              className="btn btn-sm btn-outline-primary"
+                              title="Editar"
+                              onClick={() => onEdit && onEdit(t)}
+                            >
+                              <i className="bi bi-pencil-fill" aria-hidden="true"></i>
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button
+                              className="btn btn-sm btn-outline-danger"
+                              title="Eliminar"
+                              onClick={() => onDelete && onDelete(t)}
+                            >
+                              <i className="bi bi-trash-fill" aria-hidden="true"></i>
+                            </button>
+                          )}
                         </div>
                       </td>
-                  </tr>
-                )
-              })
-            )}
-          </tbody>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
 
-        </table>
+          </table>
+        </div>
       </div>
-    </div>
       {/* Móvil: tarjetas */}
       <div className='d-block d-md-none'>
         {categorias.length === 0 ? (
@@ -100,20 +122,24 @@ export default function TablaCategoria({
                       )}
                     </div>
                     <div className="d-flex flex-column gap-2 ms-3">
-                      <button 
-                        className="btn btn-sm btn-outline-primary" 
-                        title="Editar" 
-                        onClick={() => onEdit && onEdit(t)}
-                      >
-                        <i className="bi bi-pencil-fill" />
-                      </button>
-                      <button 
-                        className="btn btn-sm btn-outline-danger" 
-                        title="Eliminar" 
-                        onClick={() => onDelete && onDelete(t)}
-                      >
-                        <i className="bi bi-trash-fill" />
-                      </button>
+                      {canUpdate && (
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          title="Editar"
+                          onClick={() => onEdit && onEdit(t)}
+                        >
+                          <i className="bi bi-pencil-fill" />
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          title="Eliminar"
+                          onClick={() => onDelete && onDelete(t)}
+                        >
+                          <i className="bi bi-trash-fill" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -122,6 +148,8 @@ export default function TablaCategoria({
           })
         )}
       </div>
+        </>
+      )}
     </div>
   )
 }

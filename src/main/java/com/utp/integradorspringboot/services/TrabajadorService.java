@@ -4,7 +4,6 @@
  */
 package com.utp.integradorspringboot.services;
 
-
 import com.utp.integradorspringboot.dtos.TrabajadorResponseDTO;
 import com.utp.integradorspringboot.mappers.TrabajadorMapper;
 import com.utp.integradorspringboot.models.Rol;
@@ -23,6 +22,7 @@ import java.util.Optional;
 
 @Service
 public class TrabajadorService {
+
     @Autowired
     private TrabajadorRepository trabajadorRepository;
 
@@ -35,51 +35,56 @@ public class TrabajadorService {
     private TipoDocumentoRepository tipoDocumentoRepository;
 
     private final TrabajadorMapper mapper = TrabajadorMapper.INSTANCE;
-    
-   public List<Trabajador> listarActivos() {
+
+    public List<Trabajador> listarActivos() {
         return trabajadorRepository.findByEstado(true);
     }
+
     public List<Trabajador> listarTodos() {
         return trabajadorRepository.findAll();
     }
+
     public Trabajador obtenerPorId(Integer id) {
         return trabajadorRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Trabajador no encontrado con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Trabajador no encontrado con ID: " + id));
     }
-    
-    
-    
-    public Optional<Trabajador> obtenerTrabajadorPorId(Integer id) {
-        return trabajadorRepository.findById(id);
-    }
-             
+
     public Trabajador crear(Trabajador trabajador, Integer idRol, Integer idTipoDoc) {
         // Validar documento duplicado
         validarDocumentoDuplicado(trabajador.getnDocumento(), null);
-        
+
+        if (correoExisteOtroUsuario(trabajador.getCorreo(), trabajador.getIdTrabajador())) {
+            throw new RuntimeException("El Correo ya existe");
+        }
+
         // ✅ Encriptar contraseña con BCrypt
         String contrasenaEncriptada = passwordEncoder.encode(trabajador.getContrasena());
         trabajador.setContrasena(contrasenaEncriptada);
-        
+
         // Asignar relaciones
         trabajador.setRol(obtenerRol(idRol));
         trabajador.setTipoDocumento(obtenerTipoDocumento(idTipoDoc));
         trabajador.setEstado(true);
         trabajador.setFechaCreacion(LocalDateTime.now());
-        
+
         return trabajadorRepository.save(trabajador);
     }
-    
+
     /**
-     * Actualizar trabajador existente
-     * Valida documento duplicado, actualiza relaciones y encripta contraseña si viene nueva
+     * Actualizar trabajador existente Valida documento duplicado, actualiza
+     * relaciones y encripta contraseña si viene nueva
      */
-    public Trabajador actualizar(Integer id, Trabajador nuevosDatos, Integer idRol, Integer idTipoDoc, String nuevaContrasena) {
+    public Trabajador actualizar(Integer id, Trabajador nuevosDatos, Integer idRol, Integer idTipoDoc,
+            String nuevaContrasena) {
         Trabajador existente = obtenerPorId(id);
-        
+
         // Validar documento duplicado (excluyendo el ID actual)
         validarDocumentoDuplicado(nuevosDatos.getnDocumento(), id);
-        
+
+        if (correoExisteOtroUsuario(nuevosDatos.getCorreo(), id)) {
+            throw new RuntimeException("El Correo ya existe");
+        }
+
         // Actualizar campos básicos
         existente.setNombres(nuevosDatos.getNombres());
         existente.setApellidos(nuevosDatos.getApellidos());
@@ -87,18 +92,20 @@ public class TrabajadorService {
         existente.setTelefono(nuevosDatos.getTelefono());
         existente.setCorreo(nuevosDatos.getCorreo());
         if (nuevosDatos.getEstado() != null) {
-        existente.setEstado(nuevosDatos.getEstado());
+            existente.setEstado(nuevosDatos.getEstado());
         }
         // Actualizar relaciones
         existente.setRol(obtenerRol(idRol));
         existente.setTipoDocumento(obtenerTipoDocumento(idTipoDoc));
-        
+
         // ✅ Actualizar contraseña solo si viene nueva (y encriptarla)
-        actualizarContrasena(existente, nuevaContrasena);
-        
+        if (nuevosDatos.getContrasena() != null && !nuevosDatos.getContrasena().isEmpty()) {
+            existente.setContrasena(passwordEncoder.encode(nuevosDatos.getContrasena()));
+        }
+
         return trabajadorRepository.save(existente);
     }
-    
+
     /**
      * Desactivar trabajador (soft delete)
      */
@@ -107,37 +114,35 @@ public class TrabajadorService {
         trabajador.setEstado(false);
         trabajadorRepository.save(trabajador);
     }
-    
+
     // ========================================
     // MÉTODOS AUXILIARES PRIVADOS
     // ========================================
-    
     private void validarDocumentoDuplicado(String nDocumento, Integer idExcluir) {
         trabajadorRepository.findByNDocumento(nDocumento).ifPresent(existente -> {
             // Si es actualización, excluir el ID actual de la validación
             boolean esDuplicado = (idExcluir == null) || (!existente.getIdTrabajador().equals(idExcluir));
-            
+
             if (esDuplicado) {
                 throw new RuntimeException("El número de documento ya existe");
             }
         });
     }
-    
+
+    public boolean correoExisteOtroUsuario(String correo, Integer idTrabajador) {
+        return trabajadorRepository.findByCorreo(correo)
+                .filter(u -> !u.getIdTrabajador().equals(idTrabajador))
+                .isPresent();
+    }
+
     private Rol obtenerRol(Integer idRol) {
         return rolRepository.findById(idRol)
-            .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + idRol));
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + idRol));
     }
-    
+
     private TipoDocumento obtenerTipoDocumento(Integer idTipoDoc) {
         return tipoDocumentoRepository.findById(idTipoDoc)
-            .orElseThrow(() -> new RuntimeException("Tipo de documento no encontrado con ID: " + idTipoDoc));
+                .orElseThrow(() -> new RuntimeException("Tipo de documento no encontrado con ID: " + idTipoDoc));
     }
-    
-    private void actualizarContrasena(Trabajador trabajador, String nuevaContrasena) {
-        // Solo actualizar si viene una nueva contraseña
-        if (nuevaContrasena != null && !nuevaContrasena.trim().isEmpty()) {
-            trabajador.setContrasena(nuevaContrasena);
-        }
-    }
-}
 
+}

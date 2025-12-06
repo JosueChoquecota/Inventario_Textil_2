@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import './Topbar.css'
 
 export default function Topbar() {
-    const { user, logout } = useAuth()
+    const { user, logout, isAdmin } = useAuth()
     const navigate = useNavigate()
 
     const handleLogout = async () => {
@@ -71,6 +71,17 @@ export default function Topbar() {
                                 Configuración
                             </a>
                         </li>
+                        {isAdmin && (
+                            <li>
+                                <button 
+                                    className="dropdown-item"
+                                    onClick={() => navigate('/dashboard/roles')}
+                                >
+                                    <i className="bi bi-shield-lock-fill me-2"></i>
+                                    Roles y Permisos
+                                </button>
+                            </li>
+                        )}
                         <li><hr className="dropdown-divider" /></li>
                         <li>
                             <button 

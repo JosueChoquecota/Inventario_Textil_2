@@ -11,12 +11,18 @@ const cleanString = (value) => {
   return String(value).trim()
 }
 
-export const createTrabajadoresConfig = (tiposDoc = []) => {
+export const createTrabajadoresConfig = (tiposDoc = [], roles = []) => {
 
   // ✅ Mapear tipos de documento para el select
   const tipoDocOptions = tiposDoc.map(t => ({
     id: t.id_tipo_doc,
     nombre: t.tipo
+  }))
+
+  // ✅ Mapear roles para el select
+  const rolOptions = roles.map(r => ({
+    id: r.id_rol,
+    nombre: r.nombreRol // ✅ Corregido: nombreRol viene del backend
   }))
 
   // ✅ Encontrar IDs dinámicamente
@@ -95,7 +101,7 @@ export const createTrabajadoresConfig = (tiposDoc = []) => {
         label: 'Correo electrónico',
         type: 'email',
         placeholder: 'correo@ejemplo.com',
-        required: false,
+        required: true,
         colClass: 'col-12 col-md-6 col-lg-4'
       },
       {
@@ -104,18 +110,14 @@ export const createTrabajadoresConfig = (tiposDoc = []) => {
         type: 'select',
         required: true,
         colClass: 'col-12 col-md-6',
-        options: [
-          { id: 1, nombre: 'Administrador' },
-          { id: 2, nombre: 'Vendedor' },
-          { id: 3, nombre: 'Almacenero' }
-        ]
+        options: rolOptions // ✅ Usar roles dinámicos
       },
       {
         name: 'contrasena',
         label: 'Contraseña',
         type: 'password',
         placeholder: 'Contraseña (mín. 6 caracteres)',
-        required: false,
+        required: true,
         minLength: 6,
         colClass: 'col-12 col-md-6'
       },

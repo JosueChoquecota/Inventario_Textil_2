@@ -1,10 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.utp.integradorspringboot.dtos;
 
-import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 public class ProductoResponseDTO {
     private Integer idProducto;
@@ -14,6 +10,7 @@ public class ProductoResponseDTO {
     private CategoriaResponseDTO categoria;
     private MarcaResponseDTO marca;
     private String descripcion;
+    private List<StockItemDTO> stock;
 
     public Integer getIdProducto() {
         return idProducto;
@@ -63,5 +60,13 @@ public class ProductoResponseDTO {
         this.descripcion = descripcion;
     }
 
-   
+    public List<StockItemDTO> getStock() {
+        return stock;
+    }
+
+    public void setStock(List<StockItemDTO> stock) {
+        this.stock = stock;
+    }
+
+    
 }

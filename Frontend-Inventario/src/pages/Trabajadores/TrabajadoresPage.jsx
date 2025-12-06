@@ -8,22 +8,29 @@ import ModalEditar from '../../components/Common/Modals/ModalEditor'
 import ModalEliminar from '../../components/Common/Modals/ModalEliminar.jsx'
 import ModalCrear from '../../components/Common/Modals/ModalCrear.jsx'
 import FilterBar from '../../components/Common/filters/FIlterBar.jsx'
-import { obtenerTiposDocumento } from '../../api/tipoDocumentoApi'
+import { getTiposDocumento } from '../../api/tipoDocumentoApi'
+import { getRoles } from '../../api/rolApi'
+import { useAuth } from '../../context/AuthContext'
 
 export default function TrabajadoresPage() {
+  const { checkPermission } = useAuth()
   const [tiposDoc, setTiposDoc] = useState([])
+  const [availableRoles, setAvailableRoles] = useState([])
 
-  // ✅ Cargar tipos de documento al montar
+  // ✅ Cargar tipos de documento y roles al montar
   useEffect(() => {
-    obtenerTiposDocumento()
-      .then(data => setTiposDoc(data))
-      .catch(err => console.error("Error cargando tipos de documento:", err))
+    Promise.all([getTiposDocumento(), getRoles()])
+      .then(([docs, rolesData]) => {
+        setTiposDoc(docs)
+        setAvailableRoles(rolesData)
+      })
+      .catch(err => { /* Error handled by toast */ })
   }, [])
 
   // ✅ Generar configuración dinámica
   const trabajadoresConfig = useMemo(() => {
-    return createTrabajadoresConfig(tiposDoc)
-  }, [tiposDoc])
+    return createTrabajadoresConfig(tiposDoc, availableRoles)
+  }, [tiposDoc, availableRoles])
 
   const { data, loading, error, onRefresh, create, update, remove } = useCRUD(trabajadoresConfig)
 
@@ -35,6 +42,13 @@ export default function TrabajadoresPage() {
   const [roleFilter, setRoleFilter] = useState('')
   const [showInactive, setShowInactive] = useState(true)
 
+  // ✅ Verificar permisos
+  const canCreate = checkPermission('Trabajadores', 'canCreate')
+  const canUpdate = checkPermission('Trabajadores', 'canUpdate')
+  const canDelete = checkPermission('Trabajadores', 'canDelete')
+
+
+
   useEffect(() => {
     const original = document.body.style.overflow
     if (showCreate || showEdit || showToggle) document.body.style.overflow = 'hidden'
@@ -45,22 +59,27 @@ export default function TrabajadoresPage() {
   const { filtered, roles } = useTrabajadoresFilter(data, search, roleFilter, showInactive)
 
   function openEdit(trabajador) {
+    if (!canUpdate) return
     setSelected(trabajador)
     setShowEdit(true)
   }
   function openToggleEstado(trabajador) {
+    if (!canDelete) return
     setSelected(trabajador)
     setShowToggle(true)
   }
   const handleCreate = async (nuevoTrabajador) => {
+    if (!canCreate) return
     await create(nuevoTrabajador)
     setShowCreate(false)
   }
   const handleUpdate = async (id, trabajadorActualizado) => {
+    if (!canUpdate) return
     await update(id, trabajadorActualizado)
     setShowEdit(false)
   }
   const handleToggleEstado = async (id) => {
+    if (!canDelete) return
     await remove(id)
     setShowToggle(false)
   }
@@ -82,7 +101,7 @@ export default function TrabajadoresPage() {
     setShowInactive,
     roles,
     handlePrint,
-    handleCreate: () => setShowCreate(true),
+    handleCreate: canCreate ? () => setShowCreate(true) : null, // ✅ Ocultar botón si no tiene permiso
     filtered: filtered.length,
     total: data.length,
     handleClearFilters
@@ -103,7 +122,7 @@ export default function TrabajadoresPage() {
       <FilterBar {...filterConfig} />
 
       {/* Modal crear */}
-      {showCreate && (
+      {showCreate && canCreate && (
         <ModalCrear
           title="Insertar Trabajador"
           fields={trabajadoresConfig.fields}
@@ -122,15 +141,18 @@ export default function TrabajadoresPage() {
         onToggleEstado={openToggleEstado}
         getId={trabajadoresConfig.getId}
         onRefresh={onRefresh}
+        canUpdate={canUpdate} // ✅ Pasar permisos a la tabla
+        canDelete={canDelete} // ✅ Pasar permisos a la tabla
+        roles={availableRoles} // ✅ Pasar roles dinámicos
       />
 
       {/* Modal editar */}
-      {showEdit && selected && (
+      {showEdit && selected && canUpdate && (
         <ModalEditar
           key={`edit-${trabajadoresConfig.getId(selected)}`}
           title="Editar Trabajador"
           initialData={selected}
-          fields={trabajadoresConfig.fields}
+          fields={trabajadoresConfig.fields.map(f => f.name === 'contrasena' ? { ...f, required: false } : f)}
           transformPayload={trabajadoresConfig.transformPayload}
           getId={trabajadoresConfig.getId}
           onSave={handleUpdate}
@@ -139,7 +161,7 @@ export default function TrabajadoresPage() {
       )}
 
       {/* Modal toggle estado */}
-      {showToggle && selected && (
+      {showToggle && selected && canDelete && (
         <ModalEliminar
           key={`toggle-${trabajadoresConfig.getId(selected)}`}
           title={selected.estado ? "Desactivar Trabajador" : "Activar Trabajador"}

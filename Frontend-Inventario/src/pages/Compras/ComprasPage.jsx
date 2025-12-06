@@ -3,20 +3,27 @@ import { useCompras } from './hooks/useCompras'
 import TablaCompras from './TablaCompras'
 import ModalCrearCompra from './components/ModalCrearCompra'
 import ModalEliminar from '../../components/Common/Modals/ModalEliminar'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 export default function ComprasPage() {
-  const { 
-    data, 
-    loading, 
-    error, 
-    onRefresh, 
-    addCompra, 
-    deleteCompra 
+  const {
+    data,
+    loading,
+    error,
+    onRefresh,
+    addCompra,
+    deleteCompra
   } = useCompras()
-  
+
+  const { checkPermission } = useAuth()
+
+  // ✅ Verificar permisos para 'Compras'
+  const canCreate = checkPermission('Compras', 'canCreate')
+  const canDelete = checkPermission('Compras', 'canDelete')
+
   const [showCreate, setShowCreate] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
-  const [selected, setSelected] = useState(null)
+  const [selected] = useState(null)
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -29,13 +36,13 @@ export default function ComprasPage() {
   const filtered = data.filter(c => {
     const q = search.trim().toLowerCase()
     if (!q) return true
-    
+
     return (
       String(c.idCompra).includes(q) ||
       (c.nombreProveedor || '').toLowerCase().includes(q) ||
       (c.documentoProveedor || '').toLowerCase().includes(q) ||
       (c.nombreCompletoTrabajador || '').toLowerCase().includes(q) ||
-      c.detalles?.some(d => 
+      c.detalles?.some(d =>
         (d.nombreProducto || '').toLowerCase().includes(q) ||
         (d.talla || '').toLowerCase().includes(q) ||
         (d.color || '').toLowerCase().includes(q)
@@ -44,24 +51,19 @@ export default function ComprasPage() {
   })
 
   const handleCreate = async (compraData) => {
-    try {
+    if (!canCreate) return
       await addCompra(compraData)
       setShowCreate(false)
       await onRefresh()
-    } catch (error) {
-      console.error('Error al crear compra:', error)
-      // El toast ya se muestra en el modal
-    }
+    
   }
 
   const handleDelete = async (id) => {
-    try {
+    if (!canDelete) return
       await deleteCompra(id)
       setShowDelete(false)
       await onRefresh()
-    } catch (error) {
-      console.error('Error al eliminar compra:', error)
-    }
+   
   }
 
   return (
@@ -93,9 +95,9 @@ export default function ComprasPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
             {search && (
-              <button 
-                className="btn btn-outline-secondary" 
-                type="button" 
+              <button
+                className="btn btn-outline-secondary"
+                type="button"
                 onClick={() => setSearch('')}
               >
                 <i className="bi bi-x-lg" />
@@ -108,7 +110,7 @@ export default function ComprasPage() {
         <div className="col-12 col-md-6">
           <div className="d-grid gap-2 d-md-flex justify-content-md-end">
             {/* Botón Refrescar */}
-            <button 
+            <button
               className="btn btn-outline-secondary"
               onClick={onRefresh}
               disabled={loading}
@@ -118,7 +120,7 @@ export default function ComprasPage() {
             </button>
 
             {/* Botón Imprimir */}
-            <button 
+            <button
               className="btn btn-success"
               onClick={() => window.print()}
             >
@@ -127,14 +129,16 @@ export default function ComprasPage() {
             </button>
 
             {/* Botón Crear Compra */}
-            <button 
-              className="btn btn-primary" 
-              onClick={() => setShowCreate(true)}
-              disabled={loading}
-            >
-              <i className="bi bi-plus-square me-2" />
-              Registrar Compra
-            </button>
+            {canCreate && (
+              <button
+                className="btn btn-primary"
+                onClick={() => setShowCreate(true)}
+                disabled={loading}
+              >
+                <i className="bi bi-plus-square me-2" />
+                Registrar Compra
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -151,27 +155,23 @@ export default function ComprasPage() {
       </div>
 
       {/* Tabla de compras */}
-      <TablaCompras 
+      <TablaCompras
         compras={filtered}
         loading={loading}
         error={error}
-        onDelete={(compra) => {
-          setSelected(compra)
-          setShowDelete(true)
-        }}
         getId={(c) => c.idCompra}
       />
 
       {/* Modal crear */}
-      {showCreate && (
-        <ModalCrearCompra 
+      {showCreate && canCreate && (
+        <ModalCrearCompra
           onClose={() => setShowCreate(false)}
           onCreate={handleCreate}
         />
       )}
 
       {/* Modal eliminar */}
-      {showDelete && selected && (
+      {showDelete && selected && canDelete && (
         <ModalEliminar
           key={`delete-${selected.idCompra}`}
           title="Eliminar Compra"

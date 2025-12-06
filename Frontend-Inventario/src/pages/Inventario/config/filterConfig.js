@@ -11,7 +11,7 @@ export const createFilterConfig = ({
   searchConfig: {
     value: search,
     onChange: (value) => {
-      console.log('🔍 Búsqueda cambiada:', value)
+
       setSearch(value)
     },
     placeholder: 'Buscar por nombre, descripción, categoría o marca...'

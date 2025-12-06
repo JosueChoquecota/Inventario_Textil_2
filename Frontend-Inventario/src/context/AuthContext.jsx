@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { login as loginApi, logout as logoutApi, checkSession } from "../api/authApi";
+import { getPermisosPorRol } from "../api/permisosApi";
 
 const AuthContext = createContext();
 
@@ -11,8 +12,9 @@ export const useAuth = () => {
     return context;
 }
 
-export const AuthProvider =({children}) => {
+export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)
+    const [permissions, setPermissions] = useState([])
     const [loading, setLoading] = useState(true)
 
 
@@ -35,13 +37,13 @@ export const AuthProvider =({children}) => {
                         sessionStorage.setItem("user", JSON.stringify(serverUser));
                     }
                 } catch (sessionError) {
-                    console.log("No hay sesión activa en el servidor")
+
                     localStorage.removeItem("user");
                     sessionStorage.removeItem("user");
                     setUser(null);
                 }
             } catch (error) {
-                console.error("Error checking auth:", error)
+
             } finally {
                 setLoading(false)
             }
@@ -50,31 +52,50 @@ export const AuthProvider =({children}) => {
         checkAuth()
     }, [])
 
-    const login = async (correo, contrasena, remember = false) => {
-            const userData = await loginApi(correo, contrasena)
-            setUser(userData)
+    // ✅ Cargar permisos cuando cambia el usuario
+    useEffect(() => {
+        const loadPermissions = async () => {
+            if (user?.idRol) {
+                try {
+                    const perms = await getPermisosPorRol(user.idRol)
+                    setPermissions(perms)
+                } catch (error) {
 
-            if (remember) {
-                localStorage.setItem("user", JSON.stringify(userData))
-            sessionStorage.removeItem("user")
+                    setPermissions([])
+                }
             } else {
-                sessionStorage.setItem("user", JSON.stringify(userData))
-                localStorage.removeItem("user")
+                setPermissions([])
             }
-            return userData
+        }
+        loadPermissions()
+    }, [user])
+
+    const login = async (correo, contrasena, remember = false) => {
+        const userData = await loginApi(correo, contrasena)
+        setUser(userData)
+
+        if (remember) {
+            localStorage.setItem("user", JSON.stringify(userData))
+            sessionStorage.removeItem("user")
+        } else {
+            sessionStorage.setItem("user", JSON.stringify(userData))
+            localStorage.removeItem("user")
+        }
+        return userData
     }
 
     const logout = async () => {
         try {
             await logoutApi()
         } catch (error) {
-            console.error("Error during logout:", error)
+
         } finally {
             setUser(null)
+            setPermissions([])
             localStorage.removeItem("user")
             sessionStorage.removeItem("user")
         }
-    } 
+    }
 
     const hasRole = (roleName) => {
         return user?.rol === roleName
@@ -84,13 +105,32 @@ export const AuthProvider =({children}) => {
         return roles.includes(user?.rol)
     }
 
+    // ✅ Helper para verificar permisos
+    // Ejemplo: checkPermission('Trabajadores', 'canCreate')
+    const checkPermission = (recursoNombre, accion) => {
+        // Si es admin, tiene acceso total (opcional, pero recomendado)
+        if (user?.idRol === 1) return true;
+
+        const permiso = permissions.find(p => p.recurso.nombre === recursoNombre)
+
+        // DEBUG: Comentar en producción
+
+
+        if (!permiso) return false;
+
+        // Si la acción es 'canRead', verificar flag canRead
+        return permiso[accion] === true;
+    }
+
     const value = {
         user,
+        permissions,
         loading,
         login,
         logout,
         hasRole,
         hasAnyRole,
+        checkPermission,
         isAuthenticated: !!user,
         isAdmin: user?.idRol === 1,
         isVendedor: user?.idRol === 3,

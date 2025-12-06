@@ -1,4 +1,4 @@
-import {Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Login/Login";
 import TrabajadoresPage from "../pages/Trabajadores/TrabajadoresPage";
 import ProveedoresPage from "../pages/Proveedores/ProveedoresPage";
@@ -11,34 +11,35 @@ import ClientesPage from "../pages/Clientes/ClientesPage";
 import VentasPage from "../pages/Ventas/VentasPage";
 import ConfiguracionPage from "../pages/Compras/ConfiguracionCompras/ConfiguracionPage";
 import ConfiguracionUserPage from "../pages/Configuracion/ConfiguracionUserPage";
+import GestionRolesPage from "../pages/Configuracion/GestionRolesPage";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
-import { useAuth } from "../context/AuthContext"; 
+import { useAuth } from "../context/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
 import StockPage from "../pages/Stock/StockPage";
 import Spinner from "../components/Common/Spinner";
 
 function AppRouter() {
-  const {user, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
       <Spinner fullScreen size="3rem" />
     );
   }
-    
+
 
 
   return (
     <Routes>
       {/* ✅ Ruta pública: Login */}
-      <Route 
-        path="/login" 
-        element={user ? <Navigate to="/dashboard" replace /> : <Login />} 
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/dashboard" replace /> : <Login />}
       />
 
       {/* ✅ Rutas protegidas: Dashboard */}
-      <Route 
-        path="/dashboard" 
+      <Route
+        path="/dashboard"
         element={
           <ProtectedRoute>
             <DashboardLayout />
@@ -60,19 +61,20 @@ function AppRouter() {
 
         <Route path="compras">
           <Route index element={<ComprasPage />} />
-          <Route path="configuracion" element={<ConfiguracionPage/>}/>
+          <Route path="configuracion" element={<ConfiguracionPage />} />
         </Route>
 
-        <Route path="clientes" element={<ClientesPage/>}/>
-        <Route path="ventas" element={<VentasPage/>}/>
-        <Route path="stock" element={<StockPage/>}/>
-        <Route path="configuracion" element={<ConfiguracionUserPage/>}/>
+        <Route path="clientes" element={<ClientesPage />} />
+        <Route path="ventas" element={<VentasPage />} />
+        <Route path="stock" element={<StockPage />} />
+        <Route path="configuracion" element={<ConfiguracionUserPage />} />
+        <Route path="roles" element={<GestionRolesPage />} />
       </Route>
 
       {/* ✅ Ruta por defecto: redirigir según autenticación */}
-      <Route 
-        path="*" 
-        element={<Navigate to={user ? "/dashboard" : "/login"} replace />} 
+      <Route
+        path="*"
+        element={<Navigate to={user ? "/dashboard" : "/login"} replace />}
       />
     </Routes>
   );

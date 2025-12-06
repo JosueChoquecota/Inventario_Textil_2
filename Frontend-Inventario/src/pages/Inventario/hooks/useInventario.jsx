@@ -20,7 +20,7 @@ const normalizeProducto = (p) => {
             imagenUrl = `http://localhost:8081/${cleanPath}`;
         }
     }
-    console.log('✅ URL construida:', imagenUrl)
+
 
     return {
         idProducto: p.idProducto,

@@ -28,5 +28,29 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer> {
            "LEFT JOIN FETCH p.marca " +
            "WHERE p.idProducto = :id")
     Optional<Producto> findByIdWithRelaciones(@Param("id") Integer id);
+    
+    @Query(value = """
+                   SELECT 
+                       p.id_producto,
+                       p.nombre as nombreProducto,
+                       m.marca as marcaNombre,
+                       c.nombre as categoriaNombre,
+                       lp.id_lista_producto,
+                       lp.id_talla,
+                       t.talla as nombreTalla,
+                       lp.id_color,
+                       col.color as nombreColor,
+                       lp.cantidad,
+                       lp.precio_unitario
+                   FROM dbo.productos p
+                   INNER JOIN dbo.marcas m ON p.id_marca = m.id_marca
+                   LEFT JOIN dbo.categorias c ON p.id_categoria = c.id_categoria  
+                   INNER JOIN dbo.lista_productos lp ON p.id_producto = lp.id_producto
+                   INNER JOIN dbo.tallas t ON lp.id_talla = t.id_talla
+                   INNER JOIN dbo.colores col ON lp.id_color = col.id_color
+                   WHERE lp.cantidad > 0  -- Solo productos con stock
+                   ORDER BY p.nombre, t.talla, col.color;
+                   """, nativeQuery = true)
+    List<Object[]> findProductosConStock();
 }
 

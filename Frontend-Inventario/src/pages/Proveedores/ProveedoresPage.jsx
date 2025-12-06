@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useCRUD } from '../../hooks/useCRUD.jsx'
-import { proveedoresConfig } from './config/proveedoresConfig.js'
+import { createProveedoresConfig } from './config/proveedoresConfig.js'
 import { createFilterConfig } from './config/filterConfig'
 import { useProveedoresFilter } from './hooks/useProveedoresFilter.jsx'
 import TablaProveedores from './TablaProveedores'
@@ -8,16 +8,37 @@ import ModalEditar from '../../components/Common/Modals/ModalEditor'
 import ModalEliminar from '../../components/Common/Modals/ModalEliminar.jsx'
 import ModalCrear from '../../components/Common/Modals/ModalCrear.jsx'
 import FilterBar from '../../components/Common/filters/FIlterBar.jsx'
+import { useAuth } from '../../context/AuthContext'
+import { getTiposDocumento } from '../../api/tipoDocumentoApi'
 
 export default function ProveedoresPage() {
+  const { checkPermission } = useAuth()
+  const [tiposDoc, setTiposDoc] = useState([])
+
+  // ✅ Cargar tipos de documento al montar
+  useEffect(() => {
+    getTiposDocumento()
+      .then(docs => setTiposDoc(docs))
+  }, [])
+
+  // ✅ Generar configuración dinámica
+  const proveedoresConfig = useMemo(() => {
+    return createProveedoresConfig(tiposDoc)
+  }, [tiposDoc])
+
   const { data, loading, error, onRefresh, create, update, remove } = useCRUD(proveedoresConfig)
-  
+
   const [showCreate, setShowCreate] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [selected, setSelected] = useState(null)
   const [search, setSearch] = useState('')
   const [tipoFilter, setTipoFilter] = useState('')
+
+  // ✅ Verificar permisos
+  const canCreate = checkPermission('Proveedores', 'canCreate')
+  const canUpdate = checkPermission('Proveedores', 'canUpdate')
+  const canDelete = checkPermission('Proveedores', 'canDelete')
 
   useEffect(() => {
     const original = document.body.style.overflow
@@ -29,26 +50,31 @@ export default function ProveedoresPage() {
   const { filtered } = useProveedoresFilter(data, search, tipoFilter)
 
   function openEdit(proveedor) {
+    if (!canUpdate) return
     setSelected(proveedor)
     setShowEdit(true)
   }
 
   function openDelete(proveedor) {
+    if (!canDelete) return
     setSelected(proveedor)
     setShowDelete(true)
   }
 
   const handleCreate = async (nuevoProveedor) => {
+    if (!canCreate) return
     await create(nuevoProveedor)
     setShowCreate(false)
   }
 
   const handleUpdate = async (id, proveedorActualizado) => {
+    if (!canUpdate) return
     await update(id, proveedorActualizado)
     setShowEdit(false)
   }
 
   const handleDelete = async (id) => {
+    if (!canDelete) return
     await remove(id)
     setShowDelete(false)
   }
@@ -69,7 +95,7 @@ export default function ProveedoresPage() {
     tipoFilter,
     setTipoFilter,
     handlePrint,
-    handleCreate: () => setShowCreate(true),
+    handleCreate: canCreate ? () => setShowCreate(true) : null, // ✅ Ocultar botón si no tiene permiso
     filtered: filtered.length,
     total: data.length,
     handleClearFilters
@@ -83,10 +109,13 @@ export default function ProveedoresPage() {
           <i className="bi bi-truck me-2"></i>
           Proveedores
         </h4>
+        <small className="text-muted">
+          Gestión completa de Proveedores
+        </small>
       </div>
 
       {/* ✅ Barra de filtros */}
-      <FilterBar 
+      <FilterBar
         searchConfig={filterConfig.searchConfig}
         selectFilters={filterConfig.selectFilters}
         actionButtons={filterConfig.actionButtons}
@@ -94,7 +123,7 @@ export default function ProveedoresPage() {
       />
 
       {/* Modal crear */}
-      {showCreate && (
+      {showCreate && canCreate && (
         <ModalCrear
           title="Agregar Proveedor"
           fields={proveedoresConfig.fields}
@@ -105,7 +134,7 @@ export default function ProveedoresPage() {
       )}
 
       {/* Tabla de proveedores */}
-      <TablaProveedores 
+      <TablaProveedores
         proveedores={filtered}
         loading={loading}
         error={error}
@@ -113,10 +142,12 @@ export default function ProveedoresPage() {
         onDelete={openDelete}
         getId={proveedoresConfig.getId}
         onRefresh={onRefresh}
+        canUpdate={canUpdate} // ✅ Pasar permisos
+        canDelete={canDelete} // ✅ Pasar permisos
       />
 
       {/* Modal editar */}
-      {showEdit && selected && (
+      {showEdit && selected && canUpdate && (
         <ModalEditar
           key={`edit-${proveedoresConfig.getId(selected)}`}
           title="Editar Proveedor"
@@ -130,7 +161,7 @@ export default function ProveedoresPage() {
       )}
 
       {/* Modal eliminar */}
-      {showDelete && selected && (
+      {showDelete && selected && canDelete && (
         <ModalEliminar
           key={`delete-${proveedoresConfig.getId(selected)}`}
           title="Eliminar Proveedor"

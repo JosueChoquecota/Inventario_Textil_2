@@ -54,29 +54,6 @@ export default function GestionColores() {
     onRefresh()
   }
 
-  // Loading state
-  if (loading) {
-    return <Spinner fullScreen size="3rem" />
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="card">
-        <div className="card-body">
-          <div className="alert alert-danger" role="alert">
-            <i className="bi bi-exclamation-triangle me-2"></i>
-            {error}
-          </div>
-          <button className="btn btn-primary" onClick={onRefresh}>
-            <i className="bi bi-arrow-clockwise me-2"></i>
-            Reintentar
-          </button>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <>
       <div className="card">
@@ -91,7 +68,28 @@ export default function GestionColores() {
         </div>
 
         <div className="card-body ps-2 pe-0 pt-0 pb-0" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-          {!colores || colores.length === 0 ? (
+          {/* Show error if exists */}
+          {error && (
+            <div className="alert alert-danger m-3" role="alert">
+              <i className="bi bi-exclamation-triangle me-2"></i>
+              {error}
+              <button className="btn btn-primary ms-3" onClick={onRefresh}>
+                <i className="bi bi-arrow-clockwise me-2"></i>
+                Reintentar
+              </button>
+            </div>
+          )}
+
+          {/* Show loading only in table area */}
+          {loading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+              <div className="text-center">
+                <Spinner size="3rem" />
+                <p className="mt-3 text-muted">Cargando colores...</p>
+              </div>
+            </div>
+          ) : (
+            !colores || colores.length === 0 ? (
             <div className="text-center py-5">
               <i className="bi bi-palette display-4 text-muted"></i>
               <p className="text-muted mt-3">No hay colores registrados</p>
@@ -160,6 +158,8 @@ export default function GestionColores() {
                 </tbody>
               </table>
             </div>
+          )
+
           )}
         </div>
 

@@ -15,7 +15,17 @@ export const registrarCategoria = async (categoria) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(categoria)
     });
-    if (!response.ok) throw new Error(`Error ${response.status}`);
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        // Si es un mapa de errores (validación)
+        if (typeof errorData === 'object' && !errorData.error && Object.keys(errorData).length > 0) {
+            const messages = Object.values(errorData).join('. ');
+            throw new Error(messages);
+        }
+        // Si es un error genérico
+        throw new Error(errorData.error || errorData.message || `Error ${response.status}`);
+    }
     return response.json();
 }
 export const actualizarCategoria = async (id, categoria) => {
@@ -25,7 +35,15 @@ export const actualizarCategoria = async (id, categoria) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(categoria),
     });
-    if (!response.ok) throw new Error(`Error ${response.status}`);
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (typeof errorData === 'object' && !errorData.error && Object.keys(errorData).length > 0) {
+            const messages = Object.values(errorData).join('. ');
+            throw new Error(messages);
+        }
+        throw new Error(errorData.error || errorData.message || `Error ${response.status}`);
+    }
     return response.json();
 }
 export const eliminarCategoria = async (id) => {
@@ -33,10 +51,10 @@ export const eliminarCategoria = async (id) => {
         method: 'DELETE',
         credentials: 'include',
     });
-    
+
     if (!response.ok) throw new Error(`Error ${response.status}`);
     // No es necesario retornar nada si la eliminación fue exitosa
-    if(response.status === 204) {
+    if (response.status === 204) {
         return { success: true, message: 'Categoría eliminada correctamente' };
     }
 

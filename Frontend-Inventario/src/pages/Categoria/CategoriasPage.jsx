@@ -8,10 +8,17 @@ import ModalEditar from '../../components/Common/Modals/ModalEditor.jsx'
 import ModalEliminar from '../../components/Common/Modals/ModalEliminar.jsx'
 import ModalCrear from '../../components/Common/Modals/ModalCrear.jsx'
 import FilterBar from '../../components/Common/filters/FIlterBar.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 export default function CategoriasPage() {
   const { data, loading, error, onRefresh, create, update, remove } = useCRUD(categoriasConfig)
-  
+  const { checkPermission } = useAuth()
+
+  // ✅ Verificar permisos (usamos 'Producto' ya que Categorías es parte de Inventario)
+  const canCreate = checkPermission('Producto', 'canCreate')
+  const canUpdate = checkPermission('Producto', 'canUpdate')
+  const canDelete = checkPermission('Producto', 'canDelete')
+
   const [showCreate, setShowCreate] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
@@ -29,26 +36,31 @@ export default function CategoriasPage() {
   const { filtered } = useCategoriaFilter(data, search, tipoFilter)
 
   function openEdit(categoria) {
+    if (!canUpdate) return
     setSelected(categoria)
     setShowEdit(true)
   }
 
   function openDelete(categoria) {
+    if (!canDelete) return
     setSelected(categoria)
     setShowDelete(true)
   }
 
   const handleCreate = async (nuevaCategoria) => {
+    if (!canCreate) return
     await create(nuevaCategoria)
     setShowCreate(false)
   }
 
   const handleUpdate = async (id, categoriaActualizada) => {
+    if (!canUpdate) return
     await update(id, categoriaActualizada)
     setShowEdit(false)
   }
 
   const handleDelete = async (id) => {
+    if (!canDelete) return
     await remove(id)
     setShowDelete(false)
   }
@@ -72,7 +84,8 @@ export default function CategoriasPage() {
     handleCreate: () => setShowCreate(true),
     filtered: filtered.length,
     total: data.length,
-    handleClearFilters
+    handleClearFilters,
+    canCreate // ✅ Pasar permiso
   })
 
   return (
@@ -83,16 +96,19 @@ export default function CategoriasPage() {
           <i className="bi bi-grid-3x3-gap me-2"></i>
           Categorías
         </h4>
+        <small className="text-muted">
+          Gestión completa de Categorías
+        </small>
       </div>
 
-      <FilterBar 
+      <FilterBar
         searchConfig={filterConfig.searchConfig}
         selectFilters={filterConfig.selectFilters}
         actionButtons={filterConfig.actionButtons}
         resultsInfo={filterConfig.resultsInfo}
       />
 
-      {showCreate && (
+      {showCreate && canCreate && (
         <ModalCrear
           title="Crear Nueva Categoría"
           fields={categoriasConfig.fields}
@@ -110,10 +126,12 @@ export default function CategoriasPage() {
         onDelete={openDelete}
         getId={categoriasConfig.getId}
         onRefresh={onRefresh}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
       />
 
       {/* Modal editar */}
-      {showEdit && selected && (
+      {showEdit && selected && canUpdate && (
         <ModalEditar
           key={`edit-${categoriasConfig.getId(selected)}`}
           title="Editar Categoría"
@@ -127,7 +145,7 @@ export default function CategoriasPage() {
       )}
 
       {/* Modal eliminar */}
-      {showDelete && selected && (
+      {showDelete && selected && canDelete && (
         <ModalEliminar
           key={`delete-${categoriasConfig.getId(selected)}`}
           title="Eliminar Categoría"
@@ -142,8 +160,6 @@ export default function CategoriasPage() {
         />
       )}
     </div>
-
-
   )
-} 
+}
 

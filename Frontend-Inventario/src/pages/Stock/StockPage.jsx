@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { obtenerStock } from '../../api/stockApi'
+import { obtenerStockPorProducto } from '../../api/stockApi'
 import Spinner from '../../components/Common/Spinner'
 import Error from '../../components/Common/error'
 
@@ -47,15 +47,38 @@ export default function StockPage() {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
 
   useEffect(() => {
-    obtenerStock()
-      .then(data => {
-        setStock(data)
+    const loadStock = async () => {
+      try {
+        setLoading(true)
+        const stockData = await obtenerStockPorProducto()
+        
+        // Transform StockResponseDTO to match the table structure
+        const stockItems = stockData.map((item, index) => ({
+          id: item.idListaProducto ? `stock-${item.idListaProducto}` : `stock-${index}`,
+          idProducto: item.idListaProducto,
+          idListaProducto: item.idListaProducto,
+          nombreProducto: item.nombreProducto,
+          marca: item.marca,
+          categoria: item.categoria,
+          talla: item.talla,
+          color: item.color,
+          cantidad: item.cantidad,
+          precioUnitario: item.precioUnitario,
+          proveedor: item.proveedor,
+          imagen: null // Add if available in your DTO
+        }))
+        
+        setStock(stockItems)
+        setError(null)
+      } catch (err) {
+        setError(err.message || 'Error al cargar el stock')
+        setStock([])
+      } finally {
         setLoading(false)
-      })
-      .catch(err => {
-        setError(err.message)
-        setLoading(false)
-      })
+      }
+    }
+
+    loadStock()
   }, [])
 
   const formatCurrency = (value) => `S/ ${Number(value || 0).toFixed(2)}`
@@ -110,21 +133,6 @@ export default function StockPage() {
       : <i className="bi bi-sort-up text-primary ms-1"></i>
   }
 
-  if (loading) {
-    return (
-      <div className="container-fluid py-4">
-        <Spinner message="Cargando stock..." />
-      </div>
-    )
-  }
-  if (error) {
-    return (
-      <div className="container-fluid py-4">
-        <Error message={error} />
-      </div>
-    )
-  }
-
   return (
     <div className="container-fluid py-0">
       {/* Título y subtítulo */}
@@ -166,15 +174,33 @@ export default function StockPage() {
             </div>
             <div className="col-12 col-md-6 text-md-end">
               <span className="badge bg-primary rounded-pill">
-                {filteredStock.length} {filteredStock.length === 1 ? 'producto' : 'productos'} encontrados
+                {loading ? '...' : filteredStock.length} {filteredStock.length === 1 ? 'producto' : 'productos'} encontrados
               </span>
             </div>
           </div>
         </div>
 
         <div className="card-body p-0">
-          {/* Vista escritorio/tablet */}
-          <div className="d-none d-md-block" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '60vh' }}>
+          {/* Show error if exists */}
+          {error && (
+            <div className="alert alert-danger m-3" role="alert">
+              <i className="bi bi-exclamation-triangle me-2"></i>
+              <Error message={error} />
+            </div>
+          )}
+
+          {/* Show loading only in table area */}
+          {loading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+              <div className="text-center">
+                <Spinner size="3rem" />
+                <p className="mt-3 text-muted">Cargando stock...</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Vista escritorio/tablet */}
+              <div className="d-none d-md-block" style={{ overflowY: 'auto', maxHeight: '60vh' }}>
             <div className="table-responsive pe-3 pb-3 pt-0 px-3">
               <table className="table table-hover align-middle" style={{ minWidth: 900 }}>
                 <thead className="table-light sticky-top">
@@ -219,7 +245,7 @@ export default function StockPage() {
                     </tr>
                   ) : (
                     filteredStock.map(item => {
-                      const id = item.idListaProducto
+                      const id = item.id
                       const isExpanded = expandedId === id
                       return (
                         <React.Fragment key={id}>
@@ -309,7 +335,7 @@ export default function StockPage() {
               </div>
             ) : (
               filteredStock.map(item => {
-                const id = item.idListaProducto
+                const id = item.id
                 const isExpanded = expandedId === id
                 return (
                   <div key={id} className="card mb-3 shadow-sm">
@@ -374,6 +400,8 @@ export default function StockPage() {
               })
             )}
           </div>
+            </>
+          )}
         </div>
       </div>
     </div>

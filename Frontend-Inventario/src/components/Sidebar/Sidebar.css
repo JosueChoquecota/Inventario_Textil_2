@@ -1,11 +1,85 @@
 /* Estilos del sidebar y animación hover (ajustes de distribución) */
 .sidebar {
-  width: 300px;
-  transition: background-color .2s ease;
+  width: 280px;
+  /* Ancho expandido */
+  height: 100vh;
+  transition: width 0.6s ease, background-color 0.2s ease;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* moved logo to top */
-  padding-top: 0; /* alinea con la topbar */
+  justify-content: flex-start;
+  padding-top: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  /* Evitar scroll horizontal y vertical innecesario */
+}
+
+/* ✅ ESTADO COLAPSADO */
+.sidebar.collapsed {
+  width: 80px;
+  /* Ancho colapsado */
+  overflow: visible !important;
+  /* Permitir que los tooltips salgan */
+}
+
+/* ✅ TOOLTIP PERSONALIZADO */
+.custom-tooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  z-index: 1050;
+  margin-left: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  pointer-events: none;
+}
+
+/* Flechita del tooltip */
+.custom-tooltip::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #333 transparent transparent;
+}
+
+/* Mostrar tooltip al hacer hover en el link cuando está colapsado */
+.sidebar.collapsed .sidebar-link:hover .custom-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar.collapsed .label,
+.sidebar.collapsed .chevron,
+.sidebar.collapsed .main-menu-title,
+.sidebar.collapsed .collapse {
+  display: none !important;
+}
+
+.sidebar.collapsed .sidebar-link {
+  justify-content: center;
+  padding: 0.8rem 0;
+}
+
+.sidebar.collapsed .sidebar-link .icon {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.sidebar.collapsed .user-info {
+  padding: 0.5rem !important;
+  justify-content: center;
 }
 
 /* Brand fijo en la parte superior (a la altura de la topbar) */
@@ -13,33 +87,26 @@
   margin: 0;
   padding: 10px 0 8px 0;
   position: sticky;
-  top: 0;          /* queda a la altura del topbar */
+  top: 0;
+  /* queda a la altura del topbar */
   z-index: 10;
   background: transparent;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 /* Contenedor central (ajustado para no solaparse con el brand) */
 .nav-center {
   margin-top: 6px;
-  flex: 0 0 auto;
+  flex: 1;
   display: flex;
   justify-content: center;
-  height: 660px;     /* ajusta según necesites */
+  /* Sin altura fija para mejor adaptación */
   padding: 0.5rem 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible;
   gap: .5rem;
 }
 
-/* Reserva espacio adicional al final del área de menú para que
-   submenus desplegables no empujen el botón de cerrar sesión */
-.nav-center::after {
-  content: "";
-  display: block;
-  height: 120px; /* espacio de reserva; ajusta si necesitas más/menos */
-  pointer-events: none;
-}
+
 
 /* Asegura que la lista no se estire y conserve su dirección columna */
 .sidebar-nav {
@@ -49,11 +116,13 @@
   display: flex;
   flex-direction: column;
   gap: .5rem;
-  width: 100%;
+  width: 300px;
 }
 
 /* Resto de estilos de links (sin cambios) */
 .sidebar-link {
+  position: relative;
+  /* Para posicionar el tooltip */
   display: flex;
   align-items: center;
   gap: .9rem;
@@ -63,16 +132,21 @@
   text-decoration: none;
   transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
   will-change: transform, background, box-shadow;
+  white-space: nowrap;
+  /* Evitar salto de línea en texto */
 }
 
 .sidebar-link .icon {
   font-size: 1.2rem;
   color: #cfe3e9;
   flex-shrink: 0;
+  transition: all 0.3s ease;
 }
 
 .sidebar-link .label {
   font-size: 0.95rem;
+  opacity: 1;
+  transition: opacity 0.2s ease;
 }
 
 .sidebar-link.small-link {
@@ -84,8 +158,8 @@
 .sidebar-link:hover,
 .sidebar-link:focus {
   transform: translateX(6px);
-  background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
   color: #fff;
   text-decoration: none;
 }
@@ -98,8 +172,14 @@
 .collapse-toggle .chevron {
   transition: transform .18s ease;
 }
-.collapse-toggle.collapsed .chevron { transform: rotate(0deg); }
-.collapse-toggle:not(.collapsed) .chevron { transform: rotate(180deg); }
+
+.collapse-toggle.collapsed .chevron {
+  transform: rotate(0deg);
+}
+
+.collapse-toggle:not(.collapsed) .chevron {
+  transform: rotate(180deg);
+}
 
 
 .logout-btn {
@@ -178,6 +258,7 @@
     border-left-width: 0px;
     background: transparent;
   }
+
   to {
     border-left-width: 4px;
     background: rgba(255, 255, 255, 0.2);
@@ -185,5 +266,5 @@
 }
 
 .sidebar-link.active {
-  animation: slideInActive 0.3s ease;
+  animation: slideInActive 1s ease;
 }

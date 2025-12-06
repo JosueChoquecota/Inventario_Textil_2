@@ -80,12 +80,11 @@ export const marcasConfig = {
 
     // ✅ Transformar datos antes de enviar
     transformPayload: (data, isEdit = false) => {
-        console.log('🔧 transformPayload - Datos recibidos:', data);
-        console.log('🔧 Es edición:', isEdit);
+
 
         // ✅ Si hay un archivo, pasarlo directamente
         if (data.logo instanceof File) {
-            console.log('📦 Logo detectado:', data.logo.name);
+
             return {
                 marca: cleanString(data.marca),
                 descripcion: data.descripcion || '',
@@ -94,7 +93,7 @@ export const marcasConfig = {
         }
 
         // ✅ Si no hay archivo nuevo, enviar solo datos básicos
-        console.log('📝 Sin logo nuevo');
+
         return {
             marca: cleanString(data.marca),
             descripcion: data.descripcion || ''

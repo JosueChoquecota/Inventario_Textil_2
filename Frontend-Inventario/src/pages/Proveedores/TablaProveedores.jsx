@@ -2,39 +2,54 @@ import React from 'react'
 import Spinner from '../../components/Common/Spinner'
 import Error from '../../components/Common/error'
 
-export default function TablaProveedores({ 
-  proveedores = [], 
-  loading, 
-  error, 
-  onEdit, 
+export default function TablaProveedores({
+  proveedores = [],
+  loading,
+  error,
+  onEdit,
   onDelete,
-  getId
+  getId,
+  canUpdate = false,
+  canDelete = false
 }) {
-    if (loading) return <Spinner fullScreen size='5rem' />
-    if (error) return <Error />
+  function openEdit(p) {
+    onEdit(p)
+  }
 
-    function openEdit(p) {
-        console.log('🔍 Tabla → Abrir edición:', p)
-        onEdit(p)
-    }
+  function openDelete(p) {
+    onDelete(p)
+  }
 
-    function openDelete(p) {
-        console.log('🗑️ Tabla → Abrir eliminación:', p)
-        onDelete(p)
-    }
-
-    return (
+  return (
     <div className="card mt-3 p-3">
       {/* ✅ CAMBIO 1: Contador mejorado */}
       <div className="mb-2">
         <strong>Proveedores</strong>
         <small className="text-muted ms-2">
-          ({proveedores.length} {proveedores.length === 1 ? 'proveedor' : 'proveedores'})
+          ({loading ? '...' : proveedores.length} {proveedores.length === 1 ? 'proveedor' : 'proveedores'})
         </small>
       </div>
 
-      {/* Desktop */}
-      <div className="d-none d-md-block" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '60vh' }}>
+      {/* Show error if exists */}
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <i className="bi bi-exclamation-triangle me-2"></i>
+          <Error />
+        </div>
+      )}
+
+      {/* Show loading only in table area */}
+      {loading ? (
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+          <div className="text-center">
+            <Spinner size="3rem" />
+            <p className="mt-3 text-muted">Cargando proveedores...</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Desktop */}
+          <div className="d-none d-md-block" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '60vh' }}>
         <div className="table-responsive">
           <table className="table table-hover align-middle" style={{ minWidth: 900 }}>
             {/* ✅ CAMBIO 2: Sticky header */}
@@ -78,20 +93,24 @@ export default function TablaProveedores({
                     </td>
                     <td>
                       <div className="d-flex gap-2">
-                        <button 
-                          className="btn btn-sm btn-outline-primary" 
-                          title="Editar" 
-                          onClick={() => openEdit(p)}
-                        >
-                          <i className="bi bi-pencil-fill" aria-hidden="true"></i>
-                        </button>
-                        <button 
-                          className="btn btn-sm btn-outline-danger" 
-                          title="Eliminar" 
-                          onClick={() => openDelete(p)}
-                        >
-                          <i className="bi bi-trash-fill" aria-hidden="true"></i>
-                        </button>
+                        {canUpdate && (
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            title="Editar"
+                            onClick={() => openEdit(p)}
+                          >
+                            <i className="bi bi-pencil-fill" aria-hidden="true"></i>
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            title="Eliminar"
+                            onClick={() => openDelete(p)}
+                          >
+                            <i className="bi bi-trash-fill" aria-hidden="true"></i>
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -102,8 +121,8 @@ export default function TablaProveedores({
         </div>
       </div>
 
-      {/* Mobile */}
-      <div className="d-block d-md-none">
+          {/* Mobile */}
+          <div className="d-block d-md-none">
         {proveedores.length === 0 ? (
           <div className="text-center text-muted py-4">
             <i className="bi bi-inbox display-4 d-block mb-2"></i>
@@ -139,30 +158,34 @@ export default function TablaProveedores({
                   </div>
                   {/* ✅ CAMBIO 11: Margen izquierdo para separación */}
                   <div className="d-flex flex-column gap-2 ms-3">
-                    <button 
-                      className="btn btn-sm btn-outline-primary" 
-                      style={{
+                    {canUpdate && (
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        style={{
                           width: '50px',
                           height: '50px',
                           padding: 0
                         }}
-                      title="Editar"
-                      onClick={() => openEdit(p)}
-                    >
-                      <i className="bi bi-pencil-fill" aria-hidden="true"></i>
-                    </button>
-                    <button 
-                      className="btn btn-sm btn-outline-danger"
-                      style={{
+                        title="Editar"
+                        onClick={() => openEdit(p)}
+                      >
+                        <i className="bi bi-pencil-fill" aria-hidden="true"></i>
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        style={{
                           width: '50px',
                           height: '50px',
                           padding: 0
                         }}
-                      title="Eliminar"
-                      onClick={() => openDelete(p)}
-                    >
-                      <i className="bi bi-trash-fill" aria-hidden="true"></i>
-                    </button>
+                        title="Eliminar"
+                        onClick={() => openDelete(p)}
+                      >
+                        <i className="bi bi-trash-fill" aria-hidden="true"></i>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -170,6 +193,9 @@ export default function TablaProveedores({
           )
         })}
       </div>
-    </div>  
+        </>
+      )}
+    </div>
+
   )
 }

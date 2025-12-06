@@ -95,24 +95,22 @@ export const inventarioConfig = {
 
     // ✅ SIMPLIFICADO: Solo limpiar datos, la API maneja FormData
     transformPayload: (data, isEdit = false) => {
-        console.log('🔧 transformPayload - Datos recibidos:', data);
-        console.log('🔧 Es edición:', isEdit);
+
 
         // ✅ Validar que los IDs sean números
         const idCategoria = parseInt(data.idCategoria);
         const idMarca = parseInt(data.idMarca);
 
-        console.log('🔢 idCategoria parseado:', idCategoria, 'Es NaN?', isNaN(idCategoria));
-        console.log('🔢 idMarca parseado:', idMarca, 'Es NaN?', isNaN(idMarca));
+
 
         if (isNaN(idCategoria) || isNaN(idMarca)) {
-            console.error('❌ IDs inválidos:', { idCategoria, idMarca });
+
             throw new Error('IDs de categoría o marca inválidos');
         }
 
         // ✅ Si hay un archivo, pasarlo directamente
         if (data.imagen instanceof File) {
-            console.log('📦 Imagen detectada:', data.imagen.name);
+
             return {
                 nombre: cleanString(data.nombre),
                 descripcion: data.descripcion || '',
@@ -123,7 +121,7 @@ export const inventarioConfig = {
         }
 
         // ✅ Si no hay archivo nuevo, enviar solo datos
-        console.log('📝 Sin imagen nueva');
+
         return {
             nombre: cleanString(data.nombre),
             descripcion: data.descripcion || '',

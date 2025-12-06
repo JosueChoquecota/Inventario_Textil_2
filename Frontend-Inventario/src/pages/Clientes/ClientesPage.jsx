@@ -8,16 +8,23 @@ import ModalEditar from '../../components/Common/Modals/ModalEditor'
 import ModalEliminar from '../../components/Common/Modals/ModalEliminar.jsx'
 import ModalCrear from '../../components/Common/Modals/ModalCrear.jsx'
 import FilterBar from '../../components/Common/filters/FIlterBar.jsx'
+import { useAuth } from '../../context/AuthContext'
 
 export default function ClientesPage() {
+  const { checkPermission } = useAuth()
   const { data, loading, error, onRefresh, create, update, remove } = useCRUD(clientesConfig)
-  
+
   const [showCreate, setShowCreate] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [selected, setSelected] = useState(null)
   const [search, setSearch] = useState('')
   const [docTypeFilter, setDocTypeFilter] = useState('')
+
+  // ✅ Verificar permisos
+  const canCreate = checkPermission('Clientes', 'canCreate')
+  const canUpdate = checkPermission('Clientes', 'canUpdate')
+  const canDelete = checkPermission('Clientes', 'canDelete')
 
   useEffect(() => {
     const original = document.body.style.overflow
@@ -29,26 +36,31 @@ export default function ClientesPage() {
   const { filtered, docTypes } = useClientesFilter(data, search, docTypeFilter)
 
   function openEdit(cliente) {
+    if (!canUpdate) return
     setSelected(cliente)
     setShowEdit(true)
   }
 
   function openDelete(cliente) {
+    if (!canDelete) return
     setSelected(cliente)
     setShowDelete(true)
   }
 
   const handleCreate = async (nuevoCliente) => {
+    if (!canCreate) return
     await create(nuevoCliente)
     setShowCreate(false)
   }
 
   const handleUpdate = async (id, clienteActualizado) => {
+    if (!canUpdate) return
     await update(id, clienteActualizado)
     setShowEdit(false)
   }
 
   const handleDelete = async (id) => {
+    if (!canDelete) return
     await remove(id)
     setShowDelete(false)
   }
@@ -70,7 +82,7 @@ export default function ClientesPage() {
     setDocTypeFilter,
     docTypes,
     handlePrint,
-    handleCreate: () => setShowCreate(true),
+    handleCreate: canCreate ? () => setShowCreate(true) : null, // ✅ Ocultar botón si no tiene permiso
     filtered: filtered.length,
     total: data.length,
     handleClearFilters,
@@ -94,7 +106,7 @@ export default function ClientesPage() {
       <FilterBar {...filterConfig} />
 
       {/* Modal crear */}
-      {showCreate && (
+      {showCreate && canCreate && (
         <ModalCrear
           title="Agregar Cliente"
           fields={clientesConfig.fields}
@@ -105,17 +117,19 @@ export default function ClientesPage() {
       )}
 
       {/* Tabla de clientes */}
-      <TablaClientes 
+      <TablaClientes
         clientes={filtered}
         loading={loading}
         error={error}
         onEdit={openEdit}
         onDelete={openDelete}
         getId={clientesConfig.getId}
+        canUpdate={canUpdate} // ✅ Pasar permisos
+        canDelete={canDelete} // ✅ Pasar permisos
       />
 
       {/* Modal editar */}
-      {showEdit && selected && (
+      {showEdit && selected && canUpdate && (
         <ModalEditar
           key={`edit-${clientesConfig.getId(selected)}`}
           title="Editar Cliente"
@@ -129,7 +143,7 @@ export default function ClientesPage() {
       )}
 
       {/* Modal eliminar */}
-      {showDelete && selected && (
+      {showDelete && selected && canDelete && (
         <ModalEliminar
           key={`delete-${clientesConfig.getId(selected)}`}
           title="Eliminar Cliente"

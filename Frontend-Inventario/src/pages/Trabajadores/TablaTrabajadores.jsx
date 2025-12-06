@@ -2,43 +2,57 @@ import React from 'react'
 import Spinner from '../../components/Common/Spinner'
 import Error from '../../components/Common/error'
 
-export default function TablaTrabajadores({ 
-  trabajadores = [], 
-  loading, 
-  error, 
-  onEdit,    
+export default function TablaTrabajadores({
+  trabajadores = [],
+  loading,
+  error,
+  onEdit,
   onToggleEstado,
-  getId
+  getId,
+  canUpdate = false,
+  canDelete = false,
+  roles = [] // ✅ Recibir roles dinámicos
 }) {
-    if (loading) return <Spinner fullScreen size='5rem' />
-    if (error) return <Error />
+  const getRoleName = (idRol) => {
+    const role = roles.find(r => r.id_rol === idRol)
+    return role ? role.nombreRol : 'Sin rol'
+  }
 
-    const getRoleName = (idRol) => {
-      const roles = {
-        1: 'Administrador',
-        3: 'Vendedor',
-        4: 'Almacenero'
-      }
-      return roles[idRol] || 'Sin rol'
-    }
-    const getRoleClass = (idRol) => {
-      const classes = {
-        1: 'bg-light',      // ✅ Rojo para Admin
-        3: 'bg-light',   // ✅ Gris para Vendedor
-        4: 'bg-light'         // ✅ Azul para Almacenero
-      }
-      return classes[idRol] || 'bg-secondary'
-    }
+  const getRoleClass = (idRol) => {
+    // Asignar colores basados en el ID o nombre si se desea, por ahora genérico o mapeo seguro
+    // Si el rol es Admin (usualmente ID 1), destacar
+    if (idRol === 1) return 'bg-primary text-white'
+    return 'bg-light text-dark border'
+  }
 
-    return (
+  return (
     <div className="card mt-3 p-3">
       {/* ✅ CAMBIO 1: Contador estilo texto */}
       <div className="mb-2">
         <strong>Trabajadores</strong>
         <small className="text-muted ms-2">
-          ({trabajadores.length} {trabajadores.length === 1 ? 'trabajador' : 'trabajadores'})
+          ({loading ? '...' : trabajadores.length} {trabajadores.length === 1 ? 'trabajador' : 'trabajadores'})
         </small>
       </div>
+
+      {/* Show error if exists */}
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <i className="bi bi-exclamation-triangle me-2"></i>
+          <Error />
+        </div>
+      )}
+
+      {/* Show loading only in table area */}
+      {loading ? (
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+          <div className="text-center">
+            <Spinner size="3rem" />
+            <p className="mt-3 text-muted">Cargando trabajadores...</p>
+          </div>
+        </div>
+      ) : (
+        <>
 
       {/* Desktop/Tablet */}
       <div className="d-none d-md-block" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '60vh' }}>
@@ -92,26 +106,30 @@ export default function TablaTrabajadores({
                       </span>
                     </td>
                     <td>
-                      <span className={`badge ${t.estado? 'bg-success' : 'bg-secondary'}`}>
+                      <span className={`badge ${t.estado ? 'bg-success' : 'bg-secondary'}`}>
                         {t.estado ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
                     <td>
                       <div className="d-flex gap-2">
-                        <button 
-                          className="btn btn-sm btn-outline-primary" 
-                          title="Editar" 
-                          onClick={() => onEdit(t)} 
-                        >
-                          <i className="bi bi-pencil-fill" aria-hidden="true"></i>
-                        </button>
-                        <button 
-                          className={`btn btn-sm ${t.estado ? 'btn-outline-warning' : 'btn-outline-success'}`}
-                          title={t.estado ? 'Desactivar' : 'Activar'}
-                          onClick={() => onToggleEstado(t)}  
-                        >
-                          <i className={`bi ${t.estado ? 'bi-x-circle-fill' : 'bi-check-circle-fill'}`}></i>
-                        </button>
+                        {canUpdate && (
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            title="Editar"
+                            onClick={() => onEdit(t)}
+                          >
+                            <i className="bi bi-pencil-fill" aria-hidden="true"></i>
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            className={`btn btn-sm ${t.estado ? 'btn-outline-warning' : 'btn-outline-success'}`}
+                            title={t.estado ? 'Desactivar' : 'Activar'}
+                            onClick={() => onToggleEstado(t)}
+                          >
+                            <i className={`bi ${t.estado ? 'bi-x-circle-fill' : 'bi-check-circle-fill'}`}></i>
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -141,22 +159,22 @@ export default function TablaTrabajadores({
                     <div className="fw-bold mb-1">
                       <span className="text-muted small">#{id}</span> · {t.nombres} {t.apellidos}
                     </div>
-                    
+
                     {/* ✅ CAMBIO 10: Documento con <code> */}
                     <div className="small mb-1">
                       <code className="text-dark">{t.nDocumento}</code>
                     </div>
-                    
+
                     {/* Rol y Estado */}
                     <div className="small mb-1">
                       <span className={`badge text-secondary ${getRoleClass(t.idRol)} me-2`}>
                         {getRoleName(t.idRol)}
                       </span>
-                      <span className={`badge ${t.estado? 'bg-success' : 'bg-secondary'}`}>
+                      <span className={`badge ${t.estado ? 'bg-success' : 'bg-secondary'}`}>
                         {t.estado ? 'Activo' : 'Inactivo'}
                       </span>
                     </div>
-                    
+
                     <div className="small text-muted mb-1">
                       <i className="bi bi-telephone me-1"></i>
                       {t.telefono}
@@ -170,30 +188,34 @@ export default function TablaTrabajadores({
                   </div>
                   {/* ✅ CAMBIO 11: Separación ms-3 */}
                   <div className="d-flex flex-column gap-2 ms-3">
-                    <button 
-                      className="btn btn-sm btn-outline-primary" 
-                      style={{
+                    {canUpdate && (
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        style={{
                           width: '50px',
                           height: '50px',
                           padding: 0
                         }}
-                      title="Editar"
-                      onClick={() => onEdit(t)} 
-                    >
-                      <i className="bi bi-pencil-fill" aria-hidden="true"></i>
-                    </button>
-                    <button 
-                      className={`btn btn-sm ${t.estado ? 'btn-outline-warning' : 'btn-outline-success'}`}
-                      title={t.estado ? 'Desactivar' : 'Activar'}
-                      style={{
+                        title="Editar"
+                        onClick={() => onEdit(t)}
+                      >
+                        <i className="bi bi-pencil-fill" aria-hidden="true"></i>
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        className={`btn btn-sm ${t.estado ? 'btn-outline-warning' : 'btn-outline-success'}`}
+                        title={t.estado ? 'Desactivar' : 'Activar'}
+                        style={{
                           width: '50px',
                           height: '50px',
                           padding: 0
                         }}
-                      onClick={() => onToggleEstado(t)}  
-                    >
-                      <i className={`bi ${t.estado ? 'bi-x-circle-fill' : 'bi-check-circle-fill'}`}></i>
-                    </button>
+                        onClick={() => onToggleEstado(t)}
+                      >
+                        <i className={`bi ${t.estado ? 'bi-x-circle-fill' : 'bi-check-circle-fill'}`}></i>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -201,6 +223,8 @@ export default function TablaTrabajadores({
           )
         })}
       </div>
+        </>
+      )}
     </div>
   )
 }

@@ -8,7 +8,7 @@ export default function SearchInput({
 }) {
   const handleChange = (e) => {
     const newValue = e.target.value
-    console.log('🔍 SearchInput - Valor:', newValue)
+
     
     // ✅ Pasar solo el valor, no el evento
     if (onChange) {
@@ -17,7 +17,7 @@ export default function SearchInput({
   }
 
   const handleClear = () => {
-    console.log('🧹 SearchInput - Limpiar')
+
     if (onChange) {
       onChange('')
     }

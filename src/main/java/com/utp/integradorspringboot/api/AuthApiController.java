@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class AuthApiController {
-    
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -47,13 +47,12 @@ public class AuthApiController {
             System.out.println("📥 Intento de login: " + request.getCorreo());
 
             // 1. Autenticar con Spring Security
-            // Esto llamará automáticamente a TrabajadorUserDetailsService.loadUserByUsername()
+            // Esto llamará automáticamente a
+            // TrabajadorUserDetailsService.loadUserByUsername()
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    request.getCorreo(),
-                    request.getContrasena()
-                )
-            );
+                    new UsernamePasswordAuthenticationToken(
+                            request.getCorreo(),
+                            request.getContrasena()));
 
             // 2. Establecer autenticación en el contexto de Spring Security
             SecurityContext securityContext = SecurityContextHolder.getContext();
@@ -62,13 +61,12 @@ public class AuthApiController {
             // 3. Crear sesión HTTP y guardar el SecurityContext
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute(
-                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                securityContext
-            );
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    securityContext);
 
             // 4. Obtener datos del trabajador para la respuesta
             Trabajador trabajador = trabajadorRepository.findByCorreo(request.getCorreo())
-                .orElseThrow(() -> new RuntimeException("Trabajador no encontrado"));
+                    .orElseThrow(() -> new RuntimeException("Trabajador no encontrado"));
 
             // 5. Preparar respuesta
             LoginResponseDTO response = new LoginResponseDTO();
@@ -78,26 +76,26 @@ public class AuthApiController {
             response.setCorreo(trabajador.getCorreo());
             response.setRol(trabajador.getRol().getNombreRol());
             response.setIdRol(trabajador.getRol().getId_rol());
-            response.setTelefono(trabajador.getTelefono());
+            response.setIdTipoDoc(trabajador.getTipoDocumento().getId_tipo_doc());
             response.setnDocumento(trabajador.getnDocumento());
-            response.setId_tipo_doc(trabajador.getTipoDocumento().getId_tipo_doc());
-            
-            
+            response.setTelefono(trabajador.getTelefono());
+            response.setEstado(trabajador.getEstado());
 
-            System.out.println("✅ Login exitoso: " + trabajador.getCorreo() + " - Rol: " + trabajador.getRol().getNombreRol());
+            System.out.println(
+                    "✅ Login exitoso: " + trabajador.getCorreo() + " - Rol: " + trabajador.getRol().getNombreRol());
 
             return ResponseEntity.ok(response);
 
         } catch (BadCredentialsException e) {
             System.out.println("❌ Credenciales incorrectas: " + request.getCorreo());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Correo o contraseña incorrectos");
+                    .body("Correo o contraseña incorrectos");
 
         } catch (Exception e) {
             System.out.println("❌ Error en login: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error en el servidor");
+                    .body("Error en el servidor");
         }
     }
 
@@ -105,15 +103,15 @@ public class AuthApiController {
     public ResponseEntity<?> checkSession() {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            
+
             if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("No hay sesión activa");
+                        .body("No hay sesión activa");
             }
 
             String correo = auth.getName();
             Trabajador trabajador = trabajadorRepository.findByCorreo(correo)
-                .orElseThrow(() -> new RuntimeException("Trabajador no encontrado"));
+                    .orElseThrow(() -> new RuntimeException("Trabajador no encontrado"));
 
             LoginResponseDTO response = new LoginResponseDTO();
             response.setId(trabajador.getIdTrabajador());
@@ -122,17 +120,17 @@ public class AuthApiController {
             response.setCorreo(trabajador.getCorreo());
             response.setRol(trabajador.getRol().getNombreRol());
             response.setIdRol(trabajador.getRol().getId_rol());
-            response.setId_tipo_doc(trabajador.getTipoDocumento().getId_tipo_doc());
-            response.setTelefono(trabajador.getTelefono());
+            response.setIdTipoDoc(trabajador.getTipoDocumento().getId_tipo_doc());
             response.setnDocumento(trabajador.getnDocumento());
-            
+            response.setTelefono(trabajador.getTelefono());
+            response.setEstado(trabajador.getEstado());
+
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Sesión inválida");
+                    .body("Sesión inválida");
         }
     }
-    
-    
+
 }

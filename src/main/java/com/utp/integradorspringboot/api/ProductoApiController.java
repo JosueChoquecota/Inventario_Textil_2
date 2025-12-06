@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.utp.integradorspringboot.api;
 
 import com.utp.integradorspringboot.dtos.ProductoRequestDTO;
@@ -10,11 +6,6 @@ import com.utp.integradorspringboot.mappers.ProductoMapper;
 import com.utp.integradorspringboot.models.Producto;
 import com.utp.integradorspringboot.services.ImagenService;
 import com.utp.integradorspringboot.services.ProductoService;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,7 +31,7 @@ public class ProductoApiController {
 
     @Autowired
     public ProductoApiController(
-            ProductoService productoService, 
+            ProductoService productoService,
             ProductoMapper productoMapper,
             ImagenService imagenService) {
         this.productoService = productoService;
@@ -64,25 +55,17 @@ public class ProductoApiController {
     @PostMapping(value = "/registrar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> registrarProducto(
             @RequestPart("data") ProductoRequestDTO dto,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen
-    ) {
-        System.out.println("======================================");
-        System.out.println("📥 REGISTRAR PRODUCTO");
-        System.out.println("📦 DTO: " + dto);
-        System.out.println("📦 Imagen: " + (imagen != null ? imagen.getOriginalFilename() : "null"));
-        System.out.println("======================================");
-        
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
         try {
             // ✅ Guardar imagen AQUÍ y setear la ruta en el DTO
             if (imagen != null && !imagen.isEmpty()) {
                 String rutaImagen = imagenService.guardarImagen(imagen);
                 dto.setImagen(rutaImagen);
-                System.out.println("💾 Imagen guardada: " + rutaImagen);
             }
-            
+
             Producto creado = productoService.crear(dto);
             ProductoResponseDTO response = productoMapper.toDTOResponse(creado);
-            
+
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
@@ -96,38 +79,23 @@ public class ProductoApiController {
     public ResponseEntity<?> actualizarProducto(
             @PathVariable Integer id,
             @RequestPart("data") ProductoRequestDTO dto,
-            @RequestPart(value = "imagen", required = false) MultipartFile nuevaImagen
-    ) {
-        System.out.println("======================================");
-        System.out.println("📥 ACTUALIZAR PRODUCTO ID: " + id);
-        System.out.println("📦 DTO: " + dto);
-        System.out.println("📦 Nueva imagen: " + (nuevaImagen != null ? nuevaImagen.getOriginalFilename() : "null"));
-        System.out.println("======================================");
-        
+            @RequestPart(value = "imagen", required = false) MultipartFile nuevaImagen) {
         try {
             // ✅ Obtener producto actual
             Producto productoActual = productoService.obtenerPorId(id);
 
             // ✅ Si hay nueva imagen, guardarla y setear en el DTO
             if (nuevaImagen != null && !nuevaImagen.isEmpty()) {
-                System.out.println("📦 Procesando nueva imagen: " + nuevaImagen.getOriginalFilename());
-                System.out.println("📦 Tamaño: " + nuevaImagen.getSize() + " bytes");
-                
                 // Guardar nueva imagen
                 String rutaNuevaImagen = imagenService.guardarImagen(nuevaImagen);
                 dto.setImagen(rutaNuevaImagen);
-                System.out.println("💾 Nueva imagen guardada: " + rutaNuevaImagen);
             } else {
-                System.out.println("📝 Sin imagen nueva, manteniendo la existente");
                 // ✅ Mantener la imagen actual
                 dto.setImagen(productoActual.getImagen());
             }
-
             // ✅ Actualizar producto (el service eliminará la imagen anterior si cambió)
             Producto actualizado = productoService.actualizar(id, dto);
             ProductoResponseDTO response = productoMapper.toDTOResponse(actualizado);
-
-            System.out.println("✅ Producto actualizado correctamente");
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
@@ -144,5 +112,21 @@ public class ProductoApiController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+    @GetMapping("/listar-con-stock")
+    public ResponseEntity<List<ProductoResponseDTO>> listarProductosConStock() {
+        try {
+            List<ProductoResponseDTO> productos = productoService.obtenerProductosConStock();
+            return ResponseEntity.ok(productos);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @GetMapping("/listar-con-stock-test")
+    public ResponseEntity<List<ProductoResponseDTO>> listarProductosConStockTest() {
+        // Sin autenticación para pruebas
+        List<ProductoResponseDTO> productos = productoService.obtenerProductosConStock();
+        return ResponseEntity.ok(productos);
     }
 }

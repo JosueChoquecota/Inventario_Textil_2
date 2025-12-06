@@ -1,11 +1,11 @@
-const API_URL= "http://localhost:8081/api/v1/ventas";
+const API_URL = "http://localhost:8081/api/v1/ventas";
 
 export const obtenerVentas = async () => {
     const response = await fetch(`${API_URL}/listar`, {
         method: 'GET',
         credentials: 'include',
     });
-    if (!response.ok)  throw new Error(`Error: ${response.status} ${response.statusText}`);
+    if (!response.ok) throw new Error(`Error: ${response.status} ${response.statusText}`);
     return await response.json();
 }
 
@@ -22,7 +22,20 @@ export const registrarVenta = async (venta) => {
             },
             body: JSON.stringify(venta)
         });
-        if (!response.ok)  throw new Error(`Error: ${response.status} ${response.statusText}`);
+
+        if (!response.ok) {
+            const contentType = response.headers.get('content-type');
+            let errorMessage = `Error: ${response.status}`;
+
+            if (contentType && contentType.includes('application/json')) {
+                const errorData = await response.json().catch(() => ({}));
+                errorMessage = errorData.error || errorData.message || errorData.mensaje || errorMessage;
+            } else {
+                const text = await response.text();
+                errorMessage = text || errorMessage;
+            }
+            throw new Error(errorMessage);
+        }
         return await response.json();
     } catch (error) {
         console.error('Error al registrar la venta:', error);
@@ -40,7 +53,7 @@ export const actualizarVenta = async (id, venta) => {
         },
         body: JSON.stringify(venta)
     });
-    if (!response.ok)  throw new Error(`Error: ${response.status} ${response.statusText}`);
+    if (!response.ok) throw new Error(`Error: ${response.status} ${response.statusText}`);
     return await response.json();
 }
 export const eliminarVenta = async (id) => {

@@ -58,16 +58,11 @@ public class CategoriaApiController {
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarCategoria(
             @Valid @RequestBody CategoriaRequestDTO dto) {
-        try {
-            Categoria categoria = categoriaMapper.toEntityRequest(dto);
-            Categoria guardado = categoriaService.crear(categoria);
+        Categoria categoria = categoriaMapper.toEntityRequest(dto);
+        Categoria guardado = categoriaService.crear(categoria);
 
-            CategoriaResponseDTO response = categoriaMapper.toDTOResponse(guardado);
-            return ResponseEntity.ok(response);
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        CategoriaResponseDTO response = categoriaMapper.toDTOResponse(guardado);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/actualizar/{id}")
@@ -75,16 +70,11 @@ public class CategoriaApiController {
             @PathVariable Integer id,
             @Valid @RequestBody CategoriaRequestDTO dto) {
 
-        try {
-            Categoria nuevosDatos = categoriaMapper.toEntityRequest(dto);
-            Categoria actualizado = categoriaService.actualizar(id, nuevosDatos);
+        Categoria nuevosDatos = categoriaMapper.toEntityRequest(dto);
+        Categoria actualizado = categoriaService.actualizar(id, nuevosDatos);
 
-            CategoriaResponseDTO response = categoriaMapper.toDTOResponse(actualizado);
-            return ResponseEntity.ok(response);
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        CategoriaResponseDTO response = categoriaMapper.toDTOResponse(actualizado);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/eliminar/{id}")
@@ -100,4 +90,3 @@ public class CategoriaApiController {
         }
     }
 }
-

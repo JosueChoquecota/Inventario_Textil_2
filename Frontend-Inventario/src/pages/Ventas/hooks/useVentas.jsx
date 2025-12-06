@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react'
+import { useState, useEffect } from 'react'
 import {
     obtenerVentas,
     registrarVenta,
@@ -44,7 +44,6 @@ export function useVentas() {
             const normalized = response.map(normalizeVenta)
             setData(normalized)
         } catch (err) {
-            console.error('Error al cargar ventas:', err)
             setError(err.message || 'Error al cargar ventas')
             toast.error('Error al cargar ventas')
         } finally {
@@ -63,7 +62,7 @@ export function useVentas() {
             toast.success('Venta registrada con éxito')
         } catch (err) {
             console.error('Error al registrar venta:', err)
-            toast.error('Error al registrar venta')
+            toast.error(err.message || 'Error al registrar venta')
             throw err
         }
     }
@@ -72,7 +71,7 @@ export function useVentas() {
             await eliminarVenta(id)
             await loadData()
             toast.success('Venta eliminada con éxito')
-        }   catch (err) {
+        } catch (err) {
             console.error('Error al eliminar venta:', err)
             toast.error('Error al eliminar venta')
             throw err

@@ -5,13 +5,13 @@ import ModalCrearVenta from './components/ModalCrearVenta'
 import ModalEliminar from '../../components/Common/Modals/ModalEliminar'
 
 export default function VentasPage() {
-  const { 
-    data, 
-    loading, 
-    error, 
-    onRefresh, 
-    addVenta, 
-    deleteVenta 
+  const {
+    data,
+    loading,
+    error,
+    onRefresh,
+    addVenta,
+    deleteVenta
   } = useVentas()
 
   const [showCreate, setShowCreate] = useState(false)
@@ -49,7 +49,7 @@ export default function VentasPage() {
       setShowCreate(false)
       await onRefresh()
     } catch (error) {
-      console.error('Error al crear venta:', error)
+      throw error
     }
   }
 
@@ -59,7 +59,7 @@ export default function VentasPage() {
       setShowDelete(false)
       await onRefresh()
     } catch (error) {
-      console.error('Error al eliminar venta:', error)
+      // Error handling through toast notifications
     }
   }
 
@@ -92,9 +92,9 @@ export default function VentasPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
             {search && (
-              <button 
-                className="btn btn-outline-secondary" 
-                type="button" 
+              <button
+                className="btn btn-outline-secondary"
+                type="button"
                 onClick={() => setSearch('')}
               >
                 <i className="bi bi-x-lg" />
@@ -107,7 +107,7 @@ export default function VentasPage() {
         <div className="col-12 col-md-6">
           <div className="d-grid gap-2 d-md-flex justify-content-md-end">
             {/* Botón Refrescar */}
-            <button 
+            <button
               className="btn btn-outline-secondary"
               onClick={onRefresh}
               disabled={loading}
@@ -117,7 +117,7 @@ export default function VentasPage() {
             </button>
 
             {/* Botón Imprimir */}
-            <button 
+            <button
               className="btn btn-success"
               onClick={() => window.print()}
             >
@@ -126,8 +126,8 @@ export default function VentasPage() {
             </button>
 
             {/* Botón Crear Venta */}
-            <button 
-              className="btn btn-primary" 
+            <button
+              className="btn btn-primary"
               onClick={() => setShowCreate(true)}
               disabled={loading}
             >
@@ -150,7 +150,7 @@ export default function VentasPage() {
       </div>
 
       {/* Tabla de ventas */}
-      <TablaVentas 
+      <TablaVentas
         ventas={filtered}
         loading={loading}
         error={error}
@@ -163,7 +163,7 @@ export default function VentasPage() {
 
       {/* Modal crear */}
       {showCreate && (
-        <ModalCrearVenta 
+        <ModalCrearVenta
           onClose={() => setShowCreate(false)}
           onCreate={handleCreate}
         />

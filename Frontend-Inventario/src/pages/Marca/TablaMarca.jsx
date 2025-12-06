@@ -6,15 +6,15 @@ import Error from '../../components/Common/error';
 function MarcaLogo({ url, nombre, size = 50 }) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Si no hay URL, mostrar placeholder
   if (!url || hasError) {
     return (
-      <div 
+      <div
         className="d-flex align-items-center justify-content-center bg-light rounded"
-        style={{ 
-          width: size, 
-          height: size 
+        style={{
+          width: size,
+          height: size
         }}
       >
         <i className="bi bi-image text-muted" style={{ fontSize: size * 0.4 }}></i>
@@ -25,29 +25,29 @@ function MarcaLogo({ url, nombre, size = 50 }) {
   return (
     <div style={{ position: 'relative', width: size, height: size }}>
       {isLoading && (
-        <div 
+        <div
           className="d-flex align-items-center justify-content-center position-absolute"
-          style={{ 
-            width: size, 
-            height: size 
+          style={{
+            width: size,
+            height: size
           }}
         >
           <div className="spinner-border spinner-border-sm text-secondary" style={{ width: 20, height: 20 }} />
         </div>
       )}
-      
+
       <img
         src={url}
         alt={nombre || 'Logo'}
         className="rounded"
-        style={{ 
-          width: size, 
-          height: size, 
+        style={{
+          width: size,
+          height: size,
           objectFit: 'cover',
           display: isLoading ? 'none' : 'block'
         }}
         onError={(e) => {
-          console.error('❌ Error al cargar logo:', url);
+
           setHasError(true);
           setIsLoading(false);
           e.target.onerror = null;
@@ -70,9 +70,9 @@ function AlertaRestriccion({ mensaje, onClose }) {
           <strong>No se puede eliminar</strong>
           <p className="mb-0 mt-1 small">{mensaje}</p>
         </div>
-        <button 
-          type="button" 
-          className="btn-close" 
+        <button
+          type="button"
+          className="btn-close"
           onClick={onClose}
           onRefresh={false}
           aria-label="Close"
@@ -82,25 +82,24 @@ function AlertaRestriccion({ mensaje, onClose }) {
   );
 }
 
-export default function TablaMarca({ 
+export default function TablaMarca({
   marcas = [],
-  loading, 
-  error, 
-  onEdit,    
+  loading,
+  error,
+  onEdit,
   onDelete,
   getId,
   alertaRestriccion = null,
-  onCloseAlerta = null
+  onCloseAlerta = null,
+  canUpdate = false,
+  canDelete = false
 }) {
-  if (loading) return <Spinner fullScreen size='5rem' />
-  if (error) return <Error />
-
   return (
     <div className='card mt-3 p-3'>
       {/* ✅ Mostrar alerta de restricción si existe */}
       {alertaRestriccion && onCloseAlerta && (
-        <AlertaRestriccion 
-          mensaje={alertaRestriccion} 
+        <AlertaRestriccion
+          mensaje={alertaRestriccion}
           onClose={onCloseAlerta}
         />
       )}
@@ -108,12 +107,30 @@ export default function TablaMarca({
       <div className="mb-2">
         <strong>Marcas</strong>
         <small className="text-muted ms-2">
-          ({marcas.length} {marcas.length === 1 ? 'marca' : 'marcas'})
+          ({loading ? '...' : marcas.length} {marcas.length === 1 ? 'marca' : 'marcas'})
         </small>
       </div>
 
-      {/* Escritorio / Tablet */}
-      <div className="d-none d-md-block" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '60vh' }}>
+      {/* Show error if exists */}
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <i className="bi bi-exclamation-triangle me-2"></i>
+          <Error />
+        </div>
+      )}
+
+      {/* Show loading only in table area */}
+      {loading ? (
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+          <div className="text-center">
+            <Spinner size="3rem" />
+            <p className="mt-3 text-muted">Cargando marcas...</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Escritorio / Tablet */}
+          <div className="d-none d-md-block" style={{ overflowY: 'auto', maxHeight: '60vh' }}>
         <div className='table-responsive'>
           <table className="table table-hover align-middle" style={{ minWidth: 700 }}>
             <thead className="table-light sticky-top">
@@ -140,8 +157,8 @@ export default function TablaMarca({
                       {t.idMarca}
                     </td>
                     <td>
-                      <MarcaLogo 
-                        url={t.logo} 
+                      <MarcaLogo
+                        url={t.logo}
                         nombre={t.marca}
                         size={50}
                       />
@@ -154,20 +171,24 @@ export default function TablaMarca({
                     </td>
                     <td>
                       <div className="d-flex gap-2">
-                        <button 
-                          className="btn btn-sm btn-outline-primary" 
-                          title="Editar" 
-                          onClick={() => onEdit(t)}
-                        >
-                          <i className="bi bi-pencil-fill" aria-hidden="true"></i>
-                        </button>
-                        <button 
-                          className="btn btn-sm btn-outline-danger" 
-                          title="Eliminar" 
-                          onClick={() => onDelete(t)}
-                        >
-                          <i className="bi bi-trash-fill" aria-hidden="true"></i>
-                        </button>
+                        {canUpdate && (
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            title="Editar"
+                            onClick={() => onEdit(t)}
+                          >
+                            <i className="bi bi-pencil-fill" aria-hidden="true"></i>
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            title="Eliminar"
+                            onClick={() => onDelete(t)}
+                          >
+                            <i className="bi bi-trash-fill" aria-hidden="true"></i>
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -193,51 +214,55 @@ export default function TablaMarca({
                 <div className="card-body p-3">
                   <div className="d-flex align-items-center justify-content-between">
                     {/* ✅ Logo a la izquierda */}
-                    <MarcaLogo 
-                      url={t.logo} 
+                    <MarcaLogo
+                      url={t.logo}
                       nombre={t.marca}
                       size={60}
                     />
-                    
+
                     {/* ✅ Información en el centro */}
                     <div className="flex-grow-1 ms-3">
                       <div className="fw-bold mb-1">
                         <span className="text-muted small">{id}</span> · {t.marca}
                       </div>
-                      
+
                       {t.descripcion && (
                         <div className="small text-muted mb-2">
                           {t.descripcion}
                         </div>
                       )}
                     </div>
-                    
+
                     {/* ✅ Botones a la derecha en columna */}
                     <div className="d-flex flex-column gap-2 ms-3">
-                      <button 
-                        className="btn btn-sm btn-outline-primary" 
-                        style={{
-                          width: '50px',
-                          height: '50px',
-                          padding: 0
-                        }}
-                        title="Editar"
-                        onClick={() => onEdit(t)}
-                      >
-                        <i className="bi bi-pencil-fill" aria-hidden="true"></i>
-                      </button>
-                      <button 
-                        className="btn btn-sm btn-outline-danger" 
-                        style={{
-                          width: '50px',
-                          height: '50px',
-                          padding: 0
-                        }}
-                        title="Eliminar"
-                        onClick={() => onDelete(t)}
-                      >
-                        <i className="bi bi-trash-fill" aria-hidden="true"></i>
-                      </button>
+                      {canUpdate && (
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          style={{
+                            width: '50px',
+                            height: '50px',
+                            padding: 0
+                          }}
+                          title="Editar"
+                          onClick={() => onEdit(t)}
+                        >
+                          <i className="bi bi-pencil-fill" aria-hidden="true"></i>
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          style={{
+                            width: '50px',
+                            height: '50px',
+                            padding: 0
+                          }}
+                          title="Eliminar"
+                          onClick={() => onDelete(t)}
+                        >
+                          <i className="bi bi-trash-fill" aria-hidden="true"></i>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -246,6 +271,8 @@ export default function TablaMarca({
           })
         )}
       </div>
+        </>
+      )}
     </div>
   );
 }

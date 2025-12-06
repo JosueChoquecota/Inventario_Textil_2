@@ -1,12 +1,18 @@
 import React from "react"
 import AppRouter from "./router/AppRouter"
 import { AuthProvider } from "./context/AuthContext"
+import { ThemeProvider } from "./context/ThemeContext"
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
 
-  return (   
+  return (
     <AuthProvider> {/* ✅ Solo AuthProvider, sin Router */}
-      <AppRouter />
+      <ThemeProvider>
+        <AppRouter />
+        <ToastContainer position="top-right" autoClose={3000} />
+      </ThemeProvider>
     </AuthProvider>
   )
 }

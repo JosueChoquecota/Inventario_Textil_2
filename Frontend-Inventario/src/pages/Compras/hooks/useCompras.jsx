@@ -51,7 +51,6 @@ export function useCompras() {
             const normalized = response.map(normalizeCompra)
             setData(normalized)
         } catch (err) {
-            console.error('Error al cargar compras:', err)
             setError(err.message || 'Error al cargar compras')
             toast.error('Error al cargar compras')
         } finally {
@@ -74,7 +73,6 @@ export function useCompras() {
             await registrarCompra(compraData)
             await loadData() // Recargar datos
         } catch (err) {
-            console.error('Error al crear compra:', err)
             throw err
         }
     }
@@ -88,7 +86,6 @@ export function useCompras() {
             await loadData() // Recargar datos
             toast.success('Compra eliminada exitosamente')
         } catch (err) {
-            console.error('Error al eliminar compra:', err)
             toast.error(err.message || 'Error al eliminar compra')
             throw err
         }

@@ -4,14 +4,11 @@
  */
 package com.utp.integradorspringboot.security;
 
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,10 +22,8 @@ import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-    
     private final TrabajadorUserDetailsService userDetailsService;
 
     public SecurityConfig(TrabajadorUserDetailsService userDetailsService) {
@@ -56,49 +51,54 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            
-            .cors(cors -> cors.configurationSource(request -> {
-                CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOriginPatterns(List.of("http://localhost:5173"));
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                config.setAllowedHeaders(List.of("*"));
-                config.setAllowCredentials(true);
-                return config;
-            }))
-            
-            .authorizeHttpRequests(auth -> auth
-                // Recursos estáticos públicos
-                .requestMatchers("/vendor/**", "/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
-                
-                // Endpoints de autenticación públicos
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                
-                // API protegida
-                .requestMatchers("/api/v1/**").authenticated()
-                
-                // Todo lo demás requiere autenticación
-                .anyRequest().authenticated()
-            )
-            
-            // Deshabilitar form login de Spring (usaremos REST API)
-            .formLogin(form -> form.disable())
-            
-            // Configurar logout personalizado
-            .logout(logout -> logout
-                .logoutUrl("/api/v1/auth/logout")
-                .invalidateHttpSession(true)
-                .clearAuthentication(true)
-                .deleteCookies("JSESSIONID")
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    response.setStatus(200);
-                    response.getWriter().write("{\"message\":\"Sesión cerrada correctamente\"}");
-                })
-            )
-            
-            .httpBasic(basic -> basic.disable())
-            
-            .authenticationProvider(authenticationProvider());
+                .csrf(csrf -> csrf.disable())
+
+                // ✅ Cabeceras de Seguridad (ZAP Hardening)
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives(
+                                        "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: http://localhost:8081; connect-src 'self' http://localhost:5173 http://localhost:8080 http://localhost:8081; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"))
+                        .frameOptions(frame -> frame.deny())
+                        .xssProtection(xss -> xss.disable()) // Navegadores modernos usan CSP
+                        .contentTypeOptions(contentType -> contentType.disable()))
+
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://localhost:4173"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(true);
+                    return config;
+                }))
+
+                .authorizeHttpRequests(auth -> auth
+                        // Recursos estáticos públicos
+                        .requestMatchers("/vendor/**", "/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
+                        // Endpoints de autenticación públicos
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        // API protegida
+                        .requestMatchers("/api/v1/**").authenticated()
+
+                        // Todo lo demás requiere autenticación
+                        .anyRequest().authenticated())
+
+                // Deshabilitar form login de Spring (usaremos REST API)
+                .formLogin(form -> form.disable())
+
+                // Configurar logout personalizado
+                .logout(logout -> logout
+                        .logoutUrl("/api/v1/auth/logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(200);
+                            response.getWriter().write("{\"message\":\"Sesión cerrada correctamente\"}");
+                        }))
+
+                .httpBasic(basic -> basic.disable())
+
+                .authenticationProvider(authenticationProvider());
 
         return http.build();
     }

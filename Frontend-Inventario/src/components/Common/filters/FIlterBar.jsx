@@ -9,9 +9,6 @@ export default function FilterBar({
   resultsInfo,
   className = ''
 }) {
-  console.log('📊 FilterBar - searchConfig:', searchConfig)
-  console.log('📊 FilterBar - selectFilters:', selectFilters)
-
   return (
     <div className={`card shadow-sm mb-3 ${className}`}>
       <div className="card-body">

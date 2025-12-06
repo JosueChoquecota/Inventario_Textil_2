@@ -42,13 +42,13 @@ export default function Login() {
       // ✅ Llamar a login del context (incluye remember)
       await login(formData.correo, formData.contrasena, remember)
 
-      console.log('✅ Login exitoso')
+
       
       // Redirigir al dashboard
       navigate('/dashboard')
 
     } catch (err) {
-      console.error('❌ Error en login:', err)
+
       setError(err.message || 'Error al iniciar sesión')
     } finally {
       setLoading(false)

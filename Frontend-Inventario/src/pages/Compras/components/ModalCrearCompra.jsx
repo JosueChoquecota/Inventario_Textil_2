@@ -56,7 +56,7 @@ export default function ModalCrearCompra({ onClose, onCreate }) {
   }, [])
 
   const cargarDatos = async () => {
-    try {
+
       setLoading(true)
       const [provs, trabs, prods, tallasList, coloresList] = await Promise.all([
         obtenerProveedores(),
@@ -70,12 +70,7 @@ export default function ModalCrearCompra({ onClose, onCreate }) {
       setProductos(prods)
       setTallas(tallasList)
       setColores(coloresList)
-    } catch (error) {
-      console.error('Error cargando datos:', error)
-      toast.error('Error al cargar los datos necesarios')
-    } finally {
-      setLoading(false)
-    }
+
   }
 
   // ========================================
@@ -305,14 +300,10 @@ export default function ModalCrearCompra({ onClose, onCreate }) {
         }))
       }
 
-      // ✅ DEBUG: Ver qué se está enviando
-      console.log('📤 Datos que se envían al backend:', JSON.stringify(compraData, null, 2))
-
       await onCreate(compraData)
       toast.success('Compra registrada exitosamente')
       onClose()
     } catch (error) {
-      console.error('Error al crear compra:', error)
       toast.error(error.message || 'Error al registrar la compra')
     } finally {
       setSubmitting(false)

@@ -4,12 +4,13 @@ import Error from '../../components/Common/error'
 import DetallesCompraRow from './components/DetallesCompraRow'
 import CompraCardMobile from './components/CompraCardMobile'
 
-export default function TablaCompras({ 
-  compras = [], 
-  loading = false, 
+export default function TablaCompras({
+  compras = [],
+  loading = false,
   error = null,
   onDelete,
-  getId 
+  getId,
+  canDelete = false
 }) {
   const [expandedId, setExpandedId] = useState(null)
 
@@ -43,7 +44,7 @@ export default function TablaCompras({
   // ========================================
   // ESTADOS DE CARGA Y ERROR
   // ========================================
-  
+
   if (loading) {
     return <Spinner className="my-5" />
   }
@@ -106,7 +107,7 @@ export default function TablaCompras({
                     return (
                       <React.Fragment key={id}>
                         {/* Fila principal */}
-                        <tr 
+                        <tr
                           style={{ cursor: 'pointer' }}
                           onClick={() => toggleExpand(id)}
                           className={isExpanded ? 'table-active' : ''}
@@ -171,16 +172,18 @@ export default function TablaCompras({
                               >
                                 <i className={`bi bi-chevron-${isExpanded ? 'up' : 'down'}`}></i>
                               </button>
-                              <button
-                                className="btn btn-outline-danger"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onDelete && onDelete(compra)
-                                }}
-                                title="Eliminar compra"
-                              >
-                                <i className="bi bi-trash-fill"></i>
-                              </button>
+                              {canDelete && (
+                                <button
+                                  className="btn btn-outline-danger"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onDelete && onDelete(compra)
+                                  }}
+                                  title="Eliminar compra"
+                                >
+                                  <i className="bi bi-trash-fill"></i>
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -199,7 +202,7 @@ export default function TablaCompras({
                                     {compra.detalles?.length || 0} items
                                   </span>
                                 </div>
-                                
+
                                 <DetallesCompraRow detalles={compra.detalles} precioTotal={compra.precioTotal} />
                               </div>
                             </td>
@@ -237,7 +240,7 @@ export default function TablaCompras({
                   compra={compra}
                   isExpanded={isExpanded}
                   onExpand={() => setExpandedId(isExpanded ? null : id)}
-                  onDelete={() => onDelete && onDelete(compra)}
+                  onDelete={canDelete ? (() => onDelete && onDelete(compra)) : undefined}
                   formatDate={formatDate}
                   formatCurrency={formatCurrency}
                 />

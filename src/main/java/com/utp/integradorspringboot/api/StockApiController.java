@@ -21,7 +21,7 @@ public class StockApiController {
     
     
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<StockResponseDTO>> listarStock() {
         return ResponseEntity.ok(stockService.listarStock());
     }

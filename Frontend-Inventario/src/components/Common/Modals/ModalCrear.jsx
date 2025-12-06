@@ -92,6 +92,37 @@ export default function ModalCrear({
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    // 🛑 Validación Manual antes de enviar
+    for (const field of fields) {
+      const value = formData[field.name]
+      const label = field.label || field.name
+
+      // 1. Validar Required
+      if (field.required && (value === null || value === undefined || value === '')) {
+        setError(`El campo "${label}" es obligatorio.`)
+        return
+      }
+
+      // 2. Validar MinLength
+      if (value) {
+        const minLen = typeof field.minLength === 'function' ? field.minLength(formData) : field.minLength
+        if (minLen && String(value).length < minLen) {
+          setError(`El campo "${label}" debe tener al menos ${minLen} caracteres.`)
+          return
+        }
+      }
+
+      // 3. Validar MaxLength
+      if (value) {
+        const maxLen = typeof field.maxLength === 'function' ? field.maxLength(formData) : field.maxLength
+        if (maxLen && String(value).length > maxLen) {
+          setError(`El campo "${label}" no puede exceder ${maxLen} caracteres.`)
+          return
+        }
+      }
+    }
+
     setSaving(true)
     setError(null)
 
@@ -274,10 +305,14 @@ export default function ModalCrear({
                       {field.required && <span className="text-danger ms-1">*</span>}
                     </label>
                     {(() => {
-                      // Resolver maxLength dinámico
+                      // Resolver maxLength y minLength dinámicos
                       const resolvedMaxLength = typeof field.maxLength === 'function'
                         ? field.maxLength(formData)
                         : field.maxLength
+
+                      const resolvedMinLength = typeof field.minLength === 'function'
+                        ? field.minLength(formData)
+                        : field.minLength
 
                       return (
                         <input
@@ -295,7 +330,7 @@ export default function ModalCrear({
                           placeholder={field.placeholder}
                           required={field.required}
                           maxLength={resolvedMaxLength}
-                          minLength={field.minLength}
+                          minLength={resolvedMinLength}
                           min={field.min}
                           max={field.max}
                           step={field.step}

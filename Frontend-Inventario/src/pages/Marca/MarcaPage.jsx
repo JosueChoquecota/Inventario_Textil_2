@@ -9,37 +9,44 @@ import ModalEditar from '../../components/Common/Modals/ModalEditar.jsx'
 import ModalEliminar from '../../components/Common/Modals/ModalEliminar.jsx'
 import ModalCrear from '../../components/Common/Modals/ModalCrear.jsx'
 import FilterBar from '../../components/Common/filters/FIlterBar.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 // ✅ Función para normalizar URLs de logos
 const normalizeImageUrl = (logo) => {
   if (!logo) return null;
-  
+
   if (logo === 'undefined' || logo === 'null' || logo === '') {
     return null;
   }
-  
+
   if (logo.includes('/uploads/logos/')) {
-    console.warn('⚠️ URL incorrecta detectada:', logo);
+
     return null;
   }
-  
+
   if (logo.startsWith('http://') || logo.startsWith('https://')) {
     return logo;
   }
-  
+
   const cleanPath = logo.startsWith('/') ? logo.slice(1) : logo;
   return `http://localhost:8081/${cleanPath}`;
 }
 
 export default function MarcaPage() {
   const { data, loading, error, onRefresh, create, update, remove } = useCRUD(marcasConfig)
-  
+  const { checkPermission } = useAuth()
+
+  // ✅ Verificar permisos (usamos 'Producto' ya que Marcas es parte de Inventario)
+  const canCreate = checkPermission('Producto', 'canCreate')
+  const canUpdate = checkPermission('Producto', 'canUpdate')
+  const canDelete = checkPermission('Producto', 'canDelete')
+
   // Estados de modales
   const [showCreate, setShowCreate] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [selected, setSelected] = useState(null)
-  
+
   // Estados de filtros
   const [search, setSearch] = useState('')
 
@@ -70,42 +77,44 @@ export default function MarcaPage() {
 
   // Funciones para abrir modales
   function openEdit(marca) {
+    if (!canUpdate) return
     setSelected(marca)
     setShowEdit(true)
   }
 
   // ✅ MEJORADO: Verificar antes de abrir modal de eliminación
   async function openDelete(marca) {
+    if (!canDelete) return
     try {
       const id = marcasConfig.getId(marca)
-      console.log('🔍 Verificando marca ID:', id)
-      
+
+
       // Verificar si se puede eliminar
       const resultado = await eliminarMarca(id)
-      
+
       if (!resultado.puedeEliminar) {
         // ✅ Mostrar alerta en la tabla en lugar de alert()
         setAlertaRestriccion(
           `La marca "${marca.marca}" tiene ${resultado.cantidadProductos} producto(s) asociado(s). ` +
           `Primero elimine o reasigne los productos.`
         )
-        
+
         // Auto-ocultar después de 8 segundos
         setTimeout(() => {
           setAlertaRestriccion(null)
         }, 8000)
-        
+
         return
       }
-      
+
       // Si se puede eliminar, mostrar modal de confirmación
       setSelected(marca)
       setShowDelete(true)
-      
+
     } catch (error) {
-      console.error('❌ Error al verificar:', error)
+
       setAlertaRestriccion('Error al verificar si la marca se puede eliminar')
-      
+
       setTimeout(() => {
         setAlertaRestriccion(null)
       }, 5000)
@@ -114,46 +123,48 @@ export default function MarcaPage() {
 
   // Handlers CRUD
   const handleCreate = async (nuevaMarca) => {
+    if (!canCreate) return
     try {
-      console.log('📤 Creando marca:', nuevaMarca)
+
       await create(nuevaMarca)
       setShowCreate(false)
       onRefresh()
     } catch (error) {
-      console.error('❌ Error al crear:', error)
+
       alert(`Error al crear marca: ${error.message}`)
     }
   }
 
   const handleUpdate = async (id, marcaActualizada) => {
+    if (!canUpdate) return
     try {
-      console.log('📤 Actualizando marca ID:', id)
-      console.log('📦 Datos:', marcaActualizada)
+
       await update(id, marcaActualizada)
       setShowEdit(false)
       setSelected(null)
       onRefresh()
     } catch (error) {
-      console.error('❌ Error al actualizar:', error)
+
       alert(`Error al actualizar marca: ${error.message}`)
     }
   }
 
   const handleDelete = async (id) => {
+    if (!canDelete) return
     try {
       await remove(id)
       setShowDelete(false)
       setSelected(null)
       onRefresh()
     } catch (error) {
-      console.error('❌ Error al eliminar:', error)
+
       alert(`Error al eliminar marca: ${error.message}`)
     }
   }
 
   // Limpiar filtros
   const handleClearFilters = () => {
-    console.log('🧹 Limpiando filtros...')
+
     setSearch('')
     setAlertaRestriccion(null) // ✅ También limpiar alerta
   }
@@ -173,7 +184,8 @@ export default function MarcaPage() {
     total: marcasNormalizadas.length,
     handleClearFilters,
     onRefresh,
-    loading
+    loading,
+    canCreate // ✅ Pasar permiso
   })
 
   return (
@@ -193,7 +205,7 @@ export default function MarcaPage() {
       <FilterBar {...filterConfig} />
 
       {/* Modal Crear */}
-      {showCreate && (
+      {showCreate && canCreate && (
         <ModalCrear
           title="Crear Marca"
           fields={marcasConfig.fields}
@@ -204,7 +216,7 @@ export default function MarcaPage() {
       )}
 
       {/* ✅ Tabla de Marcas con alerta */}
-      <TablaMarca 
+      <TablaMarca
         marcas={filtered}
         loading={loading}
         error={error}
@@ -214,10 +226,12 @@ export default function MarcaPage() {
         onRefresh={onRefresh}
         alertaRestriccion={alertaRestriccion}
         onCloseAlerta={() => setAlertaRestriccion(null)}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
       />
 
       {/* Modal Editar */}
-      {showEdit && selected && (
+      {showEdit && selected && canUpdate && (
         <ModalEditar
           title="Editar Marca"
           key={`edit-${marcasConfig.getId(selected)}`}
@@ -234,7 +248,7 @@ export default function MarcaPage() {
       )}
 
       {/* Modal Eliminar */}
-      {showDelete && selected && (
+      {showDelete && selected && canDelete && (
         <ModalEliminar
           title="Eliminar Marca"
           key={`delete-${marcasConfig.getId(selected)}`}

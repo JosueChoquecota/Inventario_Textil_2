@@ -9,7 +9,7 @@ export default function SelectFilter({
 }) {
   const handleChange = (e) => {
     const newValue = e.target.value
-    console.log('📋 SelectFilter - Valor:', newValue)
+
     
     // ✅ Pasar solo el valor, no el evento
     if (onChange) {
